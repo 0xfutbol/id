@@ -1,0 +1,19 @@
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+exports.up = function(knex) {
+  return knex.schema.dropTable('invalid_usernames');
+};
+
+/**
+ * @param { import("knex").Knex } knex
+ * @returns { Promise<void> }
+ */
+exports.down = function(knex) {
+  return knex.schema.createTable('invalid_usernames', function(table) {
+    table.increments('id').primary();
+    table.string('username').notNullable().unique();
+    table.timestamps(true, true);
+  });
+};
