@@ -25,7 +25,7 @@ export async function getMetaSoccerIdByUsername(username: string, maxWaitSeconds
 
 export async function getMetaSoccerIdByOwner(owner: string): Promise<any[]> {
   const { data } = await axios.post("https://squid.metasoccer.com/api/graphql", {
-    query: `{ metaSoccerIds(where: { owner_eq: "${owner}" }) { id } }`,
+    query: `{ metaSoccerIds(where: { owner_eq: "${owner.toLowerCase()}" }) { id } }`,
   });
 
   return data.data.metaSoccerIds;
@@ -36,7 +36,7 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
 
   if (!isValidSubdomain(trimmedUsername)) {
     await saveUsernameIfItDoesntExists(trimmedUsername, false);
-    return { isValid: false, error: 'Invalid username' };
+    return { isValid: false, error: 'Invalid username format. Username must start and end with alphanumeric characters, can contain hyphens, and be between 3 and 63 characters long.' };
   }
 
   let usernameData = await getUsername(trimmedUsername);
@@ -47,11 +47,11 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
   }
 
   if (!usernameData.is_valid) {
-    return { isValid: false, error: 'Invalid username' };
+    return { isValid: false, error: 'Username contains inappropriate content or violates our guidelines. Please choose a different username.' };
   }
 
   if ((await getMetaSoccerIdByUsername(trimmedUsername)).length > 0) {
-    return { isValid: false, error: 'Username already exists' };
+    return { isValid: false, error: 'Username is already registered in the MetaSoccer system. Please choose a different username.' };
   }
 
   return { isValid: true };

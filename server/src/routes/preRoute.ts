@@ -11,21 +11,24 @@ preRouter.post('/pre', express.json(), async (req, res) => {
     return res.status(400).json({ error: 'Username is required' });
   }
 
-  const validationResult = await validateUsername(username);
-  if (!validationResult.isValid) {
-    return res.status(400).json({ error: validationResult.error });
-  }
-
   try {
     const trimmedUsername = username.trim();
-    const metaSoccerIds = await getMetaSoccerIdByUsername(trimmedUsername);
-    const claimed = metaSoccerIds.length > 0;
+    const user = await getUser(trimmedUsername);
 
-    if (claimed) {
-      const user = await getUser(trimmedUsername);
-      res.json({ claimed: true, loginMethod: user?.login_method });
+    console.log('user', user);
+
+    if (user) {
+      res.json({ claimed: true, loginMethod: user.login_method });
     } else {
-      res.json({ claimed: false });
+      const validationResult = await validateUsername(trimmedUsername);
+      if (!validationResult.isValid) {
+        return res.status(400).json({ error: validationResult.error });
+      }
+
+      const metaSoccerIds = await getMetaSoccerIdByUsername(trimmedUsername);
+      const claimed = metaSoccerIds.length > 0;
+
+      res.json({ claimed });
     }
   } catch (error) {
     console.error('Error checking username:', error);
