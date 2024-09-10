@@ -1,37 +1,25 @@
 import express from 'express';
-import { getMetaSoccerIdByUsername, validateUsername } from '../common/utils';
-import { getUser } from '../repo/db';
+import { getUserByAddress } from '../repo/db';
 
 const preRouter = express.Router();
 
 preRouter.post('/pre', express.json(), async (req, res) => {
-  const { username } = req.body;
+  const { address } = req.body;
 
-  if (!username) {
-    return res.status(400).json({ error: 'Username is required' });
+  if (!address) {
+    return res.status(400).json({ error: 'Address is required' });
   }
 
   try {
-    const trimmedUsername = username.trim();
-    const user = await getUser(trimmedUsername);
-
-    console.log('user', user);
+    const user = await getUserByAddress(address);
 
     if (user) {
-      res.json({ claimed: true, loginMethod: user.login_method });
+      res.json({ username: user.username });
     } else {
-      const validationResult = await validateUsername(trimmedUsername);
-      if (!validationResult.isValid) {
-        return res.status(400).json({ error: validationResult.error });
-      }
-
-      const metaSoccerIds = await getMetaSoccerIdByUsername(trimmedUsername);
-      const claimed = metaSoccerIds.length > 0;
-
-      res.json({ claimed });
+      res.json({ username: null });
     }
   } catch (error) {
-    console.error('Error checking username:', error);
+    console.error('Error checking address:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

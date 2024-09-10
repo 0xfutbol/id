@@ -8,10 +8,10 @@ import { getDomain, getTypes } from './claimRoute';
 const jwtRouter = express.Router();
 
 const AUTH_MESSAGE = 'Authenticate with MetaSoccerID\n\nID: {username}\n\nExpiration: {expiration}';
-const MAX_SIGNATURE_EXPIRATION = 7 * 24 * 60 * 60;  // 7 days
+const MAX_SIGNATURE_EXPIRATION = 7 * 24 * 60 * 60 * 1000;  // 7 days
 
 jwtRouter.post('/jwt', express.json(), async (req, res) => {
-  const { username, message, expiration } = req.body;
+  const { username, loginMethod, message, expiration } = req.body;
 
   if (!isValidRequest(username, message, expiration)) {
     return res.status(400).json({ error: 'Invalid request parameters' });
@@ -34,13 +34,13 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
       await validateUserSignature(message, metaSoccerIds, username, expiration);
     }
 
-    const token = createJWT(username, message, expiration);
+    const owner = metaSoccerIds[0].owner;
+    const jwt = createJWT(username, owner, message, expiration);
     
     // Save the user in the database
-    const loginMethod = message.startsWith('CLAIM:') ? 'claim' : 'signature';
-    await saveUserIfDoesntExists(username, loginMethod);
+    await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
 
-    res.json({ token });
+    res.json({ token: jwt });
   } catch (error) {
     console.error('Error creating JWT:', error);
     res.status(500).json({ error: 'Internal server error' });
@@ -53,7 +53,8 @@ function isValidRequest(username: string, signature: string, expiration: number)
 
 function isValidSignatureExpiration(expiration: number): boolean {
   const currentTimestamp = Date.now();
-  return expiration - currentTimestamp <= MAX_SIGNATURE_EXPIRATION;
+  const isValid = expiration - currentTimestamp <= MAX_SIGNATURE_EXPIRATION;
+  return isValid;
 }
 
 async function validateClaimSignature(message: string, metaSoccerIds: any[], username: string) {
@@ -114,9 +115,9 @@ function isValidOwner(metaSoccerIds: any[], recoveredAddress: string): boolean {
   return metaSoccerIds.length > 0 && metaSoccerIds[0].owner.toLowerCase() === recoveredAddress.toLowerCase();
 }
 
-function createJWT(username: string, signature: string, expiration: number): string {
+function createJWT(username: string, owner: string, signature: string, expiration: number): string {
   const secret = process.env.JWT_SECRET;
-  return jwt.sign({ username, signature, expiration }, secret!, { expiresIn: expiration });
+  return jwt.sign({ username, owner, signature, expiration }, secret!, { expiresIn: expiration });
 }
 
 export default jwtRouter;
