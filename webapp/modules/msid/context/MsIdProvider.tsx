@@ -48,11 +48,12 @@ const useMsIdState = () => {
 
   const [savedJWT, setSavedJWT] = useLocalStorage<string>(METASOCCER_ID_JWT);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [username, setUsername] = useState<string | undefined>();
+  const [savedJWTChecked, setSavedJWTChecked] = useState(false);
   const [validJWT, setValidJWT] = useState<string | undefined>();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const metaSoccerIdContract = useMemo(() => getContract({
     address: METASOCCER_ID_CONTRACT_ADDRESS,
@@ -132,16 +133,16 @@ const useMsIdState = () => {
       if (existingTokenExpiration && existingTokenExpiration >= Date.now() && 
           existingTokenOwner && existingTokenOwner.toLowerCase() === account.address.toLowerCase()) {
         setValidJWT(savedJWT);
-      } else {
-        // Clear invalid or expired JWT
-        setSavedJWT(undefined);
       }
+
+      setSavedJWTChecked(true);
     };
     checkExistingToken();
-  }, [account?.address, savedJWT, setSavedJWT]);
+  }, [account?.address, savedJWT]);
 
   useEffect(() => {
     if (!account?.address) return;
+    if (!savedJWTChecked) return;
     if (validJWT) return;
 
     const checkAccount = async () => {
@@ -154,10 +155,9 @@ const useMsIdState = () => {
       }
     };
     checkAccount();
-  }, [account?.address, validJWT, signForJWT]);
+  }, [account?.address, savedJWTChecked, validJWT, signForJWT]);
 
   useEffect(() => {
-    console.log("status", status);
     if (status === "disconnected") {
       setValidJWT(undefined);
     }
@@ -177,6 +177,7 @@ const useMsIdState = () => {
   }, [validJWT, setSavedJWT]);
 
   return {
+    address: account?.address,
     isAuthenticated,
     isClaimPending,
     isWaitingForSignature,
