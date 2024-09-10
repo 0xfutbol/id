@@ -43,7 +43,7 @@ export const LoginForm = () => {
     <div className="flex max-w-[386px] flex-col space-y-4">
       <div className="flex flex-col gap-4">
         <div className="flex items-center justify-center gap-2">
-          <img src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} alt="MetaSoccer ID Logo" height={48} width="auto" />
+          <img src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} alt="MetaSoccer ID Logo" style={{ height: "40px", width: "auto" }} />
         </div>
         <p className="text-sm">Connect to get your MetaSoccer ID.</p>
         <div className="flex items-start gap-2">
