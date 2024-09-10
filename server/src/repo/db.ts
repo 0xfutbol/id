@@ -37,7 +37,7 @@ export async function saveUsernameIfItDoesntExists(username: string, isValid: bo
 export async function getUserByAddress(address: string): Promise<{ address: string; username: string; login_method?: string } | undefined> {
   const result = await db('users')
     .select('address', 'username', 'login_method')
-    .where('address', 'like', `%${address}%`)
+    .where('address', address.toLowerCase())
     .first();
   return result;
 }
@@ -45,6 +45,6 @@ export async function getUserByAddress(address: string): Promise<{ address: stri
 export async function saveUserIfDoesntExists(address: string, username: string, login_method?: string): Promise<void> {
   const existingUser = await db('users').where({ username }).first();
   if (!existingUser) {
-    await db('users').insert({ id: randomUUID(), address, username, login_method });
+    await db('users').insert({ id: randomUUID(), address: address.toLowerCase(), username, login_method });
   }
 }
