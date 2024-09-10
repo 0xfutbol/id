@@ -2,7 +2,7 @@
 
 import { ClaimForm } from "@/components/claim-form";
 import { LoginForm } from "@/components/login-form";
-import { useMsIdContext } from "@/modules/msid/useMsIdContext";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 

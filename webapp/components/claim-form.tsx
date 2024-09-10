@@ -1,6 +1,6 @@
 "use client";
 
-import { useMsIdContext } from "@/modules/msid/useMsIdContext";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { getImgUrl } from "@/utils/getImgUrl";
 import { Button, Input } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";

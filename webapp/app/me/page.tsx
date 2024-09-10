@@ -1,7 +1,7 @@
 "use client";
 
 import { Gallery, GalleryItem } from "@/components/gallery";
-import { useMsIdContext } from "@/modules/msid/useMsIdContext";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { getImgUrl } from "@/utils/getImgUrl";
 import { Avatar, Button, Card, CardBody, Tab, Tabs } from "@nextui-org/react";
 import Image from "next/image";

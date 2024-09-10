@@ -14,6 +14,7 @@ const sign = (target: string) => {
 	const { imgProxyKey, imgProxySalt } = CONFIG;
 	const hexDecode = (hex: string) => Buffer.from(hex, "hex");
 	const hmac = createHmac("sha256", hexDecode(imgProxyKey));
+	// @ts-ignore
 	hmac.update(hexDecode(imgProxySalt));
 	hmac.update(target);
 	return urlSafeBase64(hmac.digest());

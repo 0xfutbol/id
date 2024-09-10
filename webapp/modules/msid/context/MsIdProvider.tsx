@@ -1,5 +1,5 @@
 import { siteConfig } from "@/config/site";
-import { idService } from "@/services/IdService";
+import { idService } from "@/modules/msid/services/IdService";
 import { decodeJWT } from "@/utils/decodeJWT";
 import type { Abi } from "abitype";
 import React, { useCallback, useEffect, useMemo, useState } from "react";

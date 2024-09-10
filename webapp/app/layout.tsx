@@ -41,6 +41,7 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
+        {/* @ts-ignore */}
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
           <AutoConnect client={siteConfig.thirdwebClient} />
           {children}

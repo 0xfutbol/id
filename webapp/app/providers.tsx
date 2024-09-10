@@ -1,6 +1,6 @@
 "use client";
 
-import { MsIdContextProvider } from "@/modules/msid/MsIdProvider";
+import { MsIdContextProvider } from "@/modules/msid/context/MsIdProvider";
 import { NextUIProvider } from "@nextui-org/system";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ThemeProvider as NextThemesProvider } from "next-themes";

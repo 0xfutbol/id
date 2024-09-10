@@ -3,7 +3,7 @@ import axios from "axios";
 class IdService {
 	constructor(
 		// private readonly httpClient = axios.create({ baseURL: "http://localhost:6743" })
-		private readonly httpClient = axios.create({ baseURL: "https://id.metasoccer.com" })
+		private readonly httpClient = axios.create({ baseURL: "https://id.metasoccer.com/api" })
 	) {}
 
 	async claimSignature(username: string, owner: string): Promise<{ claimed: boolean, signature: string; signatureExpiration: bigint }> {

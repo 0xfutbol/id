@@ -1,7 +1,7 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import { useMsIdContext } from "@/modules/msid/useMsIdContext";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { getImgUrl } from "@/utils/getImgUrl";
 import { Link, Listbox, ListboxItem } from "@nextui-org/react";
 import Image from 'next/image';
