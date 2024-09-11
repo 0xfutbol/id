@@ -70,7 +70,7 @@ export const LoginForm = () => {
           </ListboxItem>
         ))}
       </Listbox>
-      <div className="opacity-0">
+      <div className="opacity-0 position-absolute">
         {walletOptions.map((option) => (
           <ConnectButton
             key={option.key}

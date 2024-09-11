@@ -123,10 +123,9 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (!account?.address) return;
-    if (!savedJWT) return;
 
     const checkExistingToken = async () => {
-      const existingToken = decodeJWT(savedJWT).payload;
+      const existingToken = savedJWT ? decodeJWT(savedJWT).payload : undefined;
       const existingTokenExpiration = existingToken?.expiration;
       const existingTokenOwner = existingToken?.owner;
 
