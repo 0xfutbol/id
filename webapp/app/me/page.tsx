@@ -12,6 +12,7 @@ import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
+import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
 import { NFT } from "thirdweb/react";
 
@@ -181,8 +182,8 @@ export default function ProfilePage() {
               ) : (
                 <Button 
                   color="primary" 
+                  startContent={<SiDiscord width={24} height={24} />}
                   onClick={handleConnectDiscord}
-                  startContent={<Image src="/discord-icon.svg" alt="Discord" width={24} height={24} />}
                 >
                   Connect Discord
                 </Button>
