@@ -146,14 +146,6 @@ export default function ProfilePage() {
     </NFT>
   );
 
-  if (!address) {
-    return (
-      <div className="flex justify-center items-center h-screen">
-        <CircularProgress color="primary" size="lg" />
-      </div>
-    );
-  }
-
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
       <Card className="w-full">
