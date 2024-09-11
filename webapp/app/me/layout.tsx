@@ -9,9 +9,9 @@ export default function ProfileLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const { address } = useMsIdContext();
+  const { status } = useMsIdContext();
 
-  if (!address) {
+  if (status === "connecting") {
     return (
       <div className="flex justify-center items-center h-screen">
         <CircularProgress color="primary" size="lg" />
