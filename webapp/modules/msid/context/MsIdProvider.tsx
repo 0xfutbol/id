@@ -52,6 +52,7 @@ const useMsIdState = () => {
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClaimPending, setIsClaimPending] = useState(false);
+  const [isSwitchingChain, setIsSwitchingChain] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [username, setUsername] = useState<string | undefined>();
   const [savedJWTChecked, setSavedJWTChecked] = useState(false);
@@ -160,6 +161,23 @@ const useMsIdState = () => {
   }, [account?.address, savedJWTChecked, validJWT, signForJWT]);
 
   useEffect(() => {
+    const switchChain = async () => {
+      const activeChainId = activeWallet?.getChain()?.id;
+      if (activeChainId && activeChainId !== siteConfig.chain.id) {
+        setIsSwitchingChain(true);
+        try {
+          await activeWallet.switchChain(siteConfig.chain);
+        } catch (error) {
+          disconnect(activeWallet);
+        } finally {
+          setIsSwitchingChain(false);
+        }
+      }
+    };
+    switchChain();
+  }, [activeWallet, disconnect]);
+
+  useEffect(() => {
     if (status === "disconnected") {
       setIsAuthenticated(false);
       setIsClaimPending(false);
@@ -186,6 +204,7 @@ const useMsIdState = () => {
     address: account?.address,
     isAuthenticated,
     isClaimPending,
+    isSwitchingChain,
     isWaitingForSignature,
     username,
     validJWT,

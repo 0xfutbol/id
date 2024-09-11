@@ -2,7 +2,6 @@
 
 import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { getImgUrl } from "@/utils/getImgUrl";
 import { Link, Listbox, ListboxItem } from "@nextui-org/react";
 import Image from 'next/image';
 import { ConnectButton } from "thirdweb/react";
@@ -37,22 +36,18 @@ const walletOptions = [
 ];
 
 export const LoginForm = () => {
-  const { isWaitingForSignature } = useMsIdContext();
+  const { address, isWaitingForSignature } = useMsIdContext();
 
   return (
-    <div className="flex max-w-[386px] flex-col space-y-4">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-center gap-2">
-          <img src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} alt="MetaSoccer ID Logo" style={{ height: "40px", width: "auto" }} />
-        </div>
-        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
-        <div className="flex items-start gap-2">
-          {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
-          <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
-        </div>
-        <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+    <div className="flex flex-col space-y-4 w-full">
+      <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+      <div className="flex items-start gap-2">
+        {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
+        <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
       </div>
+      <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
       {isWaitingForSignature && <div>Waiting for signature...</div>}
+
       <Listbox aria-label="Select wallet">
         {walletOptions.map((option) => (
           <ListboxItem
@@ -70,7 +65,7 @@ export const LoginForm = () => {
           </ListboxItem>
         ))}
       </Listbox>
-      <div className="opacity-0 position-absolute">
+      <div className="absolute opacity-0">
         {walletOptions.map((option) => (
           <ConnectButton
             key={option.key}

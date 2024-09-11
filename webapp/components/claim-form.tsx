@@ -1,7 +1,6 @@
 "use client";
 
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { getImgUrl } from "@/utils/getImgUrl";
 import { Button, Input } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -45,14 +44,9 @@ export const ClaimForm = () => {
   }, []);
 
   return (
-    <div className="flex max-w-[386px] flex-col space-y-4">
-      <div className="flex flex-col gap-4">
-        <div className="flex items-center justify-center gap-2">
-          <img src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} alt="MetaSoccer ID Logo" style={{ height: "40px", width: "auto" }} />
-        </div>
-        <div className="flex items-start gap-2">
-          <p className="text-sm">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
-        </div>
+    <div className="flex flex-col space-y-4 w-full">
+      <div className="flex items-start gap-2">
+        <p className="text-sm">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
       </div>
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <Input
