@@ -1,13 +1,5 @@
 "use client";
 
-import { Gallery } from "@/components/gallery";
-import { GalleryCard } from "@/components/gallery-card";
-import { siteConfig } from "@/config/site";
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { polygonService } from "@/modules/squid/services/PolygonService";
-import { skaleService } from "@/modules/squid/services/SkaleService";
-import { chainMetadata } from "@/utils/chainMetadata";
-import { getImgUrl } from "@/utils/getImgUrl";
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import axios from 'axios';
 import Image from "next/image";
@@ -17,7 +9,16 @@ import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
 import { NFT } from "thirdweb/react";
 
-const achievements = [
+import { Gallery } from "@/components/gallery";
+import { GalleryCard } from "@/components/gallery-card";
+import { siteConfig } from "@/config/site";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
+import { polygonService } from "@/modules/squid/services/PolygonService";
+import { skaleService } from "@/modules/squid/services/SkaleService";
+import { chainMetadata } from "@/utils/chainMetadata";
+import { getImgUrl } from "@/utils/getImgUrl";
+
+const ACHIEVEMENTS = [
   { src: "https://assets.metasoccer.com/badges/early-adopter.png?v=1", alt: "Early Adopter Medal", title: "Early Adopter" },
 ];
 
@@ -29,15 +30,15 @@ interface AssetItem {
 
 export default function ProfilePage() {
   const router = useRouter();
-
   const { address, isAuthenticated, username, validJWT } = useMsIdContext();
 
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
-
-  const [clubs, setClubs] = useState<AssetItem[]>([]);
-  const [lands, setLands] = useState<AssetItem[]>([]);
-  const [players, setPlayers] = useState<AssetItem[]>([]);
-  const [scouts, setScouts] = useState<AssetItem[]>([]);
+  const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
+    clubs: [],
+    lands: [],
+    players: [],
+    scouts: [],
+  });
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -51,12 +52,9 @@ export default function ProfilePage() {
     const fetchDiscordAccount = async () => {
       try {
         const response = await axios.get(`${siteConfig.backendUrl}/account/discord`, {
-          headers: {
-            'Authorization': `Bearer ${validJWT}`
-          }
+          headers: { 'Authorization': `Bearer ${validJWT}` }
         });
-        console.log("response", response);
-        if (response.data && response.data.info) {
+        if (response.data?.info?.username) {
           setDiscordAccount(response.data.info.username);
         }
       } catch (error) {
@@ -64,88 +62,57 @@ export default function ProfilePage() {
       }
     };
 
+    const fetchAssets = async () => {
+      try {
+        const [clubsData, landsData, playersData, scoutsData] = await Promise.all([
+          skaleService.queryClubs(address),
+          polygonService.queryLands(address),
+          polygonService.queryPlayers(address),
+          polygonService.queryScouts(address),
+        ]);
+
+        setAssets({
+          clubs: clubsData.map((club: any) => ({
+            contract: siteConfig.contracts.skaleNebula.clubs,
+            tokenId: BigInt(club.id),
+            chain: "skaleNebula",
+          })),
+          lands: landsData.map((land: any) => ({
+            contract: siteConfig.contracts.polygon.lands,
+            tokenId: BigInt(land.id),
+            chain: "polygon",
+          })),
+          players: playersData.map((player: any) => ({
+            contract: siteConfig.contracts.polygon.players,
+            tokenId: BigInt(player.id),
+            chain: "polygon",
+          })),
+          scouts: scoutsData.map((scout: any) => ({
+            contract: siteConfig.contracts.polygon.scouts,
+            tokenId: BigInt(scout.id),
+            chain: "polygon",
+          })),
+        });
+      } catch (error) {
+        console.error("Error fetching assets:", error);
+      }
+    };
+
     fetchDiscordAccount();
-
-    const fetchClubs = async () => {
-      try {
-        const clubsData = await skaleService.queryClubs(address);
-        console.log("clubsData", clubsData);
-        const formattedClubs = clubsData.map((club: any) => ({
-          contract: siteConfig.contracts.skaleNebula.clubs,
-          tokenId: BigInt(club.id),
-          chain: "skaleNebula",
-        }));
-        setClubs(formattedClubs);
-      } catch (error) {
-        console.error("Error fetching clubs:", error);
-      }
-    };
-
-    const fetchLands = async () => {
-      try {
-        const landsData = await polygonService.queryLands(address);
-        console.log("landsData", landsData);
-        const formattedLands = landsData.map((land: any) => ({
-          contract: siteConfig.contracts.polygon.lands,
-          tokenId: BigInt(land.id),
-          chain: "polygon",
-        }));
-        setLands(formattedLands);
-      } catch (error) {
-        console.error("Error fetching lands:", error);
-      }
-    };
-
-    const fetchPlayers = async () => {
-      try {
-        const playersData = await polygonService.queryPlayers(address);
-        console.log("playersData", playersData);
-        const formattedPlayers = playersData.map((player: any) => ({
-          contract: siteConfig.contracts.polygon.players,
-          tokenId: BigInt(player.id),
-          chain: "polygon",
-        }));
-        setPlayers(formattedPlayers);
-      } catch (error) {
-        console.error("Error fetching players:", error);
-      }
-    };
-
-    const fetchScouts = async () => {
-      try {
-        const scoutsData = await polygonService.queryScouts(address);
-        console.log("scoutsData", scoutsData);
-        const formattedScouts = scoutsData.map((scout: any) => ({
-          contract: siteConfig.contracts.polygon.scouts,
-          tokenId: BigInt(scout.id),
-          chain: "polygon",
-        }));
-        setScouts(formattedScouts);
-      } catch (error) {
-        console.error("Error fetching scouts:", error);
-      }
-    };
-
-    fetchClubs();
-    fetchLands();
-    fetchPlayers();
-    fetchScouts();
+    fetchAssets();
   }, [address, validJWT]);
 
   const handleConnectDiscord = () => {
     const clientId = "1229091313333309480";
     const redirectUri = `${window.location.origin}/discord-oauth`;
-
-    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&response_type=code&scope=identify%20email`;
+    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
   };
 
-  const renderAchievementItem = (item: typeof achievements[number]) => (
+  const renderAchievementItem = (item: typeof ACHIEVEMENTS[number]) => (
     <GalleryCard
       title={item.title}
       src={getImgUrl(item.src)}
-      alt=""
+      alt={item.alt}
     />
   );
 
@@ -178,6 +145,14 @@ export default function ProfilePage() {
       />
     </NFT>
   );
+
+  if (!address) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <CircularProgress color="primary" size="lg" />
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
@@ -216,20 +191,13 @@ export default function ProfilePage() {
       <div className="w-full flex-grow">
         <Tabs aria-label="Profile tabs" className="w-full pb-4">
           <Tab key="achievements" title="Achievements">
-            <Gallery items={achievements} renderItem={renderAchievementItem} />
+            <Gallery items={ACHIEVEMENTS} renderItem={renderAchievementItem} />
           </Tab>
-          <Tab key="clubs" title="Clubs">
-            <Gallery items={clubs} renderItem={renderAssetItem} />
-          </Tab>
-          <Tab key="lands" title="Lands">
-            <Gallery items={lands} renderItem={renderAssetItem} />
-          </Tab>
-          <Tab key="players" title="Players">
-            <Gallery items={players} renderItem={renderAssetItem} />
-          </Tab>
-          <Tab key="scouts" title="Scouts">
-            <Gallery items={scouts} renderItem={renderAssetItem} />
-          </Tab>
+          {Object.entries(assets).map(([key, items]) => (
+            <Tab key={key} title={key.charAt(0).toUpperCase() + key.slice(1)}>
+              <Gallery items={items} renderItem={renderAssetItem} />
+            </Tab>
+          ))}
         </Tabs>
       </div>
     </div>
