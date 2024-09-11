@@ -40,7 +40,9 @@ export const ClaimForm = () => {
   }, [invalidateJWT]);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setUsername(e.target.value);
+    const newUsername = e.target.value.replace(/\s+/g, '-');
+    setUsername(newUsername);
+    setError(""); // Clear error when username changes
   }, []);
 
   return (
