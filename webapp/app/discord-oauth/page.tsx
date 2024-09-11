@@ -4,9 +4,9 @@ import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { CircularProgress } from "@nextui-org/react";
 import axios from "axios";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
-export default function DiscordOAuthPage() {
+function DiscordOAuthContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
@@ -33,4 +33,12 @@ export default function DiscordOAuthPage() {
   }, [address, code, router, validJWT]);
 
   return <CircularProgress />;
+}
+
+export default function DiscordOAuthPage() {
+  return (
+    <Suspense fallback={<CircularProgress />}>
+      <DiscordOAuthContent />
+    </Suspense>
+  );
 }
