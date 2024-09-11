@@ -48,3 +48,27 @@ export async function saveUserIfDoesntExists(address: string, username: string, 
     await db('users').insert({ id: randomUUID(), address: address.toLowerCase(), username, login_method });
   }
 }
+
+export async function getDiscordAccountByDiscordId(discordId: string): Promise<{ discord_id: string; address: string; info: any } | undefined> {
+  const result = await db('discord_accounts')
+    .select('discord_id', 'address', 'info')
+    .where('discord_id', discordId)
+    .first();
+  return result;
+}
+
+export async function getDiscordAccountByAddress(address: string): Promise<{ discord_id: string; address: string; info: any } | undefined> {
+  const result = await db('discord_accounts')
+    .select('discord_id', 'address', 'info')
+    .where('address', address.toLowerCase())
+    .first();
+  return result;
+}
+
+export async function saveDiscordAccount(discordId: string, address: string, info: any): Promise<void> {
+  await db('discord_accounts').insert({
+    discord_id: discordId,
+    address: address.toLowerCase(),
+    info: JSON.stringify(info),
+  }).onConflict('address').merge();
+}

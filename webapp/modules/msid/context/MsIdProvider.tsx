@@ -188,6 +188,7 @@ const useMsIdState = () => {
     isClaimPending,
     isWaitingForSignature,
     username,
+    validJWT,
     claim,
     invalidateJWT
   };

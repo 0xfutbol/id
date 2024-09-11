@@ -17,7 +17,7 @@ import { ThirdwebContract } from "thirdweb";
 import { NFT } from "thirdweb/react";
 
 const achievements = [
-  { src: "https://assets.metasoccer.com/badges/early-adopter.png", alt: "Early Adopter Medal", title: "Early Adopter" },
+  { src: "https://assets.metasoccer.com/badges/early-adopter.png?v=1", alt: "Early Adopter Medal", title: "Early Adopter" },
 ];
 
 interface AssetItem {
@@ -115,8 +115,12 @@ export default function ProfilePage() {
   const discordAccount = null; // Change to a string value to simulate a connected account
 
   const handleConnectDiscord = () => {
-    // Implement Discord connection logic here
-    console.log("Connecting to Discord...");
+    const clientId = "1229091313333309480";
+    const redirectUri = `${window.location.origin}/discord-oauth`;
+
+    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(
+      redirectUri
+    )}&response_type=code&scope=identify%20email`;
   };
 
   const renderAchievementItem = (item: typeof achievements[number]) => (
