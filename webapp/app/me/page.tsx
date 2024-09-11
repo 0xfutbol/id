@@ -3,6 +3,7 @@
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import axios from 'axios';
 import Image from "next/image";
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
@@ -29,6 +30,9 @@ interface AssetItem {
 
 export default function ProfilePage() {
   const { address, username, validJWT } = useMsIdContext();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
@@ -37,6 +41,16 @@ export default function ProfilePage() {
     players: [],
     scouts: [],
   });
+
+  const tabs = ["achievements", ...Object.keys(assets)];
+  const [selectedTab, setSelectedTab] = useState("achievements");
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && tabs.includes(tab)) {
+      setSelectedTab(tab);
+    }
+  }, [searchParams, tabs]);
 
   useEffect(() => {
     if (!address || !validJWT) return;
@@ -137,6 +151,15 @@ export default function ProfilePage() {
     </NFT>
   );
 
+  const handleTabChange = (key: string) => {
+    setSelectedTab(key);
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.set("tab", key);
+    const search = current.toString();
+    const query = search ? `?${search}` : "";
+    router.push(`${pathname}${query}`);
+  };
+
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
       <Card className="w-full">
@@ -172,7 +195,12 @@ export default function ProfilePage() {
         </CardBody>
       </Card>
       <div className="w-full flex-grow">
-        <Tabs aria-label="Profile tabs" className="w-full pb-4">
+        <Tabs 
+          aria-label="Profile tabs" 
+          className="w-full pb-4"
+          selectedKey={selectedTab}
+          onSelectionChange={(key) => handleTabChange(key as string)}
+        >
           <Tab key="achievements" title="Achievements">
             <Gallery items={ACHIEVEMENTS} renderItem={renderAchievementItem} />
           </Tab>
