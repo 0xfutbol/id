@@ -6,7 +6,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { useLocalStorage } from "react-use";
 import { getContract } from "thirdweb";
 import { ethers6Adapter } from "thirdweb/adapters/ethers6";
-import { useActiveWallet, useActiveWalletConnectionStatus } from "thirdweb/react";
+import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 
 const ABI: Abi = [
   {
@@ -45,6 +45,8 @@ const useMsIdState = () => {
   const status = useActiveWalletConnectionStatus();
   const activeWallet = useActiveWallet();
   const account = activeWallet?.getAccount();
+
+  const { disconnect } = useDisconnect();
 
   const [savedJWT, setSavedJWT] = useLocalStorage<string>(METASOCCER_ID_JWT);
 
@@ -104,9 +106,10 @@ const useMsIdState = () => {
   }, [account, activeWallet, metaSoccerIdContract]);
 
   const invalidateJWT = useCallback(() => {
-    setValidJWT(undefined);
-    setSavedJWT(undefined);
-  }, [setSavedJWT]);
+    if (activeWallet) {
+      disconnect(activeWallet);
+    }
+  }, [activeWallet, disconnect]);
 
   const signForJWT = useCallback(async (username: string) => {
     if (!account) throw new Error("No account connected");
@@ -158,6 +161,10 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (status === "disconnected") {
+      setIsAuthenticated(false);
+      setIsClaimPending(false);
+      setIsWaitingForSignature(false);
+      setUsername(undefined);
       setValidJWT(undefined);
     }
   }, [status]);
