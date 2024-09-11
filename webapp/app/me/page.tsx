@@ -1,12 +1,16 @@
 "use client";
 
 import { Gallery, GalleryItem } from "@/components/gallery";
+import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { getImgUrl } from "@/utils/getImgUrl";
+import { polygonService } from "@/modules/squid/services/PolygonService";
+import { skaleService } from "@/modules/squid/services/SkaleService";
 import { Avatar, Button, Card, CardBody, Tab, Tabs } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { ThirdwebContract } from "thirdweb";
+import { NFT } from "thirdweb/react";
 
 const achievements: GalleryItem[] = [
   { src: "https://picsum.photos/seed/achievement1/300/200", alt: "Achievement 1", title: "Achievement 1" },
@@ -17,48 +21,99 @@ const achievements: GalleryItem[] = [
   { src: "https://picsum.photos/seed/achievement6/300/200", alt: "Achievement 6", title: "Achievement 6" },
 ];
 
-const clubs: GalleryItem[] = [
-  { src: "https://picsum.photos/seed/club1/200/200", alt: "Club 1", title: "Club 1" },
-  { src: "https://picsum.photos/seed/club2/200/200", alt: "Club 2", title: "Club 2" },
-  { src: "https://picsum.photos/seed/club3/200/200", alt: "Club 3", title: "Club 3" },
-  { src: "https://picsum.photos/seed/club4/200/200", alt: "Club 4", title: "Club 4" },
-];
-
-const lands: GalleryItem[] = [
-  { src: "https://picsum.photos/seed/land1/300/200", alt: "Land 1", title: "Land 1" },
-  { src: "https://picsum.photos/seed/land2/300/200", alt: "Land 2", title: "Land 2" },
-  { src: "https://picsum.photos/seed/land3/300/200", alt: "Land 3", title: "Land 3" },
-  { src: "https://picsum.photos/seed/land4/300/200", alt: "Land 4", title: "Land 4" },
-];
-
-const players: GalleryItem[] = [
-  { src: "https://picsum.photos/seed/player1/200/300", alt: "Player 1", title: "Player 1" },
-  { src: "https://picsum.photos/seed/player2/200/300", alt: "Player 2", title: "Player 2" },
-  { src: "https://picsum.photos/seed/player3/200/300", alt: "Player 3", title: "Player 3" },
-  { src: "https://picsum.photos/seed/player4/200/300", alt: "Player 4", title: "Player 4" },
-  { src: "https://picsum.photos/seed/player5/200/300", alt: "Player 5", title: "Player 5" },
-  { src: "https://picsum.photos/seed/player6/200/300", alt: "Player 6", title: "Player 6" },
-  { src: "https://picsum.photos/seed/player7/200/300", alt: "Player 7", title: "Player 7" },
-  { src: "https://picsum.photos/seed/player8/200/300", alt: "Player 8", title: "Player 8" },
-];
-
-const scouts: GalleryItem[] = [
-  { src: "https://picsum.photos/seed/scout1/250/250", alt: "Scout 1", title: "Scout 1" },
-  { src: "https://picsum.photos/seed/scout2/250/250", alt: "Scout 2", title: "Scout 2" },
-  { src: "https://picsum.photos/seed/scout3/250/250", alt: "Scout 3", title: "Scout 3" },
-  { src: "https://picsum.photos/seed/scout4/250/250", alt: "Scout 4", title: "Scout 4" },
-  { src: "https://picsum.photos/seed/scout5/250/250", alt: "Scout 5", title: "Scout 5" },
-];
+interface AssetItem extends GalleryItem {
+  contract: ThirdwebContract;
+  tokenId: bigint;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
-  const { isAuthenticated, isClaimPending, username } = useMsIdContext();
+
+  const { address, isAuthenticated, isClaimPending, username } = useMsIdContext();
+
+  const [clubs, setClubs] = useState<AssetItem[]>([]);
+  const [lands, setLands] = useState<AssetItem[]>([]);
+  const [players, setPlayers] = useState<AssetItem[]>([]);
+  const [scouts, setScouts] = useState<AssetItem[]>([]);
 
   useEffect(() => {
     if (!isAuthenticated) {
       router.push("/");
     }
   }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (!address) return;
+
+    const fetchClubs = async () => {
+      try {
+        const clubsData = await skaleService.queryClubs(address);
+        console.log("clubsData", clubsData);
+        const formattedClubs = clubsData.map((club: any) => ({
+          contract: siteConfig.contracts.skaleNebula.clubs,
+          alt: `Club ${club.id}`,
+          title: `Club ${club.id}`,
+          tokenId: BigInt(club.id),
+        }));
+        setClubs(formattedClubs);
+      } catch (error) {
+        console.error("Error fetching clubs:", error);
+      }
+    };
+
+    const fetchLands = async () => {
+      try {
+        const landsData = await polygonService.queryLands(address);
+        console.log("landsData", landsData);
+        const formattedLands = landsData.map((land: any) => ({
+          contract: siteConfig.contracts.polygon.lands,
+          alt: `Land ${land.id}`,
+          title: `Land ${land.id}`,
+          tokenId: BigInt(land.id),
+        }));
+        setLands(formattedLands);
+      } catch (error) {
+        console.error("Error fetching lands:", error);
+      }
+    };
+
+    const fetchPlayers = async () => {
+      try {
+        const playersData = await polygonService.queryPlayers(address);
+        console.log("playersData", playersData);
+        const formattedPlayers = playersData.map((player: any) => ({
+          contract: siteConfig.contracts.polygon.players,
+          alt: `Player ${player.id}`,
+          title: `Player ${player.id}`,
+          tokenId: BigInt(player.id),
+        }));
+        setPlayers(formattedPlayers);
+      } catch (error) {
+        console.error("Error fetching players:", error);
+      }
+    };
+
+    const fetchScouts = async () => {
+      try {
+        const scoutsData = await polygonService.queryScouts(address);
+        console.log("scoutsData", scoutsData);
+        const formattedScouts = scoutsData.map((scout: any) => ({
+          contract: siteConfig.contracts.polygon.scouts,
+          alt: `Scout ${scout.id}`,
+          title: `Scout ${scout.id}`,
+          tokenId: BigInt(scout.id),
+        }));
+        setScouts(formattedScouts);
+      } catch (error) {
+        console.error("Error fetching scouts:", error);
+      }
+    };
+
+    fetchClubs();
+    fetchLands();
+    fetchPlayers();
+    fetchScouts();
+  }, [address]);
 
   // This is a placeholder. In a real application, you'd fetch this from your user state or API
   const discordAccount = null; // Change to a string value to simulate a connected account
@@ -68,6 +123,20 @@ export default function ProfilePage() {
     console.log("Connecting to Discord...");
   };
 
+  const renderAssetItem = (item: AssetItem) => (
+    <Card className="flex flex-col items-center">
+      <CardBody>
+        <NFT contract={item.contract} tokenId={item.tokenId}>
+          <Suspense fallback={"Loading media..."}>
+            <NFT.Media />
+            <NFT.Name />
+          </Suspense>
+        </NFT>
+        <p className="mt-2">{item.title}</p>
+      </CardBody>
+    </Card>
+  );
+
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-8 w-full">
       <Card className="w-full">
@@ -75,13 +144,13 @@ export default function ProfilePage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Avatar 
-                src={getImgUrl("https://img.metasoccer.com/avatar.jpg", { size: 128 })} 
+                src={`https://effigy.im/a/${address}.png`}
                 size="lg" 
                 className="mr-4"
               />
               <div>
                 <h2 className="text-2xl font-bold">John Doe</h2>
-                <p className="text-gray-500">{username}<span className="text-gray-400">.ms</span></p>
+                <p className="text-gray-400">{username}<span className="text-gray-500">.ms</span></p>
               </div>
             </div>
             <div className="flex items-center">
@@ -104,36 +173,21 @@ export default function ProfilePage() {
         </CardBody>
       </Card>
       <div className="w-full flex-grow">
-        <Tabs aria-label="Profile tabs" className="w-full">
+        <Tabs aria-label="Profile tabs" className="w-full pb-4">
           <Tab key="achievements" title="Achievements">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Achievements</h3>
-              <Gallery items={achievements} />
-            </div>
+            <Gallery items={achievements} />
           </Tab>
           <Tab key="clubs" title="Clubs">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Clubs</h3>
-              <Gallery items={clubs} />
-            </div>
+            <Gallery items={clubs} renderItem={renderAssetItem} />
           </Tab>
           <Tab key="lands" title="Lands">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Lands</h3>
-              <Gallery items={lands} />
-            </div>
+            <Gallery items={lands} renderItem={renderAssetItem} />
           </Tab>
           <Tab key="players" title="Players">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Players</h3>
-              <Gallery items={players} />
-            </div>
+            <Gallery items={players} renderItem={renderAssetItem} />
           </Tab>
           <Tab key="scouts" title="Scouts">
-            <div className="p-4">
-              <h3 className="text-xl font-semibold mb-4">Scouts</h3>
-              <Gallery items={scouts} />
-            </div>
+            <Gallery items={scouts} renderItem={renderAssetItem} />
           </Tab>
         </Tabs>
       </div>
