@@ -133,10 +133,9 @@ export default function ProfilePage() {
           <div className="flex f-full justify-end">
             <Tooltip content={chainMetadata[item.chain].name}>
               <Image
-                src={chainMetadata[item.chain].icon}
                 alt={chainMetadata[item.chain].name}
-                width={18}
-                height={18}
+                src={chainMetadata[item.chain].icon}
+                width={18} height={18}
               />
             </Tooltip>
           </div>
