@@ -22,6 +22,7 @@ const thirdwebClient = createThirdwebClient({ clientId: "92fc269e1a4386a026bc247
 export const siteConfig = {
   name: "MetaSoccer ID",
   description: "MetaSoccer ID is your unique identifier in the MetaSoccer World",
+  backendUrl: process.env.NODE_ENV === "development" ? "http://localhost:6743" : "https://id.metasoccer.com/api",
   chain: skaleNebula,
   contracts: {
     polygon: {

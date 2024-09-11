@@ -9,6 +9,7 @@ import { skaleService } from "@/modules/squid/services/SkaleService";
 import { chainMetadata } from "@/utils/chainMetadata";
 import { getImgUrl } from "@/utils/getImgUrl";
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
+import axios from 'axios';
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
@@ -29,7 +30,9 @@ interface AssetItem {
 export default function ProfilePage() {
   const router = useRouter();
 
-  const { address, isAuthenticated, username } = useMsIdContext();
+  const { address, isAuthenticated, username, validJWT } = useMsIdContext();
+
+  const [discordAccount, setDiscordAccount] = useState<string | null>(null);
 
   const [clubs, setClubs] = useState<AssetItem[]>([]);
   const [lands, setLands] = useState<AssetItem[]>([]);
@@ -43,7 +46,25 @@ export default function ProfilePage() {
   }, [isAuthenticated, router]);
 
   useEffect(() => {
-    if (!address) return;
+    if (!address || !validJWT) return;
+
+    const fetchDiscordAccount = async () => {
+      try {
+        const response = await axios.get(`${siteConfig.backendUrl}/account/discord`, {
+          headers: {
+            'Authorization': `Bearer ${validJWT}`
+          }
+        });
+        console.log("response", response);
+        if (response.data && response.data.info) {
+          setDiscordAccount(response.data.info.username);
+        }
+      } catch (error) {
+        console.error("Error fetching Discord account:", error);
+      }
+    };
+
+    fetchDiscordAccount();
 
     const fetchClubs = async () => {
       try {
@@ -109,10 +130,7 @@ export default function ProfilePage() {
     fetchLands();
     fetchPlayers();
     fetchScouts();
-  }, [address]);
-
-  // This is a placeholder. In a real application, you'd fetch this from your user state or API
-  const discordAccount = null; // Change to a string value to simulate a connected account
+  }, [address, validJWT]);
 
   const handleConnectDiscord = () => {
     const clientId = "1229091313333309480";
@@ -173,16 +191,15 @@ export default function ProfilePage() {
                 className="mr-4"
               />
               <div>
-                {/* <h2 className="text-2xl font-bold">John Doe</h2> */}
                 <p className="text-gray-400">{username}<span className="text-gray-500">.ms</span></p>
               </div>
             </div>
             <div className="flex items-center">
               {discordAccount ? (
-                <>
-                  <Image src="/discord-icon.svg" alt="Discord" width={24} height={24} className="mr-2" />
-                  <p><strong>Discord:</strong> {discordAccount}</p>
-                </>
+                <div className="flex items-center gap-2">
+                  <SiDiscord width={24} height={24} />
+                  <p>{discordAccount}</p>
+                </div>
               ) : (
                 <Button 
                   color="primary" 
