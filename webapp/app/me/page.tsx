@@ -3,7 +3,6 @@
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import axios from 'axios';
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
@@ -29,8 +28,7 @@ interface AssetItem {
 }
 
 export default function ProfilePage() {
-  const router = useRouter();
-  const { address, isAuthenticated, username, validJWT } = useMsIdContext();
+  const { address, username, validJWT } = useMsIdContext();
 
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
@@ -39,12 +37,6 @@ export default function ProfilePage() {
     players: [],
     scouts: [],
   });
-
-  useEffect(() => {
-    if (!isAuthenticated) {
-      router.push("/");
-    }
-  }, [isAuthenticated, router]);
 
   useEffect(() => {
     if (!address || !validJWT) return;

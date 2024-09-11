@@ -3,13 +3,22 @@
 import { Navbar } from "@/components/navbar";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { CircularProgress } from "@nextui-org/react";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function ProfileLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { status } = useMsIdContext();
+  const router = useRouter();
+  const { isAuthenticated, status } = useMsIdContext();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/");
+    }
+  }, [isAuthenticated, router]);
 
   if (status === "connecting") {
     return (
