@@ -3,6 +3,7 @@ import express from 'express';
 import claimRouter from './routes/claimRoute';
 import discordRouter from './routes/discordRoute';
 import jwtRouter from './routes/jwtRoute';
+import pingRouter from './routes/pingRoute';
 import preRouter from './routes/preRoute';
 import validateRoute from './routes/validateRoute';
 
@@ -20,6 +21,7 @@ app.use('/auth', authRouter);
 
 const accountRouter = express.Router();
 accountRouter.use(discordRouter);
+accountRouter.use(pingRouter);
 app.use('/account', accountRouter);
 
 app.listen(port, () => {

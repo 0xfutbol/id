@@ -1,11 +1,8 @@
-import axios from 'axios';
-import { Wallet, ethers } from 'ethers';
+import { Wallet } from 'ethers';
 import express from 'express';
 import { getMetaSoccerIdByOwner, getMetaSoccerIdByUsername, validateUsername } from '../common/utils';
 
 const claimRouter = express.Router();
-
-const LOW_BALANCE_THRESHOLD = ethers.parseEther("0.000001");
 
 claimRouter.post('/claim', express.json(), async (req, res) => {
   const { username, owner } = req.body;
@@ -34,8 +31,6 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     if (!validationResult.isValid) {
       return res.status(400).json({ error: validationResult.error });
     }
-
-    checkAndRequestGas(owner);
 
     const signatureData = await generateSignature(username, owner);
     res.json({ ...signatureData, claimed: false });
@@ -72,24 +67,6 @@ async function generateSignature(username: string, owner: string): Promise<{ sig
     console.error('Error creating claim signature:', error);
     console.error('Error details:', error instanceof Error ? error.message : String(error));
     throw new Error('Internal server error');
-  }
-}
-
-async function checkAndRequestGas(address: string) {
-  const provider = new ethers.JsonRpcProvider(process.env.ONCHAIN_RPC_URL);
-  const balance = await provider.getBalance(address);
-
-  if (balance < LOW_BALANCE_THRESHOLD) {
-    console.log(`Balance below threshold for address ${address}. Requesting gas from faucet.`);
-    try {
-      const response = await axios.put('https://sfuel-faucet-h8r2g.ondigitalocean.app/gas', { address }, {
-        headers: { 'Content-Type': 'application/json' }
-      });
-      console.log('Faucet response:', response.data);
-    } catch (error) {
-      console.error('Error requesting gas from faucet:', error);
-      throw new Error('Failed to request gas from faucet');
-    }
   }
 }
 

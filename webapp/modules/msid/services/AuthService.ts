@@ -1,14 +1,14 @@
 import { siteConfig } from "@/config/site";
 import axios from "axios";
 
-class IdService {
+class AuthService {
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: siteConfig.backendUrl })
+		private readonly httpClient = axios.create({ baseURL: `${siteConfig.backendUrl}/auth` })
 	) {}
 
 	async claimSignature(username: string, owner: string): Promise<{ claimed: boolean, signature: string; signatureExpiration: bigint }> {
 		try {
-			const { data } = await this.httpClient.post("/auth/claim", { username, owner });
+			const { data } = await this.httpClient.post("/claim", { username, owner });
 			return data;
 		} catch (err) {
 			throw err;
@@ -17,7 +17,7 @@ class IdService {
 
 	async getClaimJWT(username: string, signature: string, signatureExpiration: bigint, jwtExpiration: number): Promise<string> {
 		try {
-			const response = await this.httpClient.post("/auth/jwt", { username, message: `CLAIM:${signature}.${signatureExpiration}`, expiration: jwtExpiration });
+			const response = await this.httpClient.post("/jwt", { username, message: `CLAIM:${signature}.${signatureExpiration}`, expiration: jwtExpiration });
 			return response.data.token;
 		} catch (err) {
 			throw err;
@@ -26,7 +26,7 @@ class IdService {
 
 	async getJWT(username: string, message: string, expiration: number): Promise<string> {
 		try {
-			const response = await this.httpClient.post("/auth/jwt", { username, message, expiration });
+			const response = await this.httpClient.post("/jwt", { username, message, expiration });
 			return response.data.token;
 		} catch (err) {
 			throw err;
@@ -35,7 +35,7 @@ class IdService {
 
 	async pre(address: string): Promise<{ claimed: boolean, username?: string }> {
 		try {
-			const response = await this.httpClient.post("/auth/pre", { address });
+			const response = await this.httpClient.post("/pre", { address });
 			return response.data;
 		} catch (err) {
 			throw err;
@@ -43,4 +43,4 @@ class IdService {
 	}
 }
 
-export const idService = new IdService();
+export const authService = new AuthService();

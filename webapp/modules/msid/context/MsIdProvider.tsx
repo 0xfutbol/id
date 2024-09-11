@@ -1,5 +1,5 @@
 import { siteConfig } from "@/config/site";
-import { idService } from "@/modules/msid/services/IdService";
+import { authService } from "@/modules/msid/services/AuthService";
 import { decodeJWT } from "@/utils/decodeJWT";
 import type { Abi } from "abitype";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -7,6 +7,7 @@ import { useLocalStorage } from "react-use";
 import { getContract } from "thirdweb";
 import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
+import { accountService } from "../services/AccountService";
 
 const ABI: Abi = [
   {
@@ -68,7 +69,7 @@ const useMsIdState = () => {
   const claim = useCallback(async (username: string) => {
     if (!account) throw new Error("No account found");
 
-    const { claimed, signature, signatureExpiration } = await idService.claimSignature(username, account.address);
+    const { claimed, signature, signatureExpiration } = await authService.claimSignature(username, account.address);
 
     const handleClaimedUsername = async (username: string) => {
       const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
@@ -76,7 +77,7 @@ const useMsIdState = () => {
       setIsWaitingForSignature(true);
       try {
         const signedMessage = await account.signMessage({ message });
-        const jwt = await idService.getJWT(username, signedMessage, expiration);
+        const jwt = await authService.getJWT(username, signedMessage, expiration);
         setValidJWT(jwt);
         return jwt;
       } finally {
@@ -93,7 +94,7 @@ const useMsIdState = () => {
 
       if (tx) {
         const jwtExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-        const jwt = await idService.getClaimJWT(username, signature, signatureExpiration, jwtExpiration);
+        const jwt = await authService.getClaimJWT(username, signature, signatureExpiration, jwtExpiration);
         setValidJWT(jwt);
         return jwt;
       }
@@ -119,11 +120,16 @@ const useMsIdState = () => {
     setIsWaitingForSignature(true);
     try {
       const signedMessage = await account.signMessage({ message });
-      return await idService.getJWT(username, signedMessage, expiration);
+      return await authService.getJWT(username, signedMessage, expiration);
     } finally {
       setIsWaitingForSignature(false);
     }
   }, [account]);
+
+  useEffect(() => {
+    if (!account?.address) return;
+    accountService.ping(account.address);
+  }, [account?.address]);
 
   useEffect(() => {
     if (!account?.address) return;
@@ -149,7 +155,7 @@ const useMsIdState = () => {
     if (validJWT) return;
 
     const checkAccount = async () => {
-      const { username } = await idService.pre(account.address);
+      const { username } = await authService.pre(account.address);
       if (username) {
         const jwt = await signForJWT(username);
         setValidJWT(jwt);
