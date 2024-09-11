@@ -7,6 +7,7 @@ import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { polygonService } from "@/modules/squid/services/PolygonService";
 import { skaleService } from "@/modules/squid/services/SkaleService";
 import { chainMetadata } from "@/utils/chainMetadata";
+import { getImgUrl } from "@/utils/getImgUrl";
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -15,12 +16,7 @@ import { ThirdwebContract } from "thirdweb";
 import { NFT } from "thirdweb/react";
 
 const achievements = [
-  { src: "https://picsum.photos/seed/achievement1/300/200", alt: "Achievement 1", title: "Achievement 1" },
-  { src: "https://picsum.photos/seed/achievement2/300/200", alt: "Achievement 2", title: "Achievement 2" },
-  { src: "https://picsum.photos/seed/achievement3/300/200", alt: "Achievement 3", title: "Achievement 3" },
-  { src: "https://picsum.photos/seed/achievement4/300/200", alt: "Achievement 4", title: "Achievement 4" },
-  { src: "https://picsum.photos/seed/achievement5/300/200", alt: "Achievement 5", title: "Achievement 5" },
-  { src: "https://picsum.photos/seed/achievement6/300/200", alt: "Achievement 6", title: "Achievement 6" },
+  { src: "https://assets.metasoccer.com/badges/early-adopter.png", alt: "Early Adopter Medal", title: "Early Adopter" },
 ];
 
 interface AssetItem {
@@ -125,7 +121,7 @@ export default function ProfilePage() {
   const renderAchievementItem = (item: typeof achievements[number]) => (
     <GalleryCard
       title={item.title}
-      src={item.src}
+      src={getImgUrl(item.src)}
       alt=""
     />
   );
@@ -161,7 +157,7 @@ export default function ProfilePage() {
   );
 
   return (
-    <div className="flex flex-col gap-8 max-w-[1280px] py-8 w-full">
+    <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
       <Card className="w-full">
         <CardBody>
           <div className="flex justify-between items-center">
@@ -172,7 +168,7 @@ export default function ProfilePage() {
                 className="mr-4"
               />
               <div>
-                <h2 className="text-2xl font-bold">John Doe</h2>
+                {/* <h2 className="text-2xl font-bold">John Doe</h2> */}
                 <p className="text-gray-400">{username}<span className="text-gray-500">.ms</span></p>
               </div>
             </div>
