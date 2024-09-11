@@ -1,18 +1,20 @@
 "use client";
 
-import { Gallery, GalleryItem } from "@/components/gallery";
+import { Gallery } from "@/components/gallery";
+import { GalleryCard } from "@/components/gallery-card";
 import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { polygonService } from "@/modules/squid/services/PolygonService";
 import { skaleService } from "@/modules/squid/services/SkaleService";
-import { Avatar, Button, Card, CardBody, Tab, Tabs } from "@nextui-org/react";
+import { chainMetadata } from "@/utils/chainMetadata";
+import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { ThirdwebContract } from "thirdweb";
 import { NFT } from "thirdweb/react";
 
-const achievements: GalleryItem[] = [
+const achievements = [
   { src: "https://picsum.photos/seed/achievement1/300/200", alt: "Achievement 1", title: "Achievement 1" },
   { src: "https://picsum.photos/seed/achievement2/300/200", alt: "Achievement 2", title: "Achievement 2" },
   { src: "https://picsum.photos/seed/achievement3/300/200", alt: "Achievement 3", title: "Achievement 3" },
@@ -21,15 +23,16 @@ const achievements: GalleryItem[] = [
   { src: "https://picsum.photos/seed/achievement6/300/200", alt: "Achievement 6", title: "Achievement 6" },
 ];
 
-interface AssetItem extends GalleryItem {
+interface AssetItem {
   contract: ThirdwebContract;
   tokenId: bigint;
+  chain: keyof typeof chainMetadata;
 }
 
 export default function ProfilePage() {
   const router = useRouter();
 
-  const { address, isAuthenticated, isClaimPending, username } = useMsIdContext();
+  const { address, isAuthenticated, username } = useMsIdContext();
 
   const [clubs, setClubs] = useState<AssetItem[]>([]);
   const [lands, setLands] = useState<AssetItem[]>([]);
@@ -51,9 +54,8 @@ export default function ProfilePage() {
         console.log("clubsData", clubsData);
         const formattedClubs = clubsData.map((club: any) => ({
           contract: siteConfig.contracts.skaleNebula.clubs,
-          alt: `Club ${club.id}`,
-          title: `Club ${club.id}`,
           tokenId: BigInt(club.id),
+          chain: "skaleNebula",
         }));
         setClubs(formattedClubs);
       } catch (error) {
@@ -67,9 +69,8 @@ export default function ProfilePage() {
         console.log("landsData", landsData);
         const formattedLands = landsData.map((land: any) => ({
           contract: siteConfig.contracts.polygon.lands,
-          alt: `Land ${land.id}`,
-          title: `Land ${land.id}`,
           tokenId: BigInt(land.id),
+          chain: "polygon",
         }));
         setLands(formattedLands);
       } catch (error) {
@@ -83,9 +84,8 @@ export default function ProfilePage() {
         console.log("playersData", playersData);
         const formattedPlayers = playersData.map((player: any) => ({
           contract: siteConfig.contracts.polygon.players,
-          alt: `Player ${player.id}`,
-          title: `Player ${player.id}`,
           tokenId: BigInt(player.id),
+          chain: "polygon",
         }));
         setPlayers(formattedPlayers);
       } catch (error) {
@@ -99,9 +99,8 @@ export default function ProfilePage() {
         console.log("scoutsData", scoutsData);
         const formattedScouts = scoutsData.map((scout: any) => ({
           contract: siteConfig.contracts.polygon.scouts,
-          alt: `Scout ${scout.id}`,
-          title: `Scout ${scout.id}`,
           tokenId: BigInt(scout.id),
+          chain: "polygon",
         }));
         setScouts(formattedScouts);
       } catch (error) {
@@ -123,18 +122,42 @@ export default function ProfilePage() {
     console.log("Connecting to Discord...");
   };
 
+  const renderAchievementItem = (item: typeof achievements[number]) => (
+    <GalleryCard
+      title={item.title}
+      src={item.src}
+      alt=""
+    />
+  );
+
   const renderAssetItem = (item: AssetItem) => (
-    <Card className="flex flex-col items-center">
-      <CardBody>
-        <NFT contract={item.contract} tokenId={item.tokenId}>
-          <Suspense fallback={"Loading media..."}>
-            <NFT.Media />
+    <NFT contract={item.contract} tokenId={item.tokenId}>
+      <GalleryCard
+        title={(
+          <Suspense fallback={<></>}>
             <NFT.Name />
           </Suspense>
-        </NFT>
-        <p className="mt-2">{item.title}</p>
-      </CardBody>
-    </Card>
+        )}
+        src={(
+          <Suspense fallback={<div className="flex h-full items-center justify-center w-full"><CircularProgress color="default" size="sm" /></div>}>
+            <NFT.Media style={{ width: "100%", height: "100%" }} />
+          </Suspense>
+        )}
+        headerComponent={(
+          <div className="flex f-full justify-end">
+            <Tooltip content={chainMetadata[item.chain].name}>
+              <Image
+                src={chainMetadata[item.chain].icon}
+                alt={chainMetadata[item.chain].name}
+                width={18}
+                height={18}
+              />
+            </Tooltip>
+          </div>
+        )}
+        alt=""
+      />
+    </NFT>
   );
 
   return (
@@ -175,7 +198,7 @@ export default function ProfilePage() {
       <div className="w-full flex-grow">
         <Tabs aria-label="Profile tabs" className="w-full pb-4">
           <Tab key="achievements" title="Achievements">
-            <Gallery items={achievements} />
+            <Gallery items={achievements} renderItem={renderAchievementItem} />
           </Tab>
           <Tab key="clubs" title="Clubs">
             <Gallery items={clubs} renderItem={renderAssetItem} />

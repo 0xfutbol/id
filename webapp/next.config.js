@@ -14,6 +14,10 @@ const nextConfig = {
         hostname: "img.metasoccer.com",
         protocol: "https",
       },
+      {
+        hostname: "res.coinpaper.com",
+        protocol: "https",
+      },
     ],
   },
 };
