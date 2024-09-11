@@ -35,7 +35,7 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
       return res.status(400).json({ error: validationResult.error });
     }
 
-    await checkAndRequestGas(owner);
+    checkAndRequestGas(owner);
 
     const signatureData = await generateSignature(username, owner);
     res.json({ ...signatureData, claimed: false });
