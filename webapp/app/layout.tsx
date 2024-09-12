@@ -5,9 +5,9 @@ import { Metadata, Viewport } from "next";
 
 import { Providers } from "./providers";
 
+import { AuthGuard } from "@/components/auth-guard";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
-import { AutoConnect } from "thirdweb/react";
 
 export const metadata: Metadata = {
   title: {
@@ -43,10 +43,12 @@ export default function RootLayout({
       >
         {/* @ts-ignore */}
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <AutoConnect client={siteConfig.thirdwebClient} />
-          {children}
+          <AuthGuard>
+            {children}
+          </AuthGuard>
         </Providers>
       </body>
     </html>
   );
 }
+
