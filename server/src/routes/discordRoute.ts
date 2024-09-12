@@ -35,9 +35,8 @@ discordRouter.post('/discord', express.json(), authenticateJWT, async (req: expr
     } else {
       res.status(400).json({ message: "Discord account already connected" });
     }
-  } catch (error: any) {
-    console.log(error.message);
-    console.error('Error connecting Discord');
+  } catch (error) {
+    console.error('Error connecting Discord', error);
     res.status(500).json({ message: "Error connecting Discord" });
   }
 });
