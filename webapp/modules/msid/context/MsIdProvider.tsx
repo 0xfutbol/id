@@ -3,7 +3,6 @@ import { authService } from "@/modules/msid/services/AuthService";
 import { decodeJWT } from "@/utils/decodeJWT";
 import type { Abi } from "abitype";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { useLocalStorage } from "react-use";
 import { getContract } from "thirdweb";
 import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
@@ -50,8 +49,6 @@ const useMsIdState = () => {
 
   const { disconnect } = useDisconnect();
 
-  const [savedJWT, setSavedJWT] = useLocalStorage<string>(METASOCCER_ID_JWT);
-
   useReferrerParam();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -68,6 +65,22 @@ const useMsIdState = () => {
     client: siteConfig.thirdwebClient,
     chain: siteConfig.chain
   }), []);
+
+  const setSavedJWT = (jwt: string) => {
+    const domain = window.location.hostname === 'localhost' ? 'localhost' : '.metasoccer.com';
+    document.cookie = `${METASOCCER_ID_JWT}=${jwt}; path=/; domain=${domain}; max-age=${MAX_SIGNATURE_EXPIRATION / 1000}; SameSite=Strict; ${domain !== 'localhost' ? 'Secure' : ''}`;
+  };
+
+  const savedJWT = (): string | undefined => {
+    const cookies = document.cookie.split(';');
+    for (let cookie of cookies) {
+      const [name, value] = cookie.trim().split('=');
+      if (name === METASOCCER_ID_JWT) {
+        return value;
+      }
+    }
+    return undefined;
+  };
 
   const claim = useCallback(async (username: string) => {
     if (!account) throw new Error("No account found");
@@ -114,6 +127,8 @@ const useMsIdState = () => {
     if (activeWallet) {
       disconnect(activeWallet);
     }
+    const domain = window.location.hostname === 'localhost' ? 'localhost' : '.metasoccer.com';
+    document.cookie = `${METASOCCER_ID_JWT}=; path=/; domain=${domain}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   }, [activeWallet, disconnect]);
 
   const signForJWT = useCallback(async (username: string) => {
@@ -133,19 +148,20 @@ const useMsIdState = () => {
     if (!account?.address) return;
 
     const checkExistingToken = async () => {
-      const existingToken = savedJWT ? decodeJWT(savedJWT).payload : undefined;
+      const existingJWT = savedJWT();
+      const existingToken = existingJWT ? decodeJWT(existingJWT).payload : undefined;
       const existingTokenExpiration = existingToken?.expiration;
       const existingTokenOwner = existingToken?.owner;
 
       if (existingTokenExpiration && existingTokenExpiration >= Date.now() && 
           existingTokenOwner && existingTokenOwner.toLowerCase() === account.address.toLowerCase()) {
-        setValidJWT(savedJWT);
+        setValidJWT(existingJWT);
       }
 
       setSavedJWTChecked(true);
     };
     checkExistingToken();
-  }, [account?.address, savedJWT]);
+  }, [account?.address]);
 
   useEffect(() => {
     if (!account?.address) return;
@@ -208,7 +224,7 @@ const useMsIdState = () => {
       setIsWaitingForSignature(false);
       setUsername(undefined);
     }
-  }, [validJWT, setSavedJWT]);
+  }, [validJWT]);
 
   return {
     address: account?.address,
