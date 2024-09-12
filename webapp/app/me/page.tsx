@@ -27,13 +27,13 @@ interface Achievement {
 
 const ACHIEVEMENTS: Achievement[] = [
   { 
-    src: "https://assets.metasoccer.com/badges/early-adopter.png?v=1", 
+    src: "https://assets.metasoccer.com/badges/early-adopter.png?v=2", 
     alt: "Early Adopter Medal", 
     title: "Early Adopter",
     isAchieved: () => true // Always achieved for now
   },
   {
-    src: "https://assets.metasoccer.com/badges/referrer.png?v=1",
+    src: "https://assets.metasoccer.com/badges/referrer.png?v=2",
     alt: "Referrer Medal",
     title: "Referrer",
     isAchieved: (params: { referralCount: number }) => params.referralCount >= 3
