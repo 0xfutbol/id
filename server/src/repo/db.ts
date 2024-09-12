@@ -17,18 +17,27 @@ export const db = knex({
 });
 
 // Address-related methods
-export async function getAddress(address: string): Promise<{ address: string } | undefined> {
+export async function getAddress(address: string): Promise<{ address: string; referrer?: string } | undefined> {
   const result = await db('addresses')
-    .select('address')
+    .select('address', 'referrer')
     .where('address', address.toLowerCase())
     .first();
   return result;
 }
 
-export async function saveAddress(address: string): Promise<void> {
+export async function saveAddress(address: string, referrer?: string): Promise<void> {
   await db('addresses').insert({
     address: address.toLowerCase(),
-  }).onConflict('address').ignore();
+    referrer: referrer?.toLowerCase(),
+  }).onConflict('address').merge();
+}
+
+export async function getReferralCount(referrer: string): Promise<number> {
+  const result = await db('addresses')
+    .count('address as count')
+    .where('referrer', referrer.toLowerCase())
+    .first();
+  return parseInt(result?.count as string) || 0;
 }
 
 // User-related methods

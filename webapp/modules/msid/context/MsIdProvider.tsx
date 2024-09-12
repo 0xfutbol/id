@@ -8,6 +8,7 @@ import { getContract } from "thirdweb";
 import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { accountService } from "../services/AccountService";
+import { METASOCCER_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
 
 const ABI: Abi = [
   {
@@ -50,6 +51,8 @@ const useMsIdState = () => {
   const { disconnect } = useDisconnect();
 
   const [savedJWT, setSavedJWT] = useLocalStorage<string>(METASOCCER_ID_JWT);
+
+  useReferrerParam();
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClaimPending, setIsClaimPending] = useState(false);
@@ -128,11 +131,6 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (!account?.address) return;
-    accountService.ping(account.address);
-  }, [account?.address]);
-
-  useEffect(() => {
-    if (!account?.address) return;
 
     const checkExistingToken = async () => {
       const existingToken = savedJWT ? decodeJWT(savedJWT).payload : undefined;
@@ -165,6 +163,12 @@ const useMsIdState = () => {
     };
     checkAccount();
   }, [account?.address, savedJWTChecked, validJWT, signForJWT]);
+
+  useEffect(() => {
+    if (!account?.address) return;
+
+    accountService.ping(account.address, localStorage.getItem(METASOCCER_ID_REFERRER) ?? undefined);
+  }, [account?.address]);
 
   useEffect(() => {
     const switchChain = async () => {

@@ -9,7 +9,7 @@ const FAUCET_URL = 'https://sfuel-faucet-h8r2g.ondigitalocean.app/gas';
 const LOW_BALANCE_THRESHOLD = ethers.parseEther("0.000001");
 
 pingRouter.post('/ping', express.json(), async (req, res) => {
-  const { address } = req.body;
+  const { address, referrer } = req.body;
 
   if (!ethers.isAddress(address)) {
     return res.status(400).json({ error: 'Invalid address' });
@@ -20,7 +20,7 @@ pingRouter.post('/ping', express.json(), async (req, res) => {
 
     if (!existingAddress) {
       await checkAndRequestGas(address);
-      await saveAddress(address);
+      await saveAddress(address, referrer);
     }
 
     res.json({ message: "Pong!" });

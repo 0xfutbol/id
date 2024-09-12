@@ -2,6 +2,7 @@ import cors from 'cors';
 import express from 'express';
 import claimRouter from './routes/claimRoute';
 import discordRouter from './routes/discordRoute';
+import infoRouter from './routes/infoRoute';
 import jwtRouter from './routes/jwtRoute';
 import pingRouter from './routes/pingRoute';
 import preRouter from './routes/preRoute';
@@ -21,6 +22,7 @@ app.use('/auth', authRouter);
 
 const accountRouter = express.Router();
 accountRouter.use(discordRouter);
+accountRouter.use(infoRouter);
 accountRouter.use(pingRouter);
 app.use('/account', accountRouter);
 

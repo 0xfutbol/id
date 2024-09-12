@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
-import axios from 'axios';
 import Image from "next/image";
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from "react";
@@ -13,6 +12,7 @@ import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
 import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
+import { accountService } from "@/modules/msid/services/AccountService";
 import { polygonService } from "@/modules/squid/services/PolygonService";
 import { skaleService } from "@/modules/squid/services/SkaleService";
 import { chainMetadata } from "@/utils/chainMetadata";
@@ -41,6 +41,7 @@ export default function ProfilePage() {
     scouts: [],
   });
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
+  const [referralCount, setReferralCount] = useState<number>(0);
   const [selectedTab, setSelectedTab] = useState<string>("achievements");
   
   const tabs = ["achievements", ...Object.keys(assets)];
@@ -48,16 +49,15 @@ export default function ProfilePage() {
   useEffect(() => {
     if (!address || !validJWT) return;
 
-    const fetchDiscordAccount = async () => {
+    const fetchAccountInfo = async () => {
       try {
-        const response = await axios.get(`${siteConfig.backendUrl}/account/discord`, {
-          headers: { 'Authorization': `Bearer ${validJWT}` }
-        });
-        if (response.data?.info?.username) {
-          setDiscordAccount(response.data.info.username);
+        const info = await accountService.getInfo(validJWT);
+        if (info.discord?.username) {
+          setDiscordAccount(info.discord.username);
         }
+        setReferralCount(info.referralCount);
       } catch (error) {
-        console.error("Error fetching Discord account:", error);
+        console.error("Error fetching account info:", error);
       }
     };
 
@@ -97,7 +97,7 @@ export default function ProfilePage() {
       }
     };
 
-    fetchDiscordAccount();
+    fetchAccountInfo();
     fetchAssets();
   }, [address, validJWT]);
 
@@ -170,6 +170,7 @@ export default function ProfilePage() {
               />
               <div>
                 <p className="text-gray-400">{username}<span className="text-gray-500">.ms</span></p>
+                <p className="text-sm text-gray-500">Referrals: {referralCount}</p>
               </div>
             </div>
             <div className="flex items-center">

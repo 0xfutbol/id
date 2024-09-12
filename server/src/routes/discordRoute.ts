@@ -1,31 +1,13 @@
 import axios from 'axios';
 import express from 'express';
 import { authenticateJWT } from '../common/auth';
-import { getDiscordAccountByAddress, getDiscordAccountByDiscordId, saveDiscordAccount } from '../repo/db';
+import { getDiscordAccountByDiscordId, saveDiscordAccount } from '../repo/db';
 
 const discordRouter = express.Router();
 
 const clientId = process.env.DISCORD_CLIENT_ID!;
 const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
 const botToken = process.env.DISCORD_BOT_TOKEN!;
-
-discordRouter.get('/discord', authenticateJWT, async (req: express.Request & { user?: { owner: string } }, res) => {
-  if (!req.user) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  try {
-    const discordAccount = await getDiscordAccountByAddress(req.user.owner);
-    if (discordAccount) {
-      res.json(discordAccount);
-    } else {
-      res.json(undefined);
-    }
-  } catch (error) {
-    console.error('Error fetching Discord account:', error);
-    res.status(500).json({ message: "Error fetching Discord account" });
-  }
-});
 
 discordRouter.post('/discord', express.json(), authenticateJWT, async (req: express.Request & { user?: { owner: string } }, res) => {
   const { code, redirectUri } = req.body;
