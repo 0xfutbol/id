@@ -16,8 +16,8 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky">
-      <NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit">
+      <NavbarContent className="basis-1/5" justify="start">
+        <NavbarBrand as="li" className="gap-3 max-w-fit p-2">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image 
               alt="MetaSoccer" 
@@ -31,11 +31,8 @@ export const Navbar = () => {
       </NavbarContent>
 
       {address && (
-        <NavbarContent
-          className="hidden sm:flex basis-1/5 sm:basis-full"
-          justify="end"
-        >
-          <NavbarItem className="hidden md:flex">
+        <NavbarContent className="basis-1/5" justify="end">
+          <NavbarItem>
             <ConnectButton client={siteConfig.thirdwebClient} />
           </NavbarItem>
         </NavbarContent>

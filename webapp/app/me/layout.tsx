@@ -11,7 +11,7 @@ export default function ProfileLayout({
 }) {
   return (
     <Suspense fallback={<LoadingScreen />}>
-      <div className="flex flex-col items-center">
+      <div className="flex flex-col items-center px-2">
         <Navbar />
         {children}
       </div>

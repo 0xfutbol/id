@@ -1,6 +1,6 @@
 "use client";
 
-import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
+import { Avatar, Button, Card, CardBody, CircularProgress, Link, Snippet, Spacer, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import Image from "next/image";
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from "react";
@@ -52,8 +52,8 @@ export default function ProfilePage() {
     const fetchAccountInfo = async () => {
       try {
         const info = await accountService.getInfo(validJWT);
-        if (info.discord?.username) {
-          setDiscordAccount(info.discord.username);
+        if (info.discord?.info?.username) {
+          setDiscordAccount(info.discord.info.username);
         }
         setReferralCount(info.referralCount);
       } catch (error) {
@@ -170,7 +170,6 @@ export default function ProfilePage() {
               />
               <div>
                 <p className="text-gray-400">{username}<span className="text-gray-500">.ms</span></p>
-                <p className="text-sm text-gray-500">Referrals: {referralCount}</p>
               </div>
             </div>
             <div className="flex items-center">
@@ -192,6 +191,11 @@ export default function ProfilePage() {
           </div>
         </CardBody>
       </Card>
+      <Snippet symbol="" codeString={`${window.location.origin}?referrer=${address}`} color="success">
+        <span className="text-wrap">MetaSoccer's referral program is live! Invite your friends to join the game, and you'll earn the Referrer Medal. Simply copy your <Link href={`${window.location.origin}?referrer=${address}`} isExternal showAnchorIcon>referral link</Link> and share it with them</span>
+        <Spacer y={1} />
+        <span className="text-wrap">Referrals: {referralCount}</span>
+      </Snippet>
       <div className="w-full flex-grow">
         <Tabs 
           aria-label="Profile tabs" 
