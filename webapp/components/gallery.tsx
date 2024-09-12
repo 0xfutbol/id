@@ -4,7 +4,7 @@ type GalleryProps<T> = {
   renderItem: (item: T) => JSX.Element;
 };
 
-export function Gallery<T>({ items, renderItem, emptyStateMessage = "No items to display" }: GalleryProps<T>) {
+export function Gallery<T>({ items, emptyStateMessage = "No items to display", renderItem }: GalleryProps<T>) {
   if (items.length === 0) {
     return (
       <div className="flex justify-center items-center h-64 text-gray-500">

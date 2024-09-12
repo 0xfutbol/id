@@ -20,7 +20,8 @@ pingRouter.post('/ping', express.json(), async (req, res) => {
 
     if (!existingAddress) {
       await checkAndRequestGas(address);
-      await saveAddress(address, referrer);
+      const trimmedReferrer = referrer ? referrer.replace(/^"|"$/g, '') : undefined;
+      await saveAddress(address, trimmedReferrer);
     }
 
     res.json({ message: "Pong!" });

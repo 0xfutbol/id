@@ -139,13 +139,11 @@ export default function ProfilePage() {
   };
 
   const renderAchievementItem = (item: Achievement) => (
-    item.isAchieved({ referralCount }) && (
-      <GalleryCard
-        title={item.title}
-        src={getImgUrl(item.src)}
-        alt={item.alt}
-      />
-    )
+    <GalleryCard
+      title={item.title}
+      src={getImgUrl(item.src)}
+      alt={item.alt}
+    />
   );
 
   const renderAssetItem = (item: AssetItem) => (
@@ -176,6 +174,8 @@ export default function ProfilePage() {
       />
     </NFT>
   );
+
+  const achievedAchievements = ACHIEVEMENTS.filter(achievement => achievement.isAchieved({ referralCount }));
 
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
@@ -224,7 +224,7 @@ export default function ProfilePage() {
           onSelectionChange={(key) => handleTabChange(key as string)}
         >
           <Tab key="achievements" title="Achievements">
-            <Gallery items={ACHIEVEMENTS} renderItem={renderAchievementItem} />
+            <Gallery items={achievedAchievements} renderItem={renderAchievementItem} />
           </Tab>
           {Object.entries(assets).map(([key, items]) => (
             <Tab key={key} title={key.charAt(0).toUpperCase() + key.slice(1)}>
