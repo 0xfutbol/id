@@ -17,7 +17,7 @@ const skaleNebula = defineChain({
   ]
 });
 
-const thirdwebClient = createThirdwebClient({ clientId: "92fc269e1a4386a026bc24727a115e12" });
+const thirdwebClient = createThirdwebClient({ clientId: "a8fd5d4d91d0da0f0485ac27da84b578" });
 
 export const siteConfig = {
   name: "MetaSoccer ID",
