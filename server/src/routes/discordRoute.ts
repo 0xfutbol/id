@@ -29,14 +29,15 @@ discordRouter.post('/discord', express.json(), authenticateJWT, async (req: expr
 
     if (!discordAlreadyConnected) {
       await saveDiscordAccount(discordUser.data.id, req.user.owner, discordUser.data);
-      await giveRole(discordUser.data.id);
+      // await giveRole(discordUser.data.id);
 
       res.json({ message: "Discord account connected successfully", data: discordUser.data });
     } else {
       res.status(400).json({ message: "Discord account already connected" });
     }
-  } catch (error) {
-    console.error('Error connecting Discord:', error);
+  } catch (error: any) {
+    console.log(error.message);
+    console.error('Error connecting Discord');
     res.status(500).json({ message: "Error connecting Discord" });
   }
 });
