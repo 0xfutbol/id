@@ -4,7 +4,7 @@ import { Navbar } from "@/components/navbar";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { CircularProgress } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { Suspense, useEffect } from "react";
 
 export default function ProfileLayout({
   children,
@@ -29,9 +29,11 @@ export default function ProfileLayout({
   }
 
   return (
-    <div className="flex flex-col items-center">
-      <Navbar />
-      {children}
-    </div>
+    <Suspense fallback={<div className="flex justify-center items-center h-screen"><CircularProgress color="primary" size="lg" /></div>}>
+      <div className="flex flex-col items-center">
+        <Navbar />
+        {children}
+      </div>
+    </Suspense>
   );
 }
