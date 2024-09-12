@@ -29,26 +29,21 @@ interface AssetItem {
 }
 
 export default function ProfilePage() {
-  const { address, username, validJWT } = useMsIdContext();
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
+  
+  const { address, username, validJWT } = useMsIdContext();
 
-  const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
     // clubs: [],
     lands: [],
     players: [],
     scouts: [],
   });
-
-  const tabs = ["achievements", ...Object.keys(assets)];
+  const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [selectedTab, setSelectedTab] = useState<string>("achievements");
-
-  useEffect(() => {
-    if (tab && tabs.includes(tab)) {
-      setSelectedTab(tab);
-    }
-  }, [tab, tabs]);
+  
+  const tabs = ["achievements", ...Object.keys(assets)];
 
   useEffect(() => {
     if (!address || !validJWT) return;
@@ -106,10 +101,23 @@ export default function ProfilePage() {
     fetchAssets();
   }, [address, validJWT]);
 
+  useEffect(() => {
+    if (tab && tabs.includes(tab)) {
+      setSelectedTab(tab);
+    }
+  }, [tab, tabs]);
+
   const handleConnectDiscord = () => {
     const clientId = "1229091313333309480";
     const redirectUri = `${window.location.origin}/discord-oauth`;
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+  };
+
+  const handleTabChange = (key: string) => {
+    setSelectedTab(key);
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', key);
+    window.history.pushState(null, '', `?${params.toString()}`);
   };
 
   const renderAchievementItem = (item: typeof ACHIEVEMENTS[number]) => (
@@ -149,13 +157,6 @@ export default function ProfilePage() {
     </NFT>
   );
 
-  const handleTabChange = (key: string) => {
-    setSelectedTab(key);
-    const params = new URLSearchParams(searchParams);
-    params.set('tab', key);
-    window.history.pushState(null, '', `?${params.toString()}`);
-  };
-
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
       <Card className="w-full">
@@ -163,7 +164,7 @@ export default function ProfilePage() {
           <div className="flex justify-between items-center">
             <div className="flex items-center">
               <Avatar 
-                src={`https://effigy.im/a/${address}.png`}
+                src={`https://effigy.im/a/${address ?? "0x0000000000000000000000000000000000000000"}.png`}
                 size="lg" 
                 className="mr-4"
               />

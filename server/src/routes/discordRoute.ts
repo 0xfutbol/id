@@ -19,7 +19,7 @@ discordRouter.get('/discord', authenticateJWT, async (req: express.Request & { u
     if (discordAccount) {
       res.json(discordAccount);
     } else {
-      res.status(404).json({ message: "Discord account not found" });
+      res.json(undefined);
     }
   } catch (error) {
     console.error('Error fetching Discord account:', error);
