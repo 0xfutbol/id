@@ -3,7 +3,7 @@
 import { Avatar, Button, Card, CardBody, CircularProgress, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import axios from 'axios';
 import Image from "next/image";
-import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Suspense, useEffect, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
@@ -30,9 +30,8 @@ interface AssetItem {
 
 export default function ProfilePage() {
   const { address, username, validJWT } = useMsIdContext();
-  const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const tab = searchParams.get('tab');
 
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
@@ -43,14 +42,13 @@ export default function ProfilePage() {
   });
 
   const tabs = ["achievements", ...Object.keys(assets)];
-  const [selectedTab, setSelectedTab] = useState("achievements");
+  const [selectedTab, setSelectedTab] = useState<string>("achievements");
 
   useEffect(() => {
-    const tab = searchParams.get('tab');
     if (tab && tabs.includes(tab)) {
       setSelectedTab(tab);
     }
-  }, [searchParams, tabs]);
+  }, [tab, tabs]);
 
   useEffect(() => {
     if (!address || !validJWT) return;
@@ -153,11 +151,9 @@ export default function ProfilePage() {
 
   const handleTabChange = (key: string) => {
     setSelectedTab(key);
-    const current = new URLSearchParams(Array.from(searchParams.entries()));
-    current.set("tab", key);
-    const search = current.toString();
-    const query = search ? `?${search}` : "";
-    router.push(`${pathname}${query}`);
+    const params = new URLSearchParams(searchParams);
+    params.set('tab', key);
+    window.history.pushState(null, '', `?${params.toString()}`);
   };
 
   return (
