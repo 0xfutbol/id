@@ -12,7 +12,7 @@ export async function validateUsernameWithAI(username: string): Promise<boolean>
 
 1. The username must not contain any offensive language, profanity, or inappropriate content.
 2. It should not include direct references to specific soccer clubs or teams.
-3. The username should not contain personal information (e.g., full names, email addresses, phone numbers).
+3. The username should not contain contact information (e.g., email addresses, phone numbers).
 4. It should be appropriate for all ages and not allude to violence, drugs, or other sensitive topics.
 5. The username should not impersonate well-known athletes, teams, or brands.
 
@@ -21,7 +21,7 @@ Evaluate the following username: "${username}"
 Respond with VALID if the username meets all criteria, or INVALID if it violates any of the rules.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o",
+    model: "gpt-4o-mini",
     messages: [{ role: "user", content: prompt }],
   });
 
