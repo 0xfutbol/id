@@ -36,7 +36,7 @@ export default function ProfilePage() {
 
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
-    clubs: [],
+    // clubs: [],
     lands: [],
     players: [],
     scouts: [],
@@ -78,11 +78,11 @@ export default function ProfilePage() {
         ]);
 
         setAssets({
-          clubs: clubsData.map((club: any) => ({
-            contract: siteConfig.contracts.skaleNebula.clubs,
-            tokenId: BigInt(club.id),
-            chain: "skaleNebula",
-          })),
+          // clubs: clubsData.map((club: any) => ({
+          //   contract: siteConfig.contracts.skaleNebula.clubs,
+          //   tokenId: BigInt(club.id),
+          //   chain: "skaleNebula",
+          // })),
           lands: landsData.map((land: any) => ({
             contract: siteConfig.contracts.polygon.lands,
             tokenId: BigInt(land.id),
