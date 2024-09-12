@@ -25,9 +25,9 @@ export default function Home() {
     <div className="flex h-screen w-full flex-col md:flex-row">
       <div className="flex-1 h-full">
         <img
-          alt="MetaSoccer Background"
+          alt="MetaSoccer"
           className="h-full w-full object-cover"
-          src="https://assets.metasoccer.com/ui/login/1.png"
+          src={getImgUrl("https://assets.metasoccer.com/ui/login/1.png")}
         />
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
