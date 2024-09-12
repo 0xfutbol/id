@@ -6,7 +6,7 @@ This repository contains the MetaSoccerID smart contract, which is used for regi
 
 The MetaSoccerID contract has been deployed on the Skale Nebula network at the following address:
 
-`0xB0bbe663E7b528568cbD38047bc34ca1ec2fFEe0`
+`0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e`
 
 ## Getting Started for Developers
 
