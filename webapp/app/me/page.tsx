@@ -18,8 +18,26 @@ import { skaleService } from "@/modules/squid/services/SkaleService";
 import { chainMetadata } from "@/utils/chainMetadata";
 import { getImgUrl } from "@/utils/getImgUrl";
 
-const ACHIEVEMENTS = [
-  { src: "https://assets.metasoccer.com/badges/early-adopter.png?v=1", alt: "Early Adopter Medal", title: "Early Adopter" },
+interface Achievement {
+  src: string;
+  alt: string;
+  title: string;
+  isAchieved: (params: any) => boolean;
+}
+
+const ACHIEVEMENTS: Achievement[] = [
+  { 
+    src: "https://assets.metasoccer.com/badges/early-adopter.png?v=1", 
+    alt: "Early Adopter Medal", 
+    title: "Early Adopter",
+    isAchieved: () => true // Always achieved for now
+  },
+  {
+    src: "https://assets.metasoccer.com/badges/referrer.png?v=1",
+    alt: "Referrer Medal",
+    title: "Referrer",
+    isAchieved: (params: { referralCount: number }) => params.referralCount >= 3
+  }
 ];
 
 interface AssetItem {
@@ -120,12 +138,14 @@ export default function ProfilePage() {
     window.history.pushState(null, '', `?${params.toString()}`);
   };
 
-  const renderAchievementItem = (item: typeof ACHIEVEMENTS[number]) => (
-    <GalleryCard
-      title={item.title}
-      src={getImgUrl(item.src)}
-      alt={item.alt}
-    />
+  const renderAchievementItem = (item: Achievement) => (
+    item.isAchieved({ referralCount }) && (
+      <GalleryCard
+        title={item.title}
+        src={getImgUrl(item.src)}
+        alt={item.alt}
+      />
+    )
   );
 
   const renderAssetItem = (item: AssetItem) => (
