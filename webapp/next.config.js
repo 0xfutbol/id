@@ -18,6 +18,10 @@ const nextConfig = {
         hostname: "res.coinpaper.com",
         protocol: "https",
       },
+      {
+        hostname: "s2.coinmarketcap.com",
+        protocol: "https",
+      }
     ],
   },
 };

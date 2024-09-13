@@ -3,26 +3,25 @@
 import { Avatar, Button, Card, CardBody, CircularProgress, Link, Snippet, Spacer, Tab, Tabs, Tooltip } from "@nextui-org/react";
 import Image from "next/image";
 import { useSearchParams } from 'next/navigation';
-import { Suspense, useEffect, useState } from "react";
+import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
-import { NFT } from "thirdweb/react";
+import { NFT, useWalletBalance } from "thirdweb/react";
 
 import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
+import { chains } from "@/config/chains";
 import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { accountService } from "@/modules/msid/services/AccountService";
 import { polygonService } from "@/modules/squid/services/PolygonService";
-import { skaleService } from "@/modules/squid/services/SkaleService";
-import { chainMetadata } from "@/utils/chainMetadata";
 import { getImgUrl } from "@/utils/getImgUrl";
 
 interface Achievement {
   src: string;
   alt: string;
   title: string;
-  isAchieved: (params: any) => boolean;
+  isAchieved: (params: { referralCount: number }) => boolean;
 }
 
 const ACHIEVEMENTS: Achievement[] = [
@@ -36,14 +35,21 @@ const ACHIEVEMENTS: Achievement[] = [
     src: "https://assets.metasoccer.com/badges/referrer.png?v=2",
     alt: "Referrer Medal",
     title: "Referrer",
-    isAchieved: (params: { referralCount: number }) => params.referralCount >= 3
+    isAchieved: ({ referralCount }) => referralCount >= 3
   }
 ];
 
 interface AssetItem {
   contract: ThirdwebContract;
   tokenId: bigint;
-  chain: keyof typeof chainMetadata;
+  chain: keyof typeof chains;
+}
+
+interface TokenItem {
+  address: string;
+  symbol: string;
+  balance: string;
+  chain: keyof typeof chains;
 }
 
 export default function ProfilePage() {
@@ -53,71 +59,117 @@ export default function ProfilePage() {
   const { address, username, validJWT } = useMsIdContext();
 
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
-    // clubs: [],
     lands: [],
     players: [],
     scouts: [],
   });
+
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [referralCount, setReferralCount] = useState<number>(0);
+
   const [selectedTab, setSelectedTab] = useState<string>("achievements");
-  
-  const tabs = ["achievements", ...Object.keys(assets)];
+
+  const { data: msuBalance } = useWalletBalance({
+    tokenAddress: "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1",
+    client: siteConfig.thirdwebClient,
+    chain: chains.polygon.ref,
+    address,
+  });
+
+  const { data: xFutbolBalance } = useWalletBalance({
+    tokenAddress: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
+    client: siteConfig.thirdwebClient,
+    chain: chains.xdcApothem.ref,
+    address,
+  });
+
+  const { data: msaBalance } = useWalletBalance({
+    tokenAddress: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B",
+    client: siteConfig.thirdwebClient,
+    chain: chains.polygon.ref,
+    address,
+  });
+
+  const tokens = useMemo(() => {
+    const formatBalance = (balance: string | undefined) => {
+      const num = Number(balance ?? "0");
+      return num.toFixed(num % 1 === 0 ? 0 : 2);
+    };
+
+    return [
+      {
+        address: "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1",
+        symbol: "MSU",
+        balance: formatBalance(msuBalance?.displayValue),
+        chain: "polygon" as keyof typeof chains
+      },
+      {
+        address: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B",
+        symbol: "MSA",
+        balance: formatBalance(msaBalance?.displayValue),
+        chain: "polygon" as keyof typeof chains
+      },
+      {
+        address: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
+        symbol: "FUTBOL",
+        balance: formatBalance(xFutbolBalance?.displayValue),
+        chain: "xdcApothem" as keyof typeof chains
+      },
+    ];
+  }, [msuBalance, xFutbolBalance, msaBalance]);
+
+  const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "tokens"], [assets]);
+
+  const fetchAccountInfo = useCallback(async () => {
+    if (!validJWT) return;
+    try {
+      const info = await accountService.getInfo(validJWT);
+      if (info.discord?.info?.username) {
+        setDiscordAccount(info.discord.info.username);
+      }
+      setReferralCount(info.referralCount);
+    } catch (error) {
+      console.error("Error fetching account info:", error);
+    }
+  }, [validJWT]);
+
+  const fetchAssets = useCallback(async () => {
+    if (!address) return;
+    try {
+      const [landsData, playersData, scoutsData] = await Promise.all([
+        polygonService.queryLands(address),
+        polygonService.queryPlayers(address),
+        polygonService.queryScouts(address),
+      ]);
+
+      setAssets({
+        lands: landsData.map((land: any) => ({
+          contract: siteConfig.contracts.polygon.lands,
+          tokenId: BigInt(land.id),
+          chain: "polygon",
+        })),
+        players: playersData.map((player: any) => ({
+          contract: siteConfig.contracts.polygon.players,
+          tokenId: BigInt(player.id),
+          chain: "polygon",
+        })),
+        scouts: scoutsData.map((scout: any) => ({
+          contract: siteConfig.contracts.polygon.scouts,
+          tokenId: BigInt(scout.id),
+          chain: "polygon",
+        })),
+      });
+    } catch (error) {
+      console.error("Error fetching assets:", error);
+    }
+  }, [address]);
 
   useEffect(() => {
-    if (!address || !validJWT) return;
-
-    const fetchAccountInfo = async () => {
-      try {
-        const info = await accountService.getInfo(validJWT);
-        if (info.discord?.info?.username) {
-          setDiscordAccount(info.discord.info.username);
-        }
-        setReferralCount(info.referralCount);
-      } catch (error) {
-        console.error("Error fetching account info:", error);
-      }
-    };
-
-    const fetchAssets = async () => {
-      try {
-        const [clubsData, landsData, playersData, scoutsData] = await Promise.all([
-          skaleService.queryClubs(address),
-          polygonService.queryLands(address),
-          polygonService.queryPlayers(address),
-          polygonService.queryScouts(address),
-        ]);
-
-        setAssets({
-          // clubs: clubsData.map((club: any) => ({
-          //   contract: siteConfig.contracts.skaleNebula.clubs,
-          //   tokenId: BigInt(club.id),
-          //   chain: "skaleNebula",
-          // })),
-          lands: landsData.map((land: any) => ({
-            contract: siteConfig.contracts.polygon.lands,
-            tokenId: BigInt(land.id),
-            chain: "polygon",
-          })),
-          players: playersData.map((player: any) => ({
-            contract: siteConfig.contracts.polygon.players,
-            tokenId: BigInt(player.id),
-            chain: "polygon",
-          })),
-          scouts: scoutsData.map((scout: any) => ({
-            contract: siteConfig.contracts.polygon.scouts,
-            tokenId: BigInt(scout.id),
-            chain: "polygon",
-          })),
-        });
-      } catch (error) {
-        console.error("Error fetching assets:", error);
-      }
-    };
-
-    fetchAccountInfo();
-    fetchAssets();
-  }, [address, validJWT]);
+    if (address && validJWT) {
+      fetchAccountInfo();
+      fetchAssets();
+    }
+  }, [address, validJWT, fetchAccountInfo, fetchAssets]);
 
   useEffect(() => {
     if (tab && tabs.includes(tab)) {
@@ -131,23 +183,24 @@ export default function ProfilePage() {
     window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
   };
 
-  const handleTabChange = (key: string) => {
+  const handleTabChange = useCallback((key: string) => {
     setSelectedTab(key);
     const params = new URLSearchParams(searchParams);
     params.set('tab', key);
     window.history.pushState(null, '', `?${params.toString()}`);
-  };
+  }, [searchParams]);
 
-  const renderAchievementItem = (item: Achievement) => (
+  const renderAchievementItem = useCallback((item: Achievement) => (
     <GalleryCard
+      key={item.title}
       title={item.title}
       src={getImgUrl(item.src)}
       alt={item.alt}
     />
-  );
+  ), []);
 
-  const renderAssetItem = (item: AssetItem) => (
-    <NFT contract={item.contract} tokenId={item.tokenId}>
+  const renderAssetItem = useCallback((item: AssetItem) => (
+    <NFT key={`${item.chain}-${item.tokenId}`} contract={item.contract} tokenId={item.tokenId}>
       <GalleryCard
         title={(
           <Suspense fallback={<></>}>
@@ -161,10 +214,10 @@ export default function ProfilePage() {
         )}
         headerComponent={(
           <div className="flex f-full justify-end">
-            <Tooltip content={chainMetadata[item.chain].name}>
+            <Tooltip content={chains[item.chain].name}>
               <Image
-                alt={chainMetadata[item.chain].name}
-                src={chainMetadata[item.chain].icon}
+                alt={chains[item.chain].name}
+                src={chains[item.chain].icon}
                 width={18} height={18}
               />
             </Tooltip>
@@ -173,9 +226,32 @@ export default function ProfilePage() {
         alt=""
       />
     </NFT>
-  );
+  ), []);
 
-  const achievedAchievements = ACHIEVEMENTS.filter(achievement => achievement.isAchieved({ referralCount }));
+  const renderTokenItem = useCallback((item: TokenItem) => (
+    <GalleryCard
+      key={item.symbol}
+      title={`${item.balance} ${item.symbol}`}
+      src={getImgUrl(`https://assets.metasoccer.com/tokens/${item.symbol.toLowerCase()}.png`)}
+      alt={`${item.symbol} token`}
+      headerComponent={
+        <div className="flex f-full justify-end">
+          <Tooltip content={chains[item.chain].name}>
+            <Image
+              alt={chains[item.chain].name}
+              src={chains[item.chain].icon}
+              width={18} height={18}
+            />
+          </Tooltip>
+        </div>
+      }
+    />
+  ), []);
+
+  const achievedAchievements = useMemo(() => 
+    ACHIEVEMENTS.filter(achievement => achievement.isAchieved({ referralCount })),
+    [referralCount]
+  );
 
   return (
     <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
@@ -231,6 +307,9 @@ export default function ProfilePage() {
               <Gallery items={items} renderItem={renderAssetItem} />
             </Tab>
           ))}
+          <Tab key="tokens" title="Tokens">
+            <Gallery items={tokens} renderItem={renderTokenItem} />
+          </Tab>
         </Tabs>
       </div>
     </div>
