@@ -35,12 +35,22 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
     }
 
     const owner = metaSoccerIds[0].owner;
-    const jwt = createJWT(username, owner, message, expiration);
+    const token = createJWT(username, owner, message, expiration);
     
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
 
-    res.json({ token: jwt });
+    // Set the secure cookie
+    res.cookie('auth_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      domain: process.env.NODE_ENV === 'production' ? '.metasoccer.com' : 'localhost',
+      maxAge: MAX_SIGNATURE_EXPIRATION,
+    });
+
+    // Return the token in the JSON response as well
+    res.json({ token });
   } catch (error) {
     console.error('Error creating JWT:', error);
     res.status(500).json({ error: 'Internal server error' });

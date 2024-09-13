@@ -51,7 +51,6 @@ const useMsIdState = () => {
 
   useReferrerParam();
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isSwitchingChain, setIsSwitchingChain] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
@@ -67,19 +66,11 @@ const useMsIdState = () => {
   }), []);
 
   const setSavedJWT = (jwt: string) => {
-    const domain = window.location.hostname === 'localhost' ? 'localhost' : '.metasoccer.com';
-    document.cookie = `${METASOCCER_ID_JWT}=${jwt}; path=/; domain=${domain}; max-age=${MAX_SIGNATURE_EXPIRATION / 1000}; SameSite=Strict; ${domain !== 'localhost' ? 'Secure' : ''}`;
+    localStorage.setItem(METASOCCER_ID_JWT, jwt);
   };
 
   const savedJWT = (): string | undefined => {
-    const cookies = document.cookie.split(';');
-    for (let cookie of cookies) {
-      const [name, value] = cookie.trim().split('=');
-      if (name === METASOCCER_ID_JWT) {
-        return value;
-      }
-    }
-    return undefined;
+    return localStorage.getItem(METASOCCER_ID_JWT) || undefined;
   };
 
   const claim = useCallback(async (username: string) => {
@@ -127,8 +118,6 @@ const useMsIdState = () => {
     if (activeWallet) {
       disconnect(activeWallet);
     }
-    const domain = window.location.hostname === 'localhost' ? 'localhost' : '.metasoccer.com';
-    document.cookie = `${METASOCCER_ID_JWT}=; path=/; domain=${domain}; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
   }, [activeWallet, disconnect]);
 
   const signForJWT = useCallback(async (username: string) => {
@@ -205,7 +194,6 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (status === "disconnected") {
-      setIsAuthenticated(false);
       setIsClaimPending(false);
       setIsWaitingForSignature(false);
       setUsername(undefined);
@@ -215,11 +203,9 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (validJWT) {
-      setIsAuthenticated(true);
       setSavedJWT(validJWT);
       setUsername(decodeJWT(validJWT).payload.username);
     } else {
-      setIsAuthenticated(false);
       setIsClaimPending(false);
       setIsWaitingForSignature(false);
       setUsername(undefined);
@@ -228,7 +214,6 @@ const useMsIdState = () => {
 
   return {
     address: account?.address,
-    isAuthenticated,
     isClaimPending,
     isSwitchingChain,
     isWaitingForSignature,

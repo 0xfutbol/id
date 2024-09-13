@@ -11,7 +11,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { isAuthenticated, status } = useMsIdContext();
+  const { status, validJWT } = useMsIdContext();
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -29,7 +29,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (!isAuthenticated) {
+  if (!validJWT) {
     return (
       <>
         <AutoConnect client={siteConfig.thirdwebClient} />

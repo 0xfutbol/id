@@ -9,15 +9,21 @@ import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const { isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
+  const { isClaimPending, isSwitchingChain, validJWT } = useMsIdContext();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (validJWT) {
+      const urlParams = new URLSearchParams(window.location.search);
+      const redirectUri = urlParams.get('redirect_uri');
+      if (window.parent && redirectUri) {
+        window.parent.postMessage({ type: 'JWT', jwt: validJWT }, redirectUri);
+      }
+
       router.push("/me");
     }
-  }, [isAuthenticated, router]);
+  }, [router, validJWT]);
 
-  if (isAuthenticated) {
+  if (validJWT) {
     return null;
   }
 
