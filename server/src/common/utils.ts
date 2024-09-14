@@ -39,10 +39,17 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
     return { isValid: false, error: 'Invalid username format. Username must start and end with alphanumeric characters, can contain hyphens, and be between 3 and 63 characters long.' };
   }
 
+  let isValid = false;
   let usernameData = await getUsername(trimmedUsername);
   if (!usernameData) {
-    const isValid = await validateUsernameWithAI(trimmedUsername);
-    await saveUsernameIfItDoesntExists(trimmedUsername, isValid);
+    try {
+      isValid = await validateUsernameWithAI(trimmedUsername);
+      await saveUsernameIfItDoesntExists(trimmedUsername, isValid);
+    } catch (error) {
+      isValid = true;
+      console.error('Error validating username with AI:', error);
+      await saveUsernameIfItDoesntExists(trimmedUsername, false);
+    }
     usernameData = { username: trimmedUsername, is_valid: isValid };
   }
 
