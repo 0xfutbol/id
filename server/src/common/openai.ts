@@ -21,7 +21,7 @@ Evaluate the following username: "${username}"
 Respond with VALID if the username meets all criteria, or INVALID if it violates any of the rules.`;
 
   const response = await openai.chat.completions.create({
-    model: "gpt-4o-mini",
+    model: "gpt-3.5-turbo",
     messages: [{ role: "user", content: prompt }],
   });
 
