@@ -3,6 +3,38 @@ import { keccak256, toUtf8Bytes } from 'ethers';
 import { getUsername, saveUsernameIfItDoesntExists } from '../repo/db';
 import { validateUsernameWithAI } from './openai';
 
+const offensiveWords: string[] = [
+  "idiot", "moron", "stupid", "dumb", "asshole", "bastard", 
+  "bitch", "slut", "whore", "fuck", "shit", "piss", "cunt", 
+  "dick", "cock", "nigger", "faggot", "spic", "wetback", "dyke", 
+  "twat", "wanker", "tosser", "prick", "bugger", "bollocks", 
+  "bloody", "wog", "cocksucker", "motherfucker", "pussy", "jerk", 
+  "retard", "cripple", "spaz", "tranny", "queer", "homo", "chink", 
+  "gook", "nip", "kike", "raghead", "camel jockey", "terrorist", 
+  "freak", "whorehouse", "drug addict", "junkie", "meth head"
+];
+
+const soccerTeams: string[] = [
+  "manchester united", "real madrid", "barcelona", "liverpool", "chelsea", 
+  "bayern munich", "juventus", "psg", "manchester city", "arsenal", 
+  "tottenham", "inter milan", "ac milan", "atletico madrid", "roma", 
+  "napoli", "ajax", "porto", "benfica", "borussia dortmund", 
+  "sevilla", "valencia", "monaco", "lyon", "galatasaray", 
+  "fenerbahce", "besiktas", "rangers", "celtic", "leicester city", 
+  "everton", "west ham", "aston villa", "newcastle united", 
+  "leeds united", "wolverhampton wanderers", "crystal palace", "southampton"
+];
+
+const wellKnownAthletes: string[] = [
+  "messi", "ronaldo", "neymar", "mbappe", "zlatan", "lewandowski", 
+  "benzema", "modric", "salah", "haaland", "kane", "aguero", 
+  "pulisic", "son", "ramos", "pogba", "de bruyne", "griezmann", 
+  "sterling", "suarez", "alisson", "ter stegen", "van dijk", "robertson", 
+  "kante", "hazard", "donnarumma", "courtois", "chiellini", "dani alves", 
+  "pirlo", "xavi", "iniesta", "buffon", "schweinsteiger", "maradona", 
+  "pele", "ronaldinho", "maldini", "figo", "henry", "shevchenko"
+];
+
 export async function getMetaSoccerIdByUsername(username: string, maxWaitSeconds: number = 0): Promise<any[]> {
   const usernameHash = keccak256(toUtf8Bytes(username));
   let totalWaitSeconds = 0;
@@ -46,9 +78,9 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
       isValid = await validateUsernameWithAI(trimmedUsername);
       await saveUsernameIfItDoesntExists(trimmedUsername, isValid);
     } catch (error) {
-      isValid = true;
       console.error('Error validating username with AI:', error);
-      await saveUsernameIfItDoesntExists(trimmedUsername, false);
+      isValid = heuristicsValidation(trimmedUsername);
+      await saveUsernameIfItDoesntExists(trimmedUsername, isValid);
     }
     usernameData = { username: trimmedUsername, is_valid: isValid };
   }
@@ -62,6 +94,42 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
   }
 
   return { isValid: true };
+}
+
+function heuristicsValidation(username: string): boolean {
+  const lowerCaseUsername = username.toLowerCase();
+
+  // Check for offensive words
+  for (const profanity of offensiveWords) {
+    if (lowerCaseUsername.includes(profanity)) {
+      return false;
+    }
+  }
+
+  // Check for soccer clubs
+  for (const club of soccerTeams) {
+    if (lowerCaseUsername.includes(club)) {
+      return false;
+    }
+  }
+
+  // Check for well-known athletes
+  for (const athlete of wellKnownAthletes) {
+    if (lowerCaseUsername.includes(athlete)) {
+      return false;
+    }
+  }
+
+  // Check for contact information (email or phone number)
+  const emailPattern = /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b/;
+  const phonePattern = /\b\d{10,}\b/;
+  
+  if (emailPattern.test(lowerCaseUsername) || phonePattern.test(lowerCaseUsername)) {
+    return false;
+  }
+
+  // If no issues are found, the username is valid
+  return true;
 }
 
 export function isValidSubdomain(username: string): boolean {

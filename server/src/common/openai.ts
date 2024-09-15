@@ -8,7 +8,7 @@ const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 export async function validateUsernameWithAI(username: string): Promise<boolean> {
   console.log(`Validating username: ${username}`);
 
-  const prompt = `You are a strict username validator for a sports-related platform. Your task is to evaluate the given username and determine if it's appropriate and compliant with our guidelines. Please follow these rules:
+  const prompt = `You are a username validator for a sports-related platform. Your task is to evaluate the given username and determine if it's appropriate and compliant with our guidelines. Please follow these rules:
 
 1. The username must not contain any offensive language, profanity, or inappropriate content.
 2. It should not include direct references to specific soccer clubs or teams.
