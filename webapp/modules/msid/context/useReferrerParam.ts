@@ -12,7 +12,7 @@ export const useReferrerParam = () => {
   useEffect(() => {
     const referrer = searchParams.get('referrer');
 
-    if (typeof referrer === 'string') {
+    if (typeof referrer === 'string' && referrer.length > 0) {
       setSavedReferrer(referrer);
 
       // Remove the referrer from the URL
