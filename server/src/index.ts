@@ -11,7 +11,10 @@ import validateRoute from './routes/validateRoute';
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors());
+app.use(cors({
+  origin: 'https://manag3r.metasoccer.com, https://manag3r.devsoccer.com',
+  credentials: true,
+}));
 
 const authRouter = express.Router();
 authRouter.use(claimRouter);
