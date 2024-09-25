@@ -187,26 +187,6 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (!account?.address) return;
-    if (!savedJWTChecked.current) return;
-    if (validJWT.current) return;
-
-    const checkAccount = async () => {
-      console.debug("Checking account:", account.address);
-      const { username } = await authService.pre(account.address);
-      if (username) {
-        console.debug("Username found for account:", username);
-        const jwt = await signForJWT(account, username);
-        login(jwt)
-      } else {
-        console.debug("No username found, claim pending");
-        setIsClaimPending(true);
-      }
-    };
-    checkAccount();
-  }, [account]);
-
-  useEffect(() => {
-    if (!account?.address) return;
 
     const checkExistingToken = async () => {
       console.debug("Checking existing token for account:", account.address);
@@ -219,18 +199,29 @@ const useMsIdState = () => {
           existingTokenOwner && existingTokenOwner.toLowerCase() === account.address.toLowerCase()) {
         console.debug("Existing valid JWT found:", existingJWT);
         login(existingJWT);
+      } else {
+        console.debug("Checking account:", account.address);
+        const { username } = await authService.pre(account.address);
+        if (username) {
+          console.debug("Username found for account:", username);
+          const jwt = await signForJWT(account, username);
+          login(jwt)
+        } else {
+          console.debug("No username found, claim pending");
+          setIsClaimPending(true);
+        }
       }
 
       savedJWTChecked.current = true;
     };
 
-    const pingAccountService = async () => {
+    const pingAccount = async () => {
       console.debug("Pinging account service with address:", account.address);
       accountService.ping(account.address, localStorage.getItem(METASOCCER_ID_REFERRER) ?? undefined);
     };
 
     checkExistingToken();
-    pingAccountService();
+    pingAccount();
   }, [account?.address]);
 
   useEffect(() => {
