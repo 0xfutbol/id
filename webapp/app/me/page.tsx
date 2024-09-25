@@ -56,7 +56,7 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const tab = searchParams.get('tab');
   
-  const { address, username, validJWT } = useMsIdContext();
+  const { address, isAuthenticated, username } = useMsIdContext();
 
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
     lands: [],
@@ -121,9 +121,10 @@ export default function ProfilePage() {
   const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "tokens"], [assets]);
 
   const fetchAccountInfo = useCallback(async () => {
-    if (!validJWT) return;
+    if (!isAuthenticated) return;
+
     try {
-      const info = await accountService.getInfo(validJWT);
+      const info = await accountService.getInfo();
       if (info.discord?.info?.username) {
         setDiscordAccount(info.discord.info.username);
       }
@@ -131,10 +132,11 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Error fetching account info:", error);
     }
-  }, [validJWT]);
+  }, [isAuthenticated]);
 
   const fetchAssets = useCallback(async () => {
     if (!address) return;
+
     try {
       const [landsData, playersData, scoutsData] = await Promise.all([
         polygonService.queryLands(address),
@@ -165,11 +167,11 @@ export default function ProfilePage() {
   }, [address]);
 
   useEffect(() => {
-    if (address && validJWT) {
+    if (address && isAuthenticated) {
       fetchAccountInfo();
       fetchAssets();
     }
-  }, [address, validJWT, fetchAccountInfo, fetchAssets]);
+  }, [address, isAuthenticated, fetchAccountInfo, fetchAssets]);
 
   useEffect(() => {
     if (tab && tabs.includes(tab)) {

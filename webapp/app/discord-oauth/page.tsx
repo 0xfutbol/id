@@ -11,15 +11,15 @@ export default function DiscordOAuthPage() {
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
 
-  const { validJWT } = useMsIdContext();
+  const { isAuthenticated } = useMsIdContext();
 
   useEffect(() => {
     if (!code) return;
-    if (!validJWT) return;
+    if (!isAuthenticated) return;
 
     const redirectUri = `${window.location.origin}/discord-oauth`;
 
-    accountService.linkDiscord(code, redirectUri, validJWT)
+    accountService.linkDiscord(code, redirectUri)
       .then(() => {
         // Success handling can be added here if needed
       })
@@ -29,7 +29,7 @@ export default function DiscordOAuthPage() {
       .finally(() => {
         router.replace("/me");
       });
-  }, [code, router, validJWT]);
+  }, [code, router]);
 
   return <CircularProgress />;
 }

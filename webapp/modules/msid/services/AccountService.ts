@@ -1,16 +1,17 @@
 import { siteConfig } from "@/config/site";
 import axios from "axios";
+import { getSavedJWT } from "../context/MsIdProvider";
 
 class AccountService {
 	constructor(
 		private readonly httpClient = axios.create({ baseURL: `${siteConfig.backendUrl}/account` })
 	) {}
 
-	async getInfo(jwt: string): Promise<{ discord: any, referralCount: number }> {
+	async getInfo(): Promise<{ discord: any, referralCount: number }> {
 		try {
 			const response = await this.httpClient.get("/info", {
 				headers: {
-					Authorization: `Bearer ${jwt}`
+					Authorization: `Bearer ${getSavedJWT()}`
 				}
 			});
 			return response.data;
@@ -19,11 +20,11 @@ class AccountService {
 		}
 	}
 
-	async linkDiscord(code: string, redirectUri: string, jwt: string): Promise<void> {
+	async linkDiscord(code: string, redirectUri: string): Promise<void> {
 		try {
 			await this.httpClient.post("/discord", { code, redirectUri }, {
 				headers: {
-					Authorization: `Bearer ${jwt}`
+					Authorization: `Bearer ${getSavedJWT()}`
 				}
 			});
 		} catch (err) {

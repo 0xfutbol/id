@@ -10,7 +10,7 @@ export const ClaimForm = () => {
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [isTakingLong, setIsTakingLong] = useState(true);
+  const [isTakingLong, setIsTakingLong] = useState(false);
   const [username, setUsername] = useState("");
 
   useEffect(() => {
@@ -65,7 +65,7 @@ export const ClaimForm = () => {
           value={username}
           onChange={handleUsernameChange}
         />
-        {isTakingLong && (
+        {isTakingLong && !isWaitingForSignature && (
           <p className="text-xs">Claiming your MetaSoccer ID is a blockchain operation and might take a few seconds, so please hang tight—we’ll be ready soon!</p>
         )}
         <Button type="submit" color="primary" isLoading={isLoading || isWaitingForSignature}>

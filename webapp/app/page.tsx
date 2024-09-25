@@ -9,15 +9,15 @@ import { useEffect } from "react";
 
 export default function Home() {
   const router = useRouter();
-  const { isClaimPending, isSwitchingChain, validJWT } = useMsIdContext();
+  const { isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
 
   useEffect(() => {
-    if (validJWT) {
+    if (isAuthenticated) {
       router.push("/me");
     }
-  }, [router, validJWT]);
+  }, [router, isAuthenticated]);
 
-  if (validJWT) {
+  if (isAuthenticated) {
     return null;
   }
 

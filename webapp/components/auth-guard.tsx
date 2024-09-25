@@ -11,7 +11,10 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
 
-  const { status, validJWT } = useMsIdContext();
+  const { isAuthenticated, status } = useMsIdContext();
+
+  console.log("isAuthenticated", isAuthenticated);
+  console.log("status", status);
 
   useEffect(() => {
     if (pathname !== "/") {
@@ -29,7 +32,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (validJWT) {
+  if (isAuthenticated) {
     return <>{children}</>;
   } else {
     return (
