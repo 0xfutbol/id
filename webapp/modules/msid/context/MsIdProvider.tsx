@@ -47,10 +47,10 @@ export const getSavedJWT = (): string | undefined => {
 
 export const setSavedJWT = (jwt: string | undefined) => {
   if (jwt) {
-    console.debug("Setting JWT in localStorage:", jwt);
+    console.debug("[MetaSoccer ID] Setting JWT in localStorage:", jwt);
     localStorage?.setItem(METASOCCER_ID_JWT, jwt);
   } else {
-    console.debug("Removing JWT from localStorage");
+    console.debug("[MetaSoccer ID] Removing JWT from localStorage");
     localStorage?.removeItem(METASOCCER_ID_JWT);
   }
 };
@@ -84,22 +84,22 @@ const useMsIdState = () => {
   }), []);
 
   const claim = useCallback(async (username: string) => {
-    console.debug("Claiming username:", username);
+    console.debug("[MetaSoccer ID] Claiming username:", username);
     if (!account) throw new Error("No account found");
 
     const { claimed, signature, signatureExpiration } = await authService.claimSignature(username, account.address);
-    console.debug("Claim signature response:", { claimed, signature, signatureExpiration });
+    console.debug("[MetaSoccer ID] Claim signature response:", { claimed, signature, signatureExpiration });
 
     const handleClaimedUsername = async (username: string) => {
-      console.debug("Handling claimed username:", username);
+      console.debug("[MetaSoccer ID] Handling claimed username:", username);
       const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
       const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
       setIsWaitingForSignature(true);
       try {
         const signedMessage = await account.signMessage({ message });
-        console.debug("Signed message:", signedMessage);
+        console.debug("[MetaSoccer ID] Signed message:", signedMessage);
         const jwt = await authService.getJWT(username, signedMessage, expiration);
-        console.debug("JWT received:", jwt);
+        console.debug("[MetaSoccer ID] JWT received:", jwt);
         login(jwt);
       } finally {
         setIsWaitingForSignature(false);
@@ -107,18 +107,18 @@ const useMsIdState = () => {
     };
 
     const handleUnclaimedUsername = async (username: string, signature: string, signatureExpiration: bigint) => {
-      console.debug("Handling unclaimed username:", username);
+      console.debug("[MetaSoccer ID] Handling unclaimed username:", username);
       // @ts-expect-error
       const contract = await ethers6Adapter.contract.toEthers({ thirdwebContract: metaSoccerIdContract, account });
 
       const tx = await contract.registerUsername(username, signature, signatureExpiration, { gasLimit: 420000 });
       await tx.wait();
-      console.debug("Transaction completed:", tx);
+      console.debug("[MetaSoccer ID] Transaction completed:", tx);
 
       if (tx) {
         const jwtExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
         const jwt = await authService.getClaimJWT(username, signature, signatureExpiration, jwtExpiration);
-        console.debug("Claim JWT received:", jwt);
+        console.debug("[MetaSoccer ID] Claim JWT received:", jwt);
         login(jwt);
       }
     };
@@ -131,7 +131,7 @@ const useMsIdState = () => {
   }, [account, activeWallet, metaSoccerIdContract]);
 
   const login = useCallback((jwt: string) => {
-    console.debug("Logging in with JWT:", jwt);
+    console.debug("[MetaSoccer ID] Logging in with JWT:", jwt);
 
     setIsAuthenticated(true);
     setSavedJWT(jwt);
@@ -145,7 +145,7 @@ const useMsIdState = () => {
   }, []);
 
   const logout = useCallback(() => {
-    console.debug("Logging out");
+    console.debug("[MetaSoccer ID] Logging out");
     if (activeWallet) {
       disconnect(activeWallet);
     }
@@ -164,14 +164,14 @@ const useMsIdState = () => {
   }, [activeWallet, disconnect]);
 
   const signForJWT = useCallback(async (account: Account, username: string) => {
-    console.debug("Signing for JWT with username:", username);
+    console.debug("[MetaSoccer ID] Signing for JWT with username:", username);
     const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
     const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
 
     setIsWaitingForSignature(true);
     try {
       const signedMessage = await account.signMessage({ message });
-      console.debug("Signed message for JWT:", signedMessage);
+      console.debug("[MetaSoccer ID] Signed message for JWT:", signedMessage);
       return await authService.getJWT(username, signedMessage, expiration);
     } finally {
       setIsWaitingForSignature(false);
@@ -181,7 +181,7 @@ const useMsIdState = () => {
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const uri = urlParams.get('redirect_uri');
-    console.debug("Redirect URI:", uri);
+    console.debug("[MetaSoccer ID] Redirect URI:", uri);
     redirectUri.current = uri ?? undefined;
   }, []);
 
@@ -189,7 +189,7 @@ const useMsIdState = () => {
     if (!account?.address) return;
 
     const checkExistingToken = async () => {
-      console.debug("Checking existing token for account:", account.address);
+      console.debug("[MetaSoccer ID] Checking existing token for account:", account.address);
       const existingJWT = getSavedJWT();
       const existingToken = existingJWT ? decodeJWT(existingJWT).payload : undefined;
       const existingTokenExpiration = existingToken?.expiration;
@@ -197,17 +197,17 @@ const useMsIdState = () => {
 
       if (existingJWT && existingTokenExpiration && existingTokenExpiration >= Date.now() && 
           existingTokenOwner && existingTokenOwner.toLowerCase() === account.address.toLowerCase()) {
-        console.debug("Existing valid JWT found:", existingJWT);
+        console.debug("[MetaSoccer ID] Existing valid JWT found:", existingJWT);
         login(existingJWT);
       } else {
-        console.debug("Checking account:", account.address);
+        console.debug("[MetaSoccer ID] Checking account:", account.address);
         const { username } = await authService.pre(account.address);
         if (username) {
-          console.debug("Username found for account:", username);
+          console.debug("[MetaSoccer ID] Username found for account:", username);
           const jwt = await signForJWT(account, username);
           login(jwt)
         } else {
-          console.debug("No username found, claim pending");
+          console.debug("[MetaSoccer ID] No username found, claim pending");
           setIsClaimPending(true);
         }
       }
@@ -216,7 +216,7 @@ const useMsIdState = () => {
     };
 
     const pingAccount = async () => {
-      console.debug("Pinging account service with address:", account.address);
+      console.debug("[MetaSoccer ID] Pinging account service with address:", account.address);
       accountService.ping(account.address, localStorage.getItem(METASOCCER_ID_REFERRER) ?? undefined);
     };
 
@@ -227,14 +227,14 @@ const useMsIdState = () => {
   useEffect(() => {
     const switchChain = async () => {
       const activeChainId = activeWallet?.getChain()?.id;
-      console.debug("Active chain ID:", activeChainId);
+      console.debug("[MetaSoccer ID] Active chain ID:", activeChainId);
       if (activeChainId && activeChainId !== siteConfig.chain.id) {
         setIsSwitchingChain(true);
         try {
           await activeWallet.switchChain(siteConfig.chain);
-          console.debug("Switched chain to:", siteConfig.chain.id);
+          console.debug("[MetaSoccer ID] Switched chain to:", siteConfig.chain.id);
         } catch (error) {
-          console.debug("Error switching chain:", error);
+          console.debug("[MetaSoccer ID] Error switching chain:", error);
           disconnect(activeWallet);
         } finally {
           setIsSwitchingChain(false);
@@ -248,7 +248,7 @@ const useMsIdState = () => {
     if (!savedJWTChecked.current) return;
 
     if (status === "disconnected") {
-      console.debug("Status is disconnected, logging out");
+      console.debug("[MetaSoccer ID] Status is disconnected, logging out");
       logout();
     }
   }, [status, logout]);
