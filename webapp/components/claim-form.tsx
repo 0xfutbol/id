@@ -5,12 +5,13 @@ import { Button, Input } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 export const ClaimForm = () => {
-  const { isWaitingForSignature, claim, invalidateJWT } = useMsIdContext();
+  const { isWaitingForSignature, claim, logout } = useMsIdContext();
 
+  const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isTakingLong, setIsTakingLong] = useState(true);
   const [username, setUsername] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -20,6 +21,11 @@ export const ClaimForm = () => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
+    setIsTakingLong(false);
+
+    const timer = setTimeout(() => {
+      setIsTakingLong(true);
+    }, 10000);
 
     try {
       await claim(username);
@@ -31,13 +37,13 @@ export const ClaimForm = () => {
         setError((err as Error).message || "An error occurred while claiming the MetaSoccer ID");
       }
     } finally {
+      clearTimeout(timer);
       setIsLoading(false);
+      setIsTakingLong(false);
     }
   }, [claim, username]);
 
-  const handleGoBack = useCallback(() => {
-    invalidateJWT();
-  }, [invalidateJWT]);
+  const handleGoBack = logout;
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value.replace(/\s+/g, '-');
@@ -59,6 +65,9 @@ export const ClaimForm = () => {
           value={username}
           onChange={handleUsernameChange}
         />
+        {isTakingLong && (
+          <p className="text-xs">Claiming your MetaSoccer ID is a blockchain operation and might take a few seconds, so please hang tight—we’ll be ready soon!</p>
+        )}
         <Button type="submit" color="primary" isLoading={isLoading || isWaitingForSignature}>
           Claim MetaSoccer ID
         </Button>

@@ -13,12 +13,6 @@ export default function Home() {
 
   useEffect(() => {
     if (validJWT) {
-      const urlParams = new URLSearchParams(window.location.search);
-      const redirectUri = urlParams.get('redirect_uri');
-      if (window.parent && redirectUri) {
-        window.parent.postMessage({ type: 'JWT', jwt: validJWT }, redirectUri);
-      }
-
       router.push("/me");
     }
   }, [router, validJWT]);

@@ -29,7 +29,9 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     return <>{children}</>;
   }
 
-  if (!validJWT) {
+  if (validJWT) {
+    return <>{children}</>;
+  } else {
     return (
       <>
         <AutoConnect client={siteConfig.thirdwebClient} />
@@ -37,6 +39,4 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       </>
     );
   }
-
-  return <>{children}</>;
 }

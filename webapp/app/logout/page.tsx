@@ -5,11 +5,11 @@ import { CircularProgress } from "@nextui-org/react";
 import { useEffect } from "react";
 
 export default function LogoutPage() {
-  const { validJWT, invalidateJWT } = useMsIdContext();
+  const { logout } = useMsIdContext();
 
   useEffect(() => {
-    invalidateJWT();
-  }, [validJWT]);
+    logout();
+  }, []);
 
   return <CircularProgress />;
 }

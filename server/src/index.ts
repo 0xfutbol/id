@@ -11,7 +11,9 @@ import validateRoute from './routes/validateRoute';
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({
+app.use(cors(process.env.NODE_ENV === 'development' ? {
+  origin: '*'
+} : {
   origin: 'https://manag3r.metasoccer.com, https://manag3r.devsoccer.com',
   credentials: true,
 }));

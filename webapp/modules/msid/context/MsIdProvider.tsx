@@ -55,6 +55,7 @@ const useMsIdState = () => {
   const [isSwitchingChain, setIsSwitchingChain] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [username, setUsername] = useState<string | undefined>();
+  const [redirectUri, setRedirectUri] = useState<string | undefined>();
   const [savedJWTChecked, setSavedJWTChecked] = useState(false);
   const [validJWT, setValidJWT] = useState<string | undefined>();
 
@@ -114,11 +115,29 @@ const useMsIdState = () => {
     }
   }, [account, activeWallet, metaSoccerIdContract]);
 
-  const invalidateJWT = useCallback(() => {
+  const login = useCallback((validJWT: string) => {
+    setSavedJWT(validJWT);
+    setUsername(decodeJWT(validJWT).payload.username);
+
+    if (redirectUri) {
+      window.parent.postMessage({ type: 'JWT', jwt: validJWT }, redirectUri);
+    }
+  }, [redirectUri, setSavedJWT]);
+
+  const logout = useCallback(() => {
     if (activeWallet) {
       disconnect(activeWallet);
     }
-  }, [activeWallet, disconnect]);
+
+    setIsClaimPending(false);
+    setIsWaitingForSignature(false);
+    setUsername(undefined);
+    setValidJWT(undefined);
+
+    if (redirectUri) {
+      window.parent.postMessage({ type: 'JWT', jwt: undefined }, redirectUri);
+    }
+  }, [activeWallet, redirectUri, disconnect]);
 
   const signForJWT = useCallback(async (username: string) => {
     if (!account) throw new Error("No account connected");
@@ -132,6 +151,12 @@ const useMsIdState = () => {
       setIsWaitingForSignature(false);
     }
   }, [account]);
+
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUri = urlParams.get('redirect_uri');
+    setRedirectUri(redirectUri ?? undefined);
+  }, []);
 
   useEffect(() => {
     if (!account?.address) return;
@@ -194,21 +219,13 @@ const useMsIdState = () => {
 
   useEffect(() => {
     if (status === "disconnected") {
-      setIsClaimPending(false);
-      setIsWaitingForSignature(false);
-      setUsername(undefined);
-      setValidJWT(undefined);
+      logout();
     }
-  }, [status]);
+  }, [status, logout]);
 
   useEffect(() => {
     if (validJWT) {
-      setSavedJWT(validJWT);
-      setUsername(decodeJWT(validJWT).payload.username);
-    } else {
-      setIsClaimPending(false);
-      setIsWaitingForSignature(false);
-      setUsername(undefined);
+      login(validJWT);
     }
   }, [validJWT]);
 
@@ -221,7 +238,7 @@ const useMsIdState = () => {
     username,
     validJWT,
     claim,
-    invalidateJWT
+    logout
   };
 };
 

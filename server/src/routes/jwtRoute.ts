@@ -40,12 +40,15 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
 
+    const host = req.get('host');
+    const isLocalhost = host?.includes('localhost') || host?.includes('127.0.0.1');
+
     // Set the secure cookie
     res.cookie('auth_token', token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
+      httpOnly: !isLocalhost,
+      secure: !isLocalhost,
       sameSite: 'strict',
-      domain: process.env.NODE_ENV === 'production' ? '.metasoccer.com' : 'localhost',
+      domain: isLocalhost ? 'localhost' : '.metasoccer.com',
       maxAge: MAX_SIGNATURE_EXPIRATION,
     });
 
