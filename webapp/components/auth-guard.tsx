@@ -13,9 +13,6 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const { isAuthenticated, status } = useMsIdContext();
 
-  console.log("isAuthenticated", isAuthenticated);
-  console.log("status", status);
-
   useEffect(() => {
     if (pathname !== "/") {
       const timer = setTimeout(() => {
@@ -28,7 +25,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
     }
   }, [pathname, status, router]);
 
-  if (pathname === "/") {
+  if (pathname === "/" || pathname === "/logout") {
     return <>{children}</>;
   }
 
