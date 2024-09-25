@@ -3,9 +3,13 @@
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { Button, Input } from "@nextui-org/react";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 export const ClaimForm = () => {
-  const { isWaitingForSignature, claim, logout } = useMsIdContext();
+  const { isWaitingForSignature, claim } = useMsIdContext();
+
+  const activeWallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
 
   const inputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
@@ -43,7 +47,11 @@ export const ClaimForm = () => {
     }
   }, [claim, username]);
 
-  const handleGoBack = logout;
+  const handleGoBack = useCallback(() => {
+    if (activeWallet) {
+      disconnect(activeWallet);
+    }
+  }, [activeWallet,disconnect]);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value.replace(/\s+/g, '-');

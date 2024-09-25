@@ -1,15 +1,18 @@
 "use client";
 
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { CircularProgress } from "@nextui-org/react";
 import { useEffect } from "react";
+import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 export default function LogoutPage() {
-  const { logout } = useMsIdContext();
+  const activeWallet = useActiveWallet();
+  const { disconnect } = useDisconnect();
 
   useEffect(() => {
-    logout();
-  }, []);
+    if (activeWallet) {
+      disconnect(activeWallet);
+    }
+  }, [activeWallet]);
 
   return <CircularProgress />;
 }

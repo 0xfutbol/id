@@ -146,6 +146,7 @@ const useMsIdState = () => {
 
   const logout = useCallback(() => {
     console.debug("[MetaSoccer ID] Logging out");
+
     if (activeWallet) {
       disconnect(activeWallet);
     }
@@ -261,8 +262,7 @@ const useMsIdState = () => {
     isWaitingForSignature,
     status,
     username: username.current,
-    claim,
-    logout
+    claim
   };
 };
 
