@@ -256,6 +256,7 @@ const useMsIdState = () => {
 
   return {
     address: account?.address,
+    clientId: redirectUri.current,
     isAuthenticated,
     isClaimPending,
     isSwitchingChain,

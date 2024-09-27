@@ -8,8 +8,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
+  const { clientId, isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
+
   const router = useRouter();
-  const { isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -21,13 +22,41 @@ export default function Home() {
     return null;
   }
 
+  const logoUrl = {
+    "https://manag3r.metasoccer.com": getImgUrl("https://assets.metasoccer.com/manag3r.png"),
+    "undefined": getImgUrl("https://assets.metasoccer.com/ui/login/1.png")
+  }[`${clientId}`]
+
+  const pre = {
+    "https://manag3r.metasoccer.com": (
+      <>
+        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+        <div className="flex items-start gap-2">
+          {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
+          <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
+        </div>
+        <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+      </>
+    ),
+    "undefined": (
+      <>
+        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+        <div className="flex items-start gap-2">
+          {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
+          <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
+        </div>
+        <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+      </>
+    )
+  }[`${clientId}`]
+
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
       <div className="flex-1 h-full">
         <img
           alt="MetaSoccer"
           className="h-full w-full object-cover"
-          src={getImgUrl("https://assets.metasoccer.com/ui/login/1.png")}
+          src={logoUrl}
         />
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
@@ -38,7 +67,7 @@ export default function Home() {
           {isSwitchingChain ? (
             <p className="text-center text-sm text-foreground-500">MetaSoccer ID operates on the SKALE network. Please switch to SKALE to proceed.</p>
           ) : (
-            isClaimPending ? <ClaimForm /> : <LoginForm />
+            isClaimPending ? <ClaimForm /> : <LoginForm pre={pre} />
           )}
         </div>
       </div>

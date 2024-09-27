@@ -35,17 +35,13 @@ const walletOptions = [
   },
 ];
 
-export const LoginForm = () => {
-  const { address, isWaitingForSignature } = useMsIdContext();
+export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
+  const { isWaitingForSignature } = useMsIdContext();
 
   return (
     <div className="flex flex-col space-y-4 w-full">
-      <p className="text-sm">Connect to get your MetaSoccer ID.</p>
-      <div className="flex items-start gap-2">
-        {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
-        <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
-      </div>
-      <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+      {pre}
+
       {isWaitingForSignature && <div>Waiting for signature...</div>}
 
       <Listbox aria-label="Select wallet">
