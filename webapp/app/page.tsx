@@ -8,9 +8,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
-
-  const clientId = "https://manag3r.metasoccer.com";
+  const { clientId, isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
 
   const router = useRouter();
 
@@ -32,7 +30,7 @@ export default function Home() {
   const pre = {
     "https://manag3r.metasoccer.com": (
       <>
-        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+        <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
         <div className="flex items-start gap-2">
           {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
           <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
@@ -42,7 +40,7 @@ export default function Home() {
     ),
     "undefined": (
       <>
-        <p className="text-sm">Connect to get your MetaSoccer ID to start your journey as a club owner.</p>
+        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
         <div className="flex items-start gap-2">
           {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
           <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
