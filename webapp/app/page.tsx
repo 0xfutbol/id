@@ -22,33 +22,53 @@ export default function Home() {
     return null;
   }
 
-  const logo = {
-    "https://manag3r.metasoccer.com": <img alt="MetaSoccer Manag3r" src={getImgUrl("https://assets.metasoccer.com/manag3r.png")} style={{ height: "40px", width: "auto" }} />,
-    "undefined": <img alt="MetaSoccer ID Logo" src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} style={{ height: "40px", width: "auto" }} />
-  }[`${clientId}`]
+  const getLogo = () => {
+    if (clientId === "https://manag3r.metasoccer.com") {
+      return (
+        <img
+          alt="MetaSoccer Manag3r"
+          src={getImgUrl("https://assets.metasoccer.com/manag3r.png")}
+          style={{ height: "40px", width: "auto" }}
+        />
+      );
+    } else {
+      return (
+        <img
+          alt="MetaSoccer ID Logo"
+          src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")}
+          style={{ height: "40px", width: "auto" }}
+        />
+      );
+    }
+  };
 
-  const pre = {
-    "https://manag3r.metasoccer.com": (
-      <>
-        <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
-        <div className="flex items-start gap-2">
-          {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
-          <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
-        </div>
-        <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
-      </>
-    ),
-    "undefined": (
-      <>
-        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
-        <div className="flex items-start gap-2">
-          {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
-          <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
-        </div>
-        <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
-      </>
-    )
-  }[`${clientId}`]
+  const getPre = () => {
+    if (clientId === "https://manag3r.metasoccer.com") {
+      return (
+        <>
+          <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
+          <div className="flex items-start gap-2">
+            <p className="text-sm text-foreground-500">
+              MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.
+            </p>
+          </div>
+          <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+          <div className="flex items-start gap-2">
+            <p className="text-sm text-foreground-500">
+              MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.
+            </p>
+          </div>
+          <p className="text-sm">Don’t have one yet? No worries! Just connect your wallet, and you’ll be able to claim yours instantly.</p>
+        </>
+      );
+    }
+  };
 
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
@@ -61,13 +81,15 @@ export default function Home() {
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
         <div className="flex max-w-[386px] flex-col gap-8 transition-[height] duration-300 ease-in-out">
-          <div className="flex items-center justify-center">
-            {logo}
-          </div>
+          <div className="flex items-center justify-center">{getLogo()}</div>
           {isSwitchingChain ? (
-            <p className="text-center text-sm text-foreground-500">MetaSoccer ID operates on the SKALE network. Please switch to SKALE to proceed.</p>
+            <p className="text-center text-sm text-foreground-500">
+              MetaSoccer ID operates on the SKALE network. Please switch to SKALE to proceed.
+            </p>
+          ) : isClaimPending ? (
+            <ClaimForm />
           ) : (
-            isClaimPending ? <ClaimForm /> : <LoginForm pre={pre} />
+            <LoginForm pre={getPre()} />
           )}
         </div>
       </div>
