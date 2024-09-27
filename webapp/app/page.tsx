@@ -24,9 +24,9 @@ export default function Home() {
     return null;
   }
 
-  const logoUrl = {
-    "https://manag3r.metasoccer.com": getImgUrl("https://assets.metasoccer.com/manag3r.png"),
-    "undefined": getImgUrl("https://assets.metasoccer.com/ui/login/1.png")
+  const logo = {
+    "https://manag3r.metasoccer.com": <img alt="MetaSoccer Manag3r" src={getImgUrl("https://assets.metasoccer.com/manag3r.png")} style={{ height: "40px", width: "auto" }} />,
+    "undefined": <img alt="MetaSoccer ID Logo" src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} style={{ height: "40px", width: "auto" }} />
   }[`${clientId}`]
 
   const pre = {
@@ -42,7 +42,7 @@ export default function Home() {
     ),
     "undefined": (
       <>
-        <p className="text-sm">Connect to get your MetaSoccer ID.</p>
+        <p className="text-sm">Connect to get your MetaSoccer ID to start your journey as a club owner.</p>
         <div className="flex items-start gap-2">
           {/* <InfoIcon className="flex-shrink-0 opacity-40" size="sm" /> */}
           <p className="text-sm text-foreground-500">MetaSoccer ID is your unique identifier in the MetaSoccer World—think of it like your username for any MetaSoccer game.</p>
@@ -58,13 +58,13 @@ export default function Home() {
         <img
           alt="MetaSoccer"
           className="h-full w-full object-cover"
-          src={logoUrl}
+          src={getImgUrl("https://assets.metasoccer.com/ui/login/1.png")}
         />
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
         <div className="flex max-w-[386px] flex-col gap-8 transition-[height] duration-300 ease-in-out">
           <div className="flex items-center justify-center">
-            <img alt="MetaSoccer ID Logo" src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")} style={{ height: "40px", width: "auto" }} />
+            {logo}
           </div>
           {isSwitchingChain ? (
             <p className="text-center text-sm text-foreground-500">MetaSoccer ID operates on the SKALE network. Please switch to SKALE to proceed.</p>
