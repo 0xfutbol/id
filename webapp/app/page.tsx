@@ -8,7 +8,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 export default function Home() {
-  const { clientId, isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
+  const { isAuthenticated, isClaimPending, isSwitchingChain } = useMsIdContext();
+
+  const clientId = "https://manag3r.metasoccer.com";
 
   const router = useRouter();
 
