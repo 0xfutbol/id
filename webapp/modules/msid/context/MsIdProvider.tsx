@@ -256,7 +256,7 @@ const useMsIdState = () => {
 
   return {
     address: account?.address,
-    clientId: redirectUri.current,
+    clientId: decodeURIComponent(redirectUri.current ?? "undefined"),
     isAuthenticated,
     isClaimPending,
     isSwitchingChain,
