@@ -47,7 +47,7 @@ export const getSavedJWT = (): string | undefined => {
 
 export const setSavedJWT = (jwt: string | undefined) => {
   if (jwt) {
-    console.debug("[MetaSoccer ID] Setting JWT in localStorage:", jwt);
+    console.debug("[MetaSoccer ID] Setting JWT in localStorage:");
     localStorage?.setItem(METASOCCER_ID_JWT, jwt);
   } else {
     console.debug("[MetaSoccer ID] Removing JWT from localStorage");
@@ -99,7 +99,7 @@ const useMsIdState = () => {
         const signedMessage = await account.signMessage({ message });
         console.debug("[MetaSoccer ID] Signed message:", signedMessage);
         const jwt = await authService.getJWT(username, signedMessage, expiration);
-        console.debug("[MetaSoccer ID] JWT received:", jwt);
+        console.debug("[MetaSoccer ID] JWT received");
         login(jwt);
       } finally {
         setIsWaitingForSignature(false);
@@ -118,7 +118,7 @@ const useMsIdState = () => {
       if (tx) {
         const jwtExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
         const jwt = await authService.getClaimJWT(username, signature, signatureExpiration, jwtExpiration);
-        console.debug("[MetaSoccer ID] Claim JWT received:", jwt);
+        console.debug("[MetaSoccer ID] Claim JWT received");
         login(jwt);
       }
     };
@@ -131,7 +131,7 @@ const useMsIdState = () => {
   }, [account, activeWallet, metaSoccerIdContract]);
 
   const login = useCallback((jwt: string) => {
-    console.debug("[MetaSoccer ID] Logging in with JWT:", jwt);
+    console.debug("[MetaSoccer ID] Logging in with JWT");
 
     setIsAuthenticated(true);
     setSavedJWT(jwt);
@@ -198,7 +198,7 @@ const useMsIdState = () => {
 
       if (existingJWT && existingTokenExpiration && existingTokenExpiration >= Date.now() && 
           existingTokenOwner && existingTokenOwner.toLowerCase() === account.address.toLowerCase()) {
-        console.debug("[MetaSoccer ID] Existing valid JWT found:", existingJWT);
+        console.debug("[MetaSoccer ID] Existing valid JWT found");
         login(existingJWT);
       } else {
         console.debug("[MetaSoccer ID] Checking account:", account.address);
