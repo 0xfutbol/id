@@ -42,7 +42,7 @@ const METASOCCER_ID_CONTRACT_ADDRESS = "0x34C1c1d83FDf111ECf0Fa0A74B2B934D415366
 const METASOCCER_ID_JWT = "METASOCCER_ID_JWT";
 
 export const getSavedJWT = (): string | undefined => {
-  return localStorage?.getItem(METASOCCER_ID_JWT) || undefined;
+  return localStorage?.getItem(METASOCCER_ID_JWT)?.replaceAll("\"", "") || undefined;
 };
 
 export const setSavedJWT = (jwt: string | undefined) => {
@@ -133,26 +133,14 @@ const useMsIdState = () => {
   const login = useCallback((jwt: string) => {
     console.debug("[MetaSoccer ID] Logging in with JWT");
 
-    try {
-      setIsAuthenticated(true);
-      setSavedJWT(jwt);
+    setIsAuthenticated(true);
+    setSavedJWT(jwt);
 
-      username.current = decodeJWT(jwt).payload.username;
-      validJWT.current = jwt;
+    username.current = decodeJWT(jwt).payload.username;
+    validJWT.current = jwt;
 
-      if (redirectUri.current) {
-        window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
-      }
-    } catch (error) {
-      console.error("[MetaSoccer ID] Error logging in:", error);
-
-      setIsAuthenticated(false);
-      setIsClaimPending(false);
-      setIsWaitingForSignature(false);
-      setSavedJWT(undefined);
-
-      username.current = undefined;
-      validJWT.current = undefined;
+    if (redirectUri.current) {
+      window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
     }
   }, []);
 
