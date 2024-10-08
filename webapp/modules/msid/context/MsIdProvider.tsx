@@ -133,14 +133,26 @@ const useMsIdState = () => {
   const login = useCallback((jwt: string) => {
     console.debug("[MetaSoccer ID] Logging in with JWT");
 
-    setIsAuthenticated(true);
-    setSavedJWT(jwt);
+    try {
+      setIsAuthenticated(true);
+      setSavedJWT(jwt);
 
-    username.current = decodeJWT(jwt).payload.username;
-    validJWT.current = jwt;
+      username.current = decodeJWT(jwt).payload.username;
+      validJWT.current = jwt;
 
-    if (redirectUri.current) {
-      window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
+      if (redirectUri.current) {
+        window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
+      }
+    } catch (error) {
+      console.error("[MetaSoccer ID] Error logging in:", error);
+
+      setIsAuthenticated(false);
+      setIsClaimPending(false);
+      setIsWaitingForSignature(false);
+      setSavedJWT(undefined);
+
+      username.current = undefined;
+      validJWT.current = undefined;
     }
   }, []);
 
