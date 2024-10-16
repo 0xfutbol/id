@@ -1,5 +1,5 @@
-import { Wallet } from 'ethers';
 import express from 'express';
+import { oxFutboId } from '../common/id';
 import { getMetaSoccerIdByOwner, getMetaSoccerIdByUsername, validateUsername } from '../common/utils';
 
 const claimRouter = express.Router();
@@ -16,7 +16,7 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     if (existingUserByOwner.length > 0) {
       const existingUserByUsername = await getMetaSoccerIdByUsername(username);
       if (existingUserByUsername.length > 0 && existingUserByUsername[0].owner.toLowerCase() === owner.toLowerCase()) {
-        const signatureData = await generateSignature(username, owner);
+        const signatureData = await oxFutboId.generateSignature(username, owner);
         return res.json({ ...signatureData, claimed: true });
       }
       return res.status(400).json({ error: 'This address has already claimed another username' });
@@ -32,66 +32,12 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
       return res.status(400).json({ error: validationResult.error });
     }
 
-    const signatureData = await generateSignature(username, owner);
+    const signatureData = await oxFutboId.generateSignature(username, owner);
     res.json({ ...signatureData, claimed: false });
   } catch (error) {
     console.error('Error in claim route:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
 });
-
-async function generateSignature(username: string, owner: string): Promise<{ signature: string, signatureExpiration: number }> {
-  try {
-    const privateKey = process.env.ONCHAIN_PRIVATE_KEY;
-    if (!privateKey) {
-      throw new Error('ONCHAIN_PRIVATE_KEY is not set');
-    }
-    const wallet = new Wallet(privateKey);
-
-    const domain = getDomain();
-    const types = getTypes();
-    const signatureExpiration = Math.floor(Date.now() / 1000) + 60; // 1 minute expiration
-    const message = { username: username.trim(), owner, signatureExpiration };
-
-    console.log('Debug - Private Key:', privateKey.slice(0, 6) + '...');
-    console.log('Debug - Domain:', JSON.stringify(domain));
-    console.log('Debug - Types:', JSON.stringify(types));
-    console.log('Debug - Message:', JSON.stringify(message));
-
-    const signature = await wallet.signTypedData(domain, types, message);
-
-    console.log('Debug - Signature:', signature);
-
-    return { signature, signatureExpiration };
-  } catch (error) {
-    console.error('Error creating claim signature:', error);
-    console.error('Error details:', error instanceof Error ? error.message : String(error));
-    throw new Error('Internal server error');
-  }
-}
-
-export function getDomain() {
-  const chainId = parseInt(process.env.ONCHAIN_CHAIN_ID || '1', 10);
-  const contractAddress = process.env.ONCHAIN_CONTRACT_ADDRESS;
-  if (!contractAddress) {
-    throw new Error('ONCHAIN_CONTRACT_ADDRESS is not set');
-  }
-  return {
-    name: 'MetaSoccerID',
-    version: '1',
-    chainId,
-    verifyingContract: contractAddress,
-  };
-}
-
-export function getTypes() {
-  return {
-    Username: [
-      { name: 'username', type: 'string' },
-      { name: 'owner', type: 'address' },
-      { name: 'signatureExpiration', type: 'uint256' },
-    ],
-  };
-}
 
 export default claimRouter;

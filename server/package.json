@@ -7,13 +7,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/jsonwebtoken": "^9.0.6",
+    "@0xfutbol/id": "^1.0.4",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "ethers": "^6.13.2",
     "express": "^4.19.2",
-    "jsonwebtoken": "^9.0.2",
     "knex": "^3.1.0",
     "openai": "^4.57.1",
     "pg": "^8.12.0"

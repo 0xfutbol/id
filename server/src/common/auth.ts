@@ -1,5 +1,5 @@
 import express from 'express';
-import jwt from 'jsonwebtoken';
+import { oxFutboId } from './id';
 
 // Middleware to authenticate JWT
 export const authenticateJWT = (req: express.Request, res: express.Response, next: express.NextFunction) => {
@@ -8,7 +8,7 @@ export const authenticateJWT = (req: express.Request, res: express.Response, nex
   if (authHeader) {
     const token = authHeader.split(' ')[1];
 
-    jwt.verify(token, process.env.JWT_SECRET!, (err, user) => {
+    oxFutboId.verifyJWT(token, (err: Error, user: any) => {
       if (err) {
         return res.sendStatus(403);
       }
