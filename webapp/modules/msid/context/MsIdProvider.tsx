@@ -1,6 +1,7 @@
 import { siteConfig } from "@/config/site";
 import { authService } from "@/modules/msid/services/AuthService";
 import { decodeJWT } from "@/utils/decodeJWT";
+import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
 import type { Abi } from "abitype";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getContract } from "thirdweb";
@@ -36,8 +37,6 @@ const ABI: Abi = [
   }
 ];
 
-const AUTH_MESSAGE = 'Authenticate with MetaSoccerID\n\nID: {username}\n\nExpiration: {expiration}';
-const MAX_SIGNATURE_EXPIRATION = 7 * 24 * 60 * 60 * 1000;  // 7 days in milliseconds
 const METASOCCER_ID_CONTRACT_ADDRESS = "0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e";
 const METASOCCER_ID_JWT = "METASOCCER_ID_JWT";
 
