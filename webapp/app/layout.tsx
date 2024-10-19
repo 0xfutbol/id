@@ -6,6 +6,7 @@ import { Metadata, Viewport } from "next";
 import { Providers } from "./providers";
 
 import { AuthGuard } from "@/components/auth-guard";
+import BaseRouter from "@/components/base-router";
 import { fontSans } from "@/config/fonts";
 import { siteConfig } from "@/config/site";
 
@@ -43,12 +44,11 @@ export default function RootLayout({
       >
         {/* @ts-ignore */}
         <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <AuthGuard>
-            {children}
-          </AuthGuard>
+          <BaseRouter>
+            <AuthGuard>{children}</AuthGuard>
+          </BaseRouter>
         </Providers>
       </body>
     </html>
   );
 }
-

@@ -1,5 +1,5 @@
 import { CircularProgress } from "@nextui-org/react";
-import React from 'react';
+import React from "react";
 
 const LoadingScreen: React.FC = () => {
   return (

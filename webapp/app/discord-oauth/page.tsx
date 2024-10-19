@@ -1,10 +1,12 @@
+/* eslint-disable no-console */
 "use client";
 
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { accountService } from "@/modules/msid/services/AccountService";
 import { CircularProgress } from "@nextui-org/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
+
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
+import { accountService } from "@/modules/msid/services/AccountService";
 
 export default function DiscordOAuthPage() {
   const router = useRouter();
@@ -19,7 +21,8 @@ export default function DiscordOAuthPage() {
 
     const redirectUri = `${window.location.origin}/discord-oauth`;
 
-    accountService.linkDiscord(code, redirectUri)
+    accountService
+      .linkDiscord(code, redirectUri)
       .then(() => {
         // Success handling can be added here if needed
       })

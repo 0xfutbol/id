@@ -1,11 +1,13 @@
 "use client";
 
-import { siteConfig } from "@/config/site";
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { AutoConnect } from "thirdweb/react";
+
 import LoadingScreen from "./loading-screen";
+
+import { siteConfig } from "@/config/site";
+import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 const PUBLIC_ROUTES = ["/", "/logout"];
 
@@ -30,7 +32,11 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   return (
     <>
       <AutoConnect client={siteConfig.thirdwebClient} />
-      {PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? children : <LoadingScreen />}
+      {PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? (
+        children
+      ) : (
+        <LoadingScreen />
+      )}
     </>
   );
 }

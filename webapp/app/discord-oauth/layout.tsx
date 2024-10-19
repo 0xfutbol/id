@@ -1,6 +1,5 @@
 "use client";
 
-
 export default function DiscordOAuthLayout({
   children,
 }: {

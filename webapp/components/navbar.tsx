@@ -1,15 +1,16 @@
 "use client";
 
-import { siteConfig } from "@/config/site";
 import {
   NavbarBrand,
   NavbarContent,
   NavbarItem,
-  Navbar as NextUINavbar
+  Navbar as NextUINavbar,
 } from "@nextui-org/navbar";
 import Image from "next/image";
 import NextLink from "next/link";
 import { ConnectButton, useActiveWallet } from "thirdweb/react";
+
+import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
   const address = useActiveWallet();
@@ -21,10 +22,10 @@ export const Navbar = () => {
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image
               alt="MetaSoccer"
-              src="https://assets.metasoccer.com/metasoccer-logo.svg"
-              height={24}
-              width={120}
               className="filter invert"
+              height={24}
+              src="https://assets.metasoccer.com/metasoccer-logo.svg"
+              width={120}
             />
           </NextLink>
         </NavbarBrand>
