@@ -178,6 +178,23 @@ const useMsIdState = () => {
     }
   }, []);
 
+  const switchChain = useCallback(async () => {
+    const activeChainId = activeWallet?.getChain()?.id;
+    console.debug("[MetaSoccer ID] Active chain ID:", activeChainId);
+    if (activeChainId && activeChainId !== siteConfig.chain.id) {
+      setIsSwitchingChain(true);
+      try {
+        await activeWallet.switchChain(siteConfig.chain);
+        console.debug("[MetaSoccer ID] Switched chain to:", siteConfig.chain.id);
+      } catch (error) {
+        console.debug("[MetaSoccer ID] Error switching chain:", error);
+        disconnect(activeWallet);
+      } finally {
+        setIsSwitchingChain(false);
+      }
+    }
+  }, [activeWallet, disconnect]);
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const uri = urlParams.get('redirect_uri');
@@ -225,26 +242,6 @@ const useMsIdState = () => {
   }, [account?.address]);
 
   useEffect(() => {
-    const switchChain = async () => {
-      const activeChainId = activeWallet?.getChain()?.id;
-      console.debug("[MetaSoccer ID] Active chain ID:", activeChainId);
-      if (activeChainId && activeChainId !== siteConfig.chain.id) {
-        setIsSwitchingChain(true);
-        try {
-          await activeWallet.switchChain(siteConfig.chain);
-          console.debug("[MetaSoccer ID] Switched chain to:", siteConfig.chain.id);
-        } catch (error) {
-          console.debug("[MetaSoccer ID] Error switching chain:", error);
-          disconnect(activeWallet);
-        } finally {
-          setIsSwitchingChain(false);
-        }
-      }
-    };
-    switchChain();
-  }, [activeWallet, disconnect]);
-
-  useEffect(() => {
     if (!savedJWTChecked.current) return;
 
     if (status === "disconnected") {
@@ -262,7 +259,8 @@ const useMsIdState = () => {
     isWaitingForSignature,
     status,
     username: username.current,
-    claim
+    claim,
+    switchChain
   };
 };
 

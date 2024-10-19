@@ -7,7 +7,7 @@ import { useActiveWallet, useDisconnect } from "thirdweb/react";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 export const ClaimForm = () => {
-  const { isWaitingForSignature, claim } = useMsIdContext();
+  const { isWaitingForSignature, isSwitchingChain, claim, switchChain } = useMsIdContext();
 
   const activeWallet = useActiveWallet();
   const { disconnect } = useDisconnect();
@@ -21,6 +21,12 @@ export const ClaimForm = () => {
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
+
+  useEffect(() => {
+    if (!isSwitchingChain) {
+      switchChain();
+    }
+  }, [isSwitchingChain, switchChain]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent<HTMLFormElement>) => {
