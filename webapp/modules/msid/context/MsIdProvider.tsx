@@ -138,6 +138,8 @@ const useMsIdState = () => {
     username.current = decodeJWT(jwt).payload.username;
     validJWT.current = jwt;
 
+    console.debug("[MetaSoccer ID] Posting JWT to redirect URI:", redirectUri.current);
+
     if (redirectUri.current) {
       window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
     }
