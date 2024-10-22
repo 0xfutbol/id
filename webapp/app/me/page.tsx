@@ -6,12 +6,15 @@ import {
   Button,
   Card,
   CardBody,
+  CardFooter,
+  Chip,
   CircularProgress,
+  Image as NextImage,
   Snippet,
   Spacer,
   Tab,
   Tabs,
-  Tooltip,
+  Tooltip
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
@@ -337,6 +340,46 @@ export default function ProfilePage() {
                 </Button>
               )}
             </div>
+          </div>
+        </CardBody>
+      </Card>
+      <Card className="w-full">
+        <CardBody>
+          <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+            <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://manag3r.metasoccer.com", "_blank")}>
+              <NextImage
+                removeWrapper
+                alt="MetaSoccer"
+                className="z-0 w-full h-full object-cover"
+                src="https://assets.metasoccer.com/banner/metasoccer.png?v=1"
+              />
+              <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 gap-1">
+                <div className="flex flex-grow gap-2 items-start">
+                  <div className="flex flex-col text-left">
+                    <p className="text-tiny text-white">MetaSoccer</p>
+                    <p className="text-tiny text-white/60">Multi-player soccer manager game offering rewards for competitions.</p>
+                  </div>
+                </div>
+                <Chip size="sm" color="success">Play</Chip>
+              </CardFooter>
+            </Card>
+            <Card isFooterBlurred className="aspect-video">
+              <NextImage
+                removeWrapper
+                alt="Wonderkid"
+                className="z-0 w-full h-full object-cover"
+                src="https://assets.metasoccer.com/banner/wonderkid.png?v=2"
+              />
+              <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 gap-1">
+                <div className="flex flex-grow gap-2">
+                  <div className="flex flex-col text-left">
+                    <p className="text-tiny text-white">Wonderkid</p>
+                    <p className="text-tiny text-white/60">Telegram mini-game to raise the next super star.</p>
+                  </div>
+                </div>
+                <Chip size="sm" color="warning">Coming soon</Chip>
+              </CardFooter>
+            </Card>
           </div>
         </CardBody>
       </Card>
