@@ -20,7 +20,7 @@ const nextConfig = {
       },
     ];
   },
-  basePath: "/id",
+  basePath: process.env.BASE_PATH ?? "/id",
   images: {
     remotePatterns: [
       {
