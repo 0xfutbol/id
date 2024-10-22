@@ -31,7 +31,7 @@ export default function Home() {
       return (
         <img
           alt="MetaSoccer Manag3r"
-          src={getImgUrl("https://assets.metasoccer.com/manag3r.png")}
+          src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
           style={{ height: "40px", width: "auto" }}
         />
       );
