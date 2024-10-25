@@ -10,7 +10,7 @@ class PolygonService {
 			const { data } = await this.httpClient.post("/graphql", {
 				query: `
 					query($owner: String!) {
-						lands(where: {owner_eq: $owner}) {
+						lands(where: {owner_containsInsensitive: $owner}) {
 							id
 						}
 					}
@@ -28,7 +28,7 @@ class PolygonService {
 			const { data } = await this.httpClient.post("/graphql", {
 				query: `
 					query($owner: String!) {
-						players(where: {owner_eq: $owner}) {
+						players(where: {owner_containsInsensitive: $owner}) {
 							id
 						}
 					}
@@ -46,7 +46,7 @@ class PolygonService {
 			const { data } = await this.httpClient.post("/graphql", {
 				query: `
 					query($owner: String!) {
-						scouts(where: {owner_eq: $owner}) {
+						scouts(where: {owner_containsInsensitive: $owner}) {
 							id
 						}
 					}

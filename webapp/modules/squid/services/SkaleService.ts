@@ -10,7 +10,7 @@ class SkaleService {
 			const { data } = await this.httpClient.post("/graphql", {
 				query: `
 					query($owner: String!) {
-						metaSoccerClubs(where: {owner_eq: $owner}) {
+						metaSoccerClubs(where: {owner_containsInsensitive: $owner}) {
 							id
 						}
 					}

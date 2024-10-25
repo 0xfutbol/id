@@ -57,7 +57,7 @@ export async function getMetaSoccerIdByUsername(username: string, maxWaitSeconds
 
 export async function getMetaSoccerIdByOwner(owner: string): Promise<any[]> {
   const { data } = await axios.post("https://squid.metasoccer.com/api/graphql", {
-    query: `{ metaSoccerIds(where: { owner_eq: "${owner.toLowerCase()}" }) { id } }`,
+    query: `{ metaSoccerIds(where: { owner_containsInsensitive: "${owner}" }) { id } }`,
   });
 
   return data.data.metaSoccerIds;
