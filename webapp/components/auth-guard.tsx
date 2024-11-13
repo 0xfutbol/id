@@ -6,7 +6,9 @@ import { AutoConnect } from "thirdweb/react";
 
 import LoadingScreen from "./loading-screen";
 
+import { APP_CONFIG } from "@/config/apps";
 import { siteConfig } from "@/config/site";
+import { useAppParam } from "@/hooks/useAppParam";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 const PUBLIC_ROUTES = ["/", "/logout"];
@@ -17,11 +19,18 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   const { isAuthenticated, status } = useMsIdContext();
 
+  const app = useAppParam();
+
   useEffect(() => {
     if (!PUBLIC_ROUTES.includes(pathname)) {
       const timer = setTimeout(() => {
         if (status === "disconnected") {
-          router.push("/");
+          if (APP_CONFIG[app].redirectUri) {
+            console.debug("[MetaSoccer ID] Redirecting to:", APP_CONFIG[app].redirectUri);
+            window.location.href = APP_CONFIG[app].redirectUri;
+          } else {
+            router.push("/");
+          }
         }
       }, 3000);
 
