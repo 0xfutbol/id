@@ -33,6 +33,33 @@ export const APP_CONFIG: Record<string, AppConfig> = {
       </>
     ),
   },
+  LOCAL: {
+    name: "MetaSoccer (Local)",
+    logo: (
+      <img
+        alt="MetaSoccer"
+        className="filter invert"
+        src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
+        style={{ height: "40px", width: "auto" }}
+      />
+    ),
+    pre: (
+      <>
+        <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
+        <div className="flex items-start gap-2">
+          <p className="text-sm text-foreground-500">
+            MetaSoccer ID is your unique identifier in the MetaSoccer
+            World—think of it like your username for any MetaSoccer game.
+          </p>
+        </div>
+        <p className="text-sm">
+          Don’t have one yet? No worries! Just connect your wallet, and you’ll
+          be able to claim yours instantly.
+        </p>
+      </>
+    ),
+    redirectUri: "http://localhost:8090",
+  },
   METASOCCER: {
     name: "MetaSoccer",
     logo: (
