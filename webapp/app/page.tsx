@@ -2,88 +2,46 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { useSessionStorage } from "react-use";
 
 import { ClaimForm } from "@/components/claim-form";
 import { LoginForm } from "@/components/login-form";
+import { APP_CONFIG } from "@/config/apps";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { getImgUrl } from "@/utils/getImgUrl";
 
-export default function Home() {
+const METASOCCER_ID_SESSION_APP = "METASOCCER_ID_SESSION_APP";
+
+function useAppParam(searchParams: { app: string }) {
+  const urlParams = new URLSearchParams(searchParams);
+  const appParam = urlParams.get("app")?.toUpperCase();
+  const [app] = useSessionStorage(METASOCCER_ID_SESSION_APP, appParam ?? "ID");
+
+  return app;
+}
+
+export default function Home({ searchParams }: { searchParams: { app: string } }) {
   const { isAuthenticated, isClaimPending, isSwitchingChain } =
     useMsIdContext();
 
-  const clientId = "https://manag3r.metasoccer.com";
+  const app = useAppParam(searchParams);
 
   const router = useRouter();
 
   useEffect(() => {
     if (isAuthenticated) {
-      router.push("/me");
+      if (APP_CONFIG[app].redirectUri) {
+        console.debug("[MetaSoccer ID] Redirecting to:", APP_CONFIG[app].redirectUri);
+        window.location.href = APP_CONFIG[app].redirectUri;
+      } else {
+        router.push("/me");
+      }
     }
   }, [router, isAuthenticated]);
 
   if (isAuthenticated) {
     return null;
   }
-
-  const getLogo = () => {
-    if (clientId === "https://manag3r.metasoccer.com") {
-      return (
-        <img
-          alt="MetaSoccer Manag3r"
-          className="filter invert"
-          src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
-          style={{ height: "40px", width: "auto" }}
-        />
-      );
-    } else {
-      return (
-        <img
-          alt="MetaSoccer ID Logo"
-          src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")}
-          style={{ height: "40px", width: "auto" }}
-        />
-      );
-    }
-  };
-
-  const getPre = () => {
-    if (clientId === "https://manag3r.metasoccer.com") {
-      return (
-        <>
-          <p className="text-sm">
-            Connect your MetaSoccer ID to start playing.
-          </p>
-          <div className="flex items-start gap-2">
-            <p className="text-sm text-foreground-500">
-              MetaSoccer ID is your unique identifier in the MetaSoccer
-              World—think of it like your username for any MetaSoccer game.
-            </p>
-          </div>
-          <p className="text-sm">
-            Don’t have one yet? No worries! Just connect your wallet, and you’ll
-            be able to claim yours instantly.
-          </p>
-        </>
-      );
-    } else {
-      return (
-        <>
-          <p className="text-sm">Connect to get your MetaSoccer ID.</p>
-          <div className="flex items-start gap-2">
-            <p className="text-sm text-foreground-500">
-              MetaSoccer ID is your unique identifier in the MetaSoccer
-              World—think of it like your username for any MetaSoccer game.
-            </p>
-          </div>
-          <p className="text-sm">
-            Don’t have one yet? No worries! Just connect your wallet, and you’ll
-            be able to claim yours instantly.
-          </p>
-        </>
-      );
-    }
-  };
 
   return (
     <div className="flex h-screen w-full flex-col md:flex-row">
@@ -96,7 +54,9 @@ export default function Home() {
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
         <div className="flex max-w-[386px] flex-col gap-8 transition-[height] duration-300 ease-in-out">
-          <div className="flex items-center justify-center">{getLogo()}</div>
+          <div className="flex items-center justify-center">
+            {APP_CONFIG[app].logo}
+          </div>
           {isSwitchingChain ? (
             <p className="text-center text-sm text-foreground-500">
               MetaSoccer ID operates on the SKALE network. Please switch to
@@ -105,7 +65,7 @@ export default function Home() {
           ) : isClaimPending ? (
             <ClaimForm />
           ) : (
-            <LoginForm pre={getPre()} />
+            <LoginForm pre={APP_CONFIG[app].pre} />
           )}
         </div>
       </div>
