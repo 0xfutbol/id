@@ -13,6 +13,7 @@ import { getImgUrl } from "@/utils/getImgUrl";
 const METASOCCER_ID_SESSION_APP = "METASOCCER_ID_SESSION_APP";
 
 function useAppParam(searchParams: { app: string }) {
+  console.debug("[MetaSoccer ID] Search params:", searchParams);
   const urlParams = new URLSearchParams(searchParams);
   const appParam = urlParams.get("app")?.toUpperCase();
   const [app] = useSessionStorage(METASOCCER_ID_SESSION_APP, appParam ?? "ID");
