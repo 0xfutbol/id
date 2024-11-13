@@ -38,9 +38,8 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     logo: (
       <img
         alt="MetaSoccer"
-        className="filter invert"
         src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
-        style={{ height: "40px", width: "auto" }}
+        style={{ height: "40px", width: "auto", filter: "invert(1)" }}
       />
     ),
     pre: (
@@ -65,9 +64,8 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     logo: (
       <img
         alt="MetaSoccer"
-        className="filter invert"
         src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
-        style={{ height: "40px", width: "auto" }}
+        style={{ height: "40px", width: "auto", filter: "invert(1)" }}
       />
     ),
     pre: (
