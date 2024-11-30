@@ -25,7 +25,7 @@ infoRouter.get('/info', authenticateJWT, async (req: express.Request & { user?: 
   }
 });
 
-infoRouter.get('/info/:address', async (req, res) => {
+infoRouter.get('/:address', async (req, res) => {
   const address = req.params.address;
 
   try {
