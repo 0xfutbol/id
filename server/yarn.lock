@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@0xfutbol/id@^1.0.8":
-  version "1.0.8"
-  resolved "https://registry.npmjs.org/@0xfutbol/id/-/id-1.0.8.tgz"
-  integrity sha512-eeut0dtwCXg3NLbBbkj9M3CQB9yiGoKfGTPD1DYHP85EH58yhREzlZ0Zp5J4ItjsJhGPyb7PBUp4ETZoPVPd/Q==
+"@0xfutbol/id@^1.0.10":
+  version "1.0.10"
+  resolved "https://registry.npmjs.org/@0xfutbol/id/-/id-1.0.10.tgz"
+  integrity sha512-edXWrqStjxJ4ri5ZeTLivr5agzhDGZ3NMCkIxeDb9srNB56MVM1niCj8UMGyDVydfnYguT9NEb/Hs0WxEDfmWA==
   dependencies:
     ethers "^6.13.2"
     jsonwebtoken "^9.0.2"
