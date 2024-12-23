@@ -112,33 +112,5 @@ export const APP_CONFIG: Record<string, AppConfig> = {
       </>
     ),
     redirectUri: "https://manag3r.metasoccer.com",
-  },
-
-  // Wonderkid
-  WONDERKID: {
-    name: "Wonderkid",
-    logo: (
-      <img
-        alt="Wonderkid"
-        src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
-        style={{ height: "40px", width: "auto", filter: "invert(1)" }}
-      />
-    ),
-    pre: (
-      <>
-        <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
-        <div className="flex items-start gap-2">
-          <p className="text-sm text-foreground-500">
-            0xFútbol ID is your unique identifier in the 0xFútbol
-            World—think of it like your username for any 0xFútbol product.
-          </p>
-        </div>
-        <p className="text-sm">
-          Don’t have one yet? No worries! Just connect your wallet, and you’ll
-          be able to claim yours instantly.
-        </p>
-      </>
-    ),
-    redirectUri: "https://wonderkid.0xfutbol.com/game",
   }
 };
