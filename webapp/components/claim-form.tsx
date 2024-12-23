@@ -47,12 +47,12 @@ export const ClaimForm = () => {
 
           setError(
             responseBody.error ||
-              "An error occurred while claiming the MetaSoccer ID",
+              "An error occurred while claiming the 0xFútbol ID",
           );
         } else {
           setError(
             (err as Error).message ||
-              "An error occurred while claiming the MetaSoccer ID",
+              "An error occurred while claiming the 0xFútbol ID",
           );
         }
       } finally {
@@ -84,8 +84,8 @@ export const ClaimForm = () => {
     <div className="flex flex-col space-y-4 w-full">
       <div className="flex items-start gap-2">
         <p className="text-sm">
-          MetaSoccer ID is your unique identifier in the MetaSoccer World—think
-          of it like your username for any MetaSoccer game.
+          0xFútbol ID is your unique identifier in the 0xFútbol Hub—think
+          of it like your username for any 0xFútbol product.
         </p>
       </div>
       <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
@@ -93,13 +93,13 @@ export const ClaimForm = () => {
           ref={inputRef}
           errorMessage={error}
           isInvalid={!!error}
-          label="Enter your desired MetaSoccer ID"
+          label="Enter your desired 0xFútbol ID"
           value={username}
           onChange={handleUsernameChange}
         />
         {isTakingLong && !isWaitingForSignature && (
           <p className="text-xs">
-            Claiming your MetaSoccer ID is a blockchain operation and might take
+            Claiming your 0xFútbol ID is a blockchain operation and might take
             a few seconds, so please hang tight—we’ll be ready soon!
           </p>
         )}
@@ -108,7 +108,7 @@ export const ClaimForm = () => {
           isLoading={isLoading || isWaitingForSignature}
           type="submit"
         >
-          Claim MetaSoccer ID
+          Claim 0xFútbol ID
         </Button>
         <Button variant="bordered" onClick={handleGoBack}>
           Go Back

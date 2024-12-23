@@ -21,7 +21,7 @@ export const Navbar = () => {
         <NavbarBrand as="li" className="gap-3 max-w-fit p-2">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image
-              alt="MetaSoccer"
+              alt="0xFútbol"
               height={24}
               src="https://assets.metasoccer.com/msid-logo.png"
               width={64}

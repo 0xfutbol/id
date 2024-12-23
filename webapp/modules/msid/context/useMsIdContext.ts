@@ -4,7 +4,7 @@ import { MsIdContext } from "./MsIdProvider";
 const useMsIdContext = () => {
 	const context = React.useContext(MsIdContext);
 	if (context === undefined) {
-		throw new Error("useMetaSoccerIdContext must be used within a IdContextProvider");
+		throw new Error("useMsIdContext must be used within a IdContextProvider");
 	}
 	return context;
 };

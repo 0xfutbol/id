@@ -26,7 +26,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
       const timer = setTimeout(() => {
         if (status === "disconnected") {
           if (APP_CONFIG[app].redirectUri) {
-            console.debug("[MetaSoccer ID] Redirecting to:", APP_CONFIG[app].redirectUri);
+            console.debug("[0xFútbol ID] Redirecting to:", APP_CONFIG[app].redirectUri);
             window.location.href = APP_CONFIG[app].redirectUri;
           } else {
             router.push("/");

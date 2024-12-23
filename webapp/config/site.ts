@@ -7,9 +7,9 @@ export type SiteConfig = typeof siteConfig;
 const thirdwebClient = createThirdwebClient({ clientId: "a8fd5d4d91d0da0f0485ac27da84b578" });
 
 export const siteConfig = {
-  name: "MetaSoccer ID",
-  description: "MetaSoccer ID is your unique identifier in the MetaSoccer World",
-  backendUrl: process.env.NODE_ENV === "development" ? "http://localhost:6743" : "https://id.metasoccer.com/api",
+  name: "0xFútbol ID",
+  description: "0xFútbol ID is your unique identifier in the 0xFútbol Hub",
+  backendUrl: process.env.NODE_ENV === "development" ? "http://localhost:6743" : "https://id.0xfutbol.com/api",
   chain: chains.skaleNebula.ref,
   contracts: {
     polygon: {

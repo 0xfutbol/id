@@ -385,7 +385,7 @@ export default function ProfilePage() {
         symbol=""
       >
         <span className="text-wrap">
-          MetaSoccer&apos;s referral program is live! Invite your friends to
+          0xFútbol&apos;s referral program is live! Invite your friends to
           join the game, and you&apos;ll earn the Referrer Medal. Simply copy
           your referral link and share it with them
         </span>

@@ -21,7 +21,7 @@ export default function Home() {
   useEffect(() => {
     if (isAuthenticated) {
       if (APP_CONFIG[app].redirectUri) {
-        console.debug("[MetaSoccer ID] Redirecting to:", APP_CONFIG[app].redirectUri);
+        console.debug("[0xFútbol ID] Redirecting to:", APP_CONFIG[app].redirectUri);
         window.location.href = APP_CONFIG[app].redirectUri;
       } else {
         router.push("/me");
@@ -37,7 +37,7 @@ export default function Home() {
     <div className="flex h-screen w-full flex-col md:flex-row">
       <div className="flex-1 h-full">
         <img
-          alt="MetaSoccer"
+          alt="0xFútbol ID"
           className="h-full w-full object-cover"
           src={getImgUrl("https://assets.metasoccer.com/ui/login/1.png")}
         />
@@ -49,7 +49,7 @@ export default function Home() {
           </div>
           {isSwitchingChain ? (
             <p className="text-center text-sm text-foreground-500">
-              MetaSoccer ID operates on the SKALE network. Please switch to
+              0xFútbol ID operates on the SKALE network. Please switch to
               SKALE to proceed.
             </p>
           ) : isClaimPending ? (
