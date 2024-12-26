@@ -5,7 +5,15 @@ require('dotenv').config();
 
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
-  solidity: "0.8.24",
+  solidity: {
+    version: "0.8.24",
+    settings: {
+      optimizer: {
+        enabled: true,
+        runs: 200
+      }
+    }
+  },
   etherscan: {
     apiKey: "9QD4ARAR6K1R17M2PK1FHCG94VJXNG6AZM",
     customChains: [
