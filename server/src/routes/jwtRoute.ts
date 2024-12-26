@@ -1,7 +1,7 @@
 import { MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getMetaSoccerIdByUsername } from '../common/utils';
+import { getOxFutbolIdByUsername } from '../common/utils';
 import { saveUserIfDoesntExists } from '../repo/db';
 
 const jwtRouter = express.Router();
@@ -18,13 +18,13 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 
   try {
-    const metaSoccerIds = await getMetaSoccerIdByUsername(username, 60);
+    const oxFutbolIds = await getOxFutbolIdByUsername(username, 60);
 
-    if (metaSoccerIds.length === 0) {
-      return res.status(404).json({ error: 'MetaSoccerID not found' });
+    if (oxFutbolIds.length === 0) {
+      return res.status(404).json({ error: '0xFútbol ID not found' });
     }
 
-    const owner = metaSoccerIds[0].owner;
+    const owner = oxFutbolIds[0].owner;
 
     await oxFutboId.validateSignature(message, owner, username, expiration);
 

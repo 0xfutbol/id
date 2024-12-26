@@ -2,12 +2,12 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useLocalStorage } from "react-use";
 
-export const METASOCCER_ID_REFERRER = "METASOCCER_ID_REFERRER";
+export const OxFUTBOL_ID_REFERRER = "OxFUTBOL_ID_REFERRER";
 
 export const useReferrerParam = () => {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [, setSavedReferrer] = useLocalStorage<string>(METASOCCER_ID_REFERRER);
+  const [, setSavedReferrer] = useLocalStorage<string>(OxFUTBOL_ID_REFERRER);
 
   useEffect(() => {
     const referrer = searchParams.get("referrer");

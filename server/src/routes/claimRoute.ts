@@ -1,6 +1,6 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getMetaSoccerIdByOwner, getMetaSoccerIdByUsername, validateUsername } from '../common/utils';
+import { getOxFutbolIdByOwner, getOxFutbolIdByUsername, validateUsername } from '../common/utils';
 
 const claimRouter = express.Router();
 
@@ -12,9 +12,9 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
   }
 
   try {
-    const existingUserByOwner = await getMetaSoccerIdByOwner(owner);
+    const existingUserByOwner = await getOxFutbolIdByOwner(owner);
     if (existingUserByOwner.length > 0) {
-      const existingUserByUsername = await getMetaSoccerIdByUsername(username);
+      const existingUserByUsername = await getOxFutbolIdByUsername(username);
       if (existingUserByUsername.length > 0 && existingUserByUsername[0].owner.toLowerCase() === owner.toLowerCase()) {
         const signatureData = await oxFutboId.generateSignature(username, owner);
         return res.json({ ...signatureData, claimed: true });
@@ -22,7 +22,7 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
       return res.status(400).json({ error: 'This address has already claimed another username' });
     }
 
-    const existingUserByUsername = await getMetaSoccerIdByUsername(username);
+    const existingUserByUsername = await getOxFutbolIdByUsername(username);
     if (existingUserByUsername.length > 0) {
       return res.status(400).json({ error: 'This username has already been claimed' });
     }

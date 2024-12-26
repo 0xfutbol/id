@@ -4,14 +4,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useSessionStorage } from "react-use";
 
-const METASOCCER_ID_SESSION_APP = "METASOCCER_ID_SESSION_APP";
+const OxFUTBOL_ID_SESSION_APP = "OxFUTBOL_ID_SESSION_APP";
 
 export function useAppParam() {
   const searchParams = useSearchParams();
   const router = useRouter();
 
   const appParam = searchParams.get("app")?.toUpperCase();
-  const [app] = useSessionStorage(METASOCCER_ID_SESSION_APP, appParam ?? "ID");
+  const [app] = useSessionStorage(OxFUTBOL_ID_SESSION_APP, appParam ?? "ID");
 
   useEffect(() => {
     if (appParam) {

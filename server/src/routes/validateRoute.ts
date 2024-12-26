@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMetaSoccerIdByUsername, validateUsername } from '../common/utils';
+import { getOxFutbolIdByUsername, validateUsername } from '../common/utils';
 
 const validateRouter = express.Router();
 
@@ -17,8 +17,8 @@ validateRouter.post('/validate', express.json(), async (req, res) => {
       return res.status(400).json({ error: validationResult.error });
     }
 
-    const metaSoccerIds = await getMetaSoccerIdByUsername(trimmedUsername);
-    const claimed = metaSoccerIds.length > 0;
+    const oxFutbolIds = await getOxFutbolIdByUsername(trimmedUsername);
+    const claimed = oxFutbolIds.length > 0;
 
     res.json({ claimed });
   } catch (error) {

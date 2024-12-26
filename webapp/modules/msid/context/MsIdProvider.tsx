@@ -9,7 +9,7 @@ import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
 import { accountService } from "../services/AccountService";
-import { METASOCCER_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
+import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
 
 const ABI: Abi = [
   {
@@ -37,20 +37,20 @@ const ABI: Abi = [
   }
 ];
 
-const METASOCCER_ID_CONTRACT_ADDRESS = "0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e";
-const METASOCCER_ID_JWT = "METASOCCER_ID_JWT";
+const OxFUTBOL_ID_CONTRACT_ADDRESS = "0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e";
+const OxFUTBOL_ID_JWT = "OxFUTBOL_ID_JWT";
 
 export const getSavedJWT = (): string | undefined => {
-  return localStorage?.getItem(METASOCCER_ID_JWT)?.replaceAll("\"", "") || undefined;
+  return localStorage?.getItem(OxFUTBOL_ID_JWT)?.replaceAll("\"", "") || undefined;
 };
 
 export const setSavedJWT = (jwt: string | undefined) => {
   if (jwt) {
     console.debug("[0xFútbol ID] Setting JWT in localStorage:");
-    localStorage?.setItem(METASOCCER_ID_JWT, jwt);
+    localStorage?.setItem(OxFUTBOL_ID_JWT, jwt);
   } else {
     console.debug("[0xFútbol ID] Removing JWT from localStorage");
-    localStorage?.removeItem(METASOCCER_ID_JWT);
+    localStorage?.removeItem(OxFUTBOL_ID_JWT);
   }
 };
 
@@ -71,12 +71,11 @@ const useMsIdState = () => {
   const validJWT = useRef<string | undefined>(undefined);
 
   const [isClaimPending, setIsClaimPending] = useState(false);
-  const [isSwitchingChain, setIsSwitchingChain] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const idContract = useMemo(() => getContract({
-    address: METASOCCER_ID_CONTRACT_ADDRESS,
+    address: OxFUTBOL_ID_CONTRACT_ADDRESS,
     abi: ABI,
     client: siteConfig.thirdwebClient,
     chain: siteConfig.chain
@@ -236,7 +235,7 @@ const useMsIdState = () => {
 
     const pingAccount = async () => {
       console.debug("[0xFútbol ID] Pinging account service with address:", account.address);
-      accountService.ping(account.address, localStorage.getItem(METASOCCER_ID_REFERRER) ?? undefined);
+      accountService.ping(account.address, localStorage.getItem(OxFUTBOL_ID_REFERRER) ?? undefined);
     };
 
     checkExistingToken();
