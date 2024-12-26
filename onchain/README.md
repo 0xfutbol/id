@@ -1,10 +1,10 @@
 # msid onchain
 
-This repository contains the MetaSoccerID smart contract, which is used for registering and managing usernames on the MetaSoccer platform.
+This repository contains the OxFutbolID smart contract, which is used for registering and managing usernames on the 0xFútbol ID platform.
 
 ## Deployment Information
 
-The MetaSoccerID contract has been deployed on the Skale Nebula network at the following address:
+The OxFutbolID contract has been deployed on the Skale Nebula network at the following address:
 
 `0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e`
 
