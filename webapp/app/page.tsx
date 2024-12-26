@@ -11,7 +11,7 @@ import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { getImgUrl } from "@/utils/getImgUrl";
 
 export default function Home() {
-  const { isAuthenticated, isClaimPending, isSwitchingChain } =
+  const { isAuthenticated, isClaimPending } =
     useMsIdContext();
 
   const app = useAppParam();
@@ -47,12 +47,7 @@ export default function Home() {
           <div className="flex items-center justify-center">
             {APP_CONFIG[app].logo}
           </div>
-          {isSwitchingChain ? (
-            <p className="text-center text-sm text-foreground-500">
-              0xFútbol ID operates on the SKALE network. Please switch to
-              SKALE to proceed.
-            </p>
-          ) : isClaimPending ? (
+          {isClaimPending ? (
             <ClaimForm />
           ) : (
             <LoginForm pre={APP_CONFIG[app].pre} />

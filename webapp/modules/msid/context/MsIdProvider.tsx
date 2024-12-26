@@ -5,7 +5,6 @@ import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
 import type { Abi } from "abitype";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { getContract } from "thirdweb";
-import { ethers6Adapter } from "thirdweb/adapters/ethers6";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
 import { accountService } from "../services/AccountService";
@@ -88,43 +87,17 @@ const useMsIdState = () => {
     const { claimed, signature, signatureExpiration } = await authService.claimSignature(username, account.address);
     console.debug("[0xFútbol ID] Claim signature response:", { claimed, signature, signatureExpiration });
 
-    const handleClaimedUsername = async (username: string) => {
-      console.debug("[0xFútbol ID] Handling claimed username:", username);
-      const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
-      setIsWaitingForSignature(true);
-      try {
-        const signedMessage = await account.signMessage({ message });
-        console.debug("[0xFútbol ID] Signed message:", signedMessage);
-        const jwt = await authService.getJWT(username, signedMessage, expiration);
-        console.debug("[0xFútbol ID] JWT received");
-        login(jwt);
-      } finally {
-        setIsWaitingForSignature(false);
-      }
-    };
-
-    const handleUnclaimedUsername = async (username: string, signature: string, signatureExpiration: bigint) => {
-      console.debug("[0xFútbol ID] Handling unclaimed username:", username);
-      // @ts-expect-error
-      const contract = await ethers6Adapter.contract.toEthers({ thirdwebContract: idContract, account });
-
-      const tx = await contract.registerUsername(username, signature, signatureExpiration, { gasLimit: 420000 });
-      await tx.wait();
-      console.debug("[0xFútbol ID] Transaction completed:", tx);
-
-      if (tx) {
-        const jwtExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-        const jwt = await authService.getClaimJWT(username, signature, signatureExpiration, jwtExpiration);
-        console.debug("[0xFútbol ID] Claim JWT received");
-        login(jwt);
-      }
-    };
-
-    if (claimed) {
-      return handleClaimedUsername(username);
-    } else {
-      return handleUnclaimedUsername(username, signature, signatureExpiration);
+    const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
+    const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
+    setIsWaitingForSignature(true);
+    try {
+      const signedMessage = await account.signMessage({ message });
+      console.debug("[0xFútbol ID] Signed message:", signedMessage);
+      const jwt = await authService.getJWT(username, signedMessage, expiration);
+      console.debug("[0xFútbol ID] JWT received");
+      login(jwt);
+    } finally {
+      setIsWaitingForSignature(false);
     }
   }, [account, activeWallet, idContract]);
 
@@ -178,23 +151,6 @@ const useMsIdState = () => {
       setIsWaitingForSignature(false);
     }
   }, []);
-
-  const switchChain = useCallback(async () => {
-    const activeChainId = activeWallet?.getChain()?.id;
-    console.debug("[0xFútbol ID] Active chain ID:", activeChainId);
-    if (activeChainId && activeChainId !== siteConfig.chain.id) {
-      setIsSwitchingChain(true);
-      try {
-        await activeWallet.switchChain(siteConfig.chain);
-        console.debug("[0xFútbol ID] Switched chain to:", siteConfig.chain.id);
-      } catch (error) {
-        console.debug("[0xFútbol ID] Error switching chain:", error);
-        disconnect(activeWallet);
-      } finally {
-        setIsSwitchingChain(false);
-      }
-    }
-  }, [activeWallet, disconnect]);
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -256,12 +212,10 @@ const useMsIdState = () => {
     clientId: decodeURIComponent(redirectUri.current ?? "undefined"),
     isAuthenticated,
     isClaimPending,
-    isSwitchingChain,
     isWaitingForSignature,
     status,
     username: username.current,
-    claim,
-    switchChain
+    claim
   };
 };
 
