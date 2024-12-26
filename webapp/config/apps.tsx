@@ -5,6 +5,7 @@ type AppConfig = {
   logo: JSX.Element;
   pre: JSX.Element;
   redirectUri?: string;
+  title: string;
 };
 
 export const APP_CONFIG: Record<string, AppConfig> = {
@@ -32,6 +33,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
         </p>
       </>
     ),
+    title: "0xFútbol ID",
   },
   LOCAL: {
     name: "0xFútbol ID",
@@ -58,6 +60,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
       </>
     ),
     redirectUri: "http://localhost:8090",
+    title: "0xFútbol ID",
   },
 
   // MetaSoccer
@@ -86,6 +89,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
       </>
     ),
     redirectUri: "https://manag3r.devsoccer.com",
+    title: "DevSoccer",
   },
   METASOCCER: {
     name: "MetaSoccer",
@@ -112,5 +116,6 @@ export const APP_CONFIG: Record<string, AppConfig> = {
       </>
     ),
     redirectUri: "https://manag3r.metasoccer.com",
+    title: "MetaSoccer",
   }
 };

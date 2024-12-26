@@ -1,5 +1,6 @@
 "use client";
 
+import { APP_CONFIG } from "@/config/apps";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
 import { useSessionStorage } from "react-use";
@@ -24,6 +25,8 @@ export function useAppParam() {
       const newUrl = newQueryString ? `?${newQueryString}` : "/";
       // Replace the current URL without the 'app' parameter
       router.replace(newUrl);
+      // Set the document title
+      document.title = APP_CONFIG[appParam].title;
     }
   }, [appParam, router, searchParams]);
 
