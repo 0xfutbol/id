@@ -1,7 +1,6 @@
-import axios from 'axios';
-import { keccak256, toUtf8Bytes } from 'ethers';
 import { getUsername, saveUsernameIfItDoesntExists } from '../repo/db';
 import { validateUsernameWithAI } from './openai';
+import { getOxFutbolIdByUsername } from './squid';
 
 const offensiveWords: string[] = [
   "idiot", "moron", "stupid", "dumb", "asshole", "bastard", 
@@ -35,34 +34,6 @@ const wellKnownAthletes: string[] = [
   "pele", "ronaldinho", "maldini", "figo", "henry", "shevchenko"
 ];
 
-export async function getOxFutbolIdByUsername(username: string, maxWaitSeconds: number = 0): Promise<any[]> {
-  const usernameHash = keccak256(toUtf8Bytes(username));
-  let totalWaitSeconds = 0;
-
-  while (true) {
-    const { data } = await axios.post("https://squid.metasoccer.com/api/graphql", {
-      query: `{ metaSoccerIds(where: { id_eq: "${usernameHash}" }) { owner } }`,
-    });
-
-    const oxFutbolIds = data.data.oxFutbolIds;
-
-    if (oxFutbolIds.length > 0 || totalWaitSeconds >= maxWaitSeconds) {
-      return oxFutbolIds;
-    }
-
-    await new Promise(resolve => setTimeout(resolve, 2000)); // Wait for 2 seconds
-    totalWaitSeconds += 2;
-  }
-}
-
-export async function getOxFutbolIdByOwner(owner: string): Promise<any[]> {
-  const { data } = await axios.post("https://squid.metasoccer.com/api/graphql", {
-    query: `{ metaSoccerIds(where: { owner_containsInsensitive: "${owner}" }) { id } }`,
-  });
-
-  return data.data.oxFutbolIds;
-}
-
 export async function validateUsername(username: string): Promise<{ isValid: boolean; error?: string }> {
   const trimmedUsername = username.trim();
 
@@ -89,7 +60,7 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
     return { isValid: false, error: 'Username contains inappropriate content or violates our guidelines. Please choose a different username.' };
   }
 
-  if ((await getOxFutbolIdByUsername(trimmedUsername)).length > 0) {
+  if (await getOxFutbolIdByUsername(trimmedUsername)) {
     return { isValid: false, error: 'Username is already registered in the MetaSoccer system. Please choose a different username.' };
   }
 

@@ -1,6 +1,8 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getOxFutbolIdByOwner, getOxFutbolIdByUsername, validateUsername } from '../common/utils';
+import { getOxFutbolIdByOwner, getOxFutbolIdByUsername } from '../common/squid';
+import { validateUsername } from '../common/utils';
+import { registerUsername, wallet } from '../common/web3';
 
 const claimRouter = express.Router();
 
@@ -13,9 +15,9 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
 
   try {
     const existingUserByOwner = await getOxFutbolIdByOwner(owner);
-    if (existingUserByOwner.length > 0) {
+    if (existingUserByOwner) {
       const existingUserByUsername = await getOxFutbolIdByUsername(username);
-      if (existingUserByUsername.length > 0 && existingUserByUsername[0].owner.toLowerCase() === owner.toLowerCase()) {
+      if (existingUserByUsername?.owner.toLowerCase() === owner.toLowerCase()) {
         const signatureData = await oxFutboId.generateSignature(username, owner);
         return res.json({ ...signatureData, claimed: true });
       }
@@ -23,7 +25,7 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     }
 
     const existingUserByUsername = await getOxFutbolIdByUsername(username);
-    if (existingUserByUsername.length > 0) {
+    if (existingUserByUsername) {
       return res.status(400).json({ error: 'This username has already been claimed' });
     }
 
@@ -33,16 +35,22 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     }
 
     const signatureData = await oxFutboId.generateSignature(username, owner);
-    const { signature, signatureExpiration } = signatureData;
 
-    // console.debug("[0xFútbol ID] Registering username:", username);
-    // const tx = await registerUsername(username, signature, signatureExpiration);
-    // console.debug("[0xFútbol ID] Transaction completed:", tx);
+    // We are enhancing the transparency of the username registration process by transitioning to a new 
+    // smart contract (OxFutbolID) that allows the backend to register usernames onchain.
+    // Since the new contract is not yet deployed, we continue to use the old contract (MetaSoccerID) 
+    // and sign the request with the backend wallet address.
+    // Therefore, we need to generate a new signature using the backend wallet address.
+    console.debug("[0xFútbol ID] Generating signature for username:", username, wallet.address);
+    const { signature, signatureExpiration } = await oxFutboId.generateSignature(username, wallet.address);
+    console.debug("[0xFútbol ID] Registering username:", username);
+    const tx = await registerUsername(username, signature, signatureExpiration);
+    console.debug("[0xFútbol ID] Transaction completed:", tx);
 
-    res.json({ ...signatureData, claimed: true });
+    return res.json({ ...signatureData, claimed: true });
   } catch (error) {
     console.error('Error in claim route:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.status(500).json({ error: 'Internal server error' });
   }
 });
 

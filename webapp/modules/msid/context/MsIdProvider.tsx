@@ -1,42 +1,12 @@
-import { siteConfig } from "@/config/site";
 import { authService } from "@/modules/msid/services/AuthService";
 import { decodeJWT } from "@/utils/decodeJWT";
 import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
-import type { Abi } from "abitype";
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { getContract } from "thirdweb";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
 import { accountService } from "../services/AccountService";
 import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
 
-const ABI: Abi = [
-  {
-    "inputs": [
-      {
-        "internalType": "string",
-        "name": "username",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes",
-        "name": "signature",
-        "type": "bytes"
-      },
-      {
-        "internalType": "uint256",
-        "name": "signatureExpiration",
-        "type": "uint256"
-      }
-    ],
-    "name": "registerUsername",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  }
-];
-
-const OxFUTBOL_ID_CONTRACT_ADDRESS = "0x34C1c1d83FDf111ECf0Fa0A74B2B934D4153663e";
 const OxFUTBOL_ID_JWT = "OxFUTBOL_ID_JWT";
 
 export const getSavedJWT = (): string | undefined => {
@@ -73,13 +43,6 @@ const useMsIdState = () => {
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  const idContract = useMemo(() => getContract({
-    address: OxFUTBOL_ID_CONTRACT_ADDRESS,
-    abi: ABI,
-    client: siteConfig.thirdwebClient,
-    chain: siteConfig.chain
-  }), []);
-
   const claim = useCallback(async (username: string) => {
     console.debug("[0xFútbol ID] Claiming username:", username);
     if (!account) throw new Error("No account found");
@@ -93,13 +56,13 @@ const useMsIdState = () => {
     try {
       const signedMessage = await account.signMessage({ message });
       console.debug("[0xFútbol ID] Signed message:", signedMessage);
-      const jwt = await authService.getJWT(username, signedMessage, expiration);
+      const jwt = await authService.getJWT(username, account.address, signedMessage, expiration);
       console.debug("[0xFútbol ID] JWT received");
       login(jwt);
     } finally {
       setIsWaitingForSignature(false);
     }
-  }, [account, activeWallet, idContract]);
+  }, [account, activeWallet]);
 
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");
@@ -146,7 +109,7 @@ const useMsIdState = () => {
     try {
       const signedMessage = await account.signMessage({ message });
       console.debug("[0xFútbol ID] Signed message for JWT:", signedMessage);
-      return await authService.getJWT(username, signedMessage, expiration);
+      return await authService.getJWT(username, account.address, signedMessage, expiration);
     } finally {
       setIsWaitingForSignature(false);
     }

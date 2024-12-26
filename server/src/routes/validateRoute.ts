@@ -1,5 +1,6 @@
 import express from 'express';
-import { getOxFutbolIdByUsername, validateUsername } from '../common/utils';
+import { getOxFutbolIdByUsername } from '../common/squid';
+import { validateUsername } from '../common/utils';
 
 const validateRouter = express.Router();
 
@@ -17,8 +18,8 @@ validateRouter.post('/validate', express.json(), async (req, res) => {
       return res.status(400).json({ error: validationResult.error });
     }
 
-    const oxFutbolIds = await getOxFutbolIdByUsername(trimmedUsername);
-    const claimed = oxFutbolIds.length > 0;
+    const oxFutbolId = await getOxFutbolIdByUsername(trimmedUsername);
+    const claimed = oxFutbolId !== null;
 
     res.json({ claimed });
   } catch (error) {

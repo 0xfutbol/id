@@ -1,15 +1,15 @@
 import { MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getOxFutbolIdByUsername } from '../common/utils';
+import { getOxFutbolIdByUsername } from '../common/squid';
 import { saveUserIfDoesntExists } from '../repo/db';
 
 const jwtRouter = express.Router();
 
 jwtRouter.post('/jwt', express.json(), async (req, res) => {
-  const { username, loginMethod, message, expiration } = req.body;
+  const { username, owner, message, loginMethod, expiration } = req.body;
 
-  if (!isValidRequest(username, message, expiration)) {
+  if (!isValidRequest(username, owner, message, expiration)) {
     return res.status(400).json({ error: 'Invalid request parameters' });
   }
 
@@ -18,13 +18,11 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 
   try {
-    const oxFutbolIds = await getOxFutbolIdByUsername(username, 60);
+    const oxFutbolId = await getOxFutbolIdByUsername(username, 60, false);
 
-    if (oxFutbolIds.length === 0) {
+    if (!oxFutbolId) {
       return res.status(404).json({ error: '0xFútbol ID not found' });
     }
-
-    const owner = oxFutbolIds[0].owner;
 
     await oxFutboId.validateSignature(message, owner, username, expiration);
 
@@ -53,8 +51,8 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 });
 
-function isValidRequest(username: string, signature: string, expiration: number): boolean {
-  return Boolean(username && signature && expiration);
+function isValidRequest(username: string, owner: string, signature: string, expiration: number): boolean {
+  return Boolean(username && owner && signature && expiration);
 }
 
 export default jwtRouter;

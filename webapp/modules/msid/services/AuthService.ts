@@ -15,18 +15,9 @@ class AuthService {
 		}
 	}
 
-	async getClaimJWT(username: string, signature: string, signatureExpiration: bigint, jwtExpiration: number): Promise<string> {
+	async getJWT(username: string, owner: string, message: string, expiration: number): Promise<string> {
 		try {
-			const response = await this.httpClient.post("/jwt", { username, message: `CLAIM:${signature}.${signatureExpiration}`, expiration: jwtExpiration });
-			return response.data.token;
-		} catch (err) {
-			throw err;
-		}
-	}
-
-	async getJWT(username: string, message: string, expiration: number): Promise<string> {
-		try {
-			const response = await this.httpClient.post("/jwt", { username, message, expiration });
+			const response = await this.httpClient.post("/jwt", { username, owner, message, expiration });
 			return response.data.token;
 		} catch (err) {
 			throw err;

@@ -46,6 +46,14 @@ export async function getUserByAddress(address: string): Promise<{ address: stri
   return result;
 }
 
+export async function getUserByUsername(username: string): Promise<{ address: string; username: string; login_method?: string } | undefined> {
+  const result = await db('users')
+    .select('address', 'username', 'login_method')
+    .where('username', username)
+    .first();
+  return result;
+}
+
 export async function saveUserIfDoesntExists(address: string, username: string, login_method?: string): Promise<void> {
   const existingUser = await db('users').where({ username }).first();
   if (!existingUser) {
