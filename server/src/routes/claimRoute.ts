@@ -33,7 +33,13 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     }
 
     const signatureData = await oxFutboId.generateSignature(username, owner);
-    res.json({ ...signatureData, claimed: false });
+    const { signature, signatureExpiration } = signatureData;
+
+    // console.debug("[0xFútbol ID] Registering username:", username);
+    // const tx = await registerUsername(username, signature, signatureExpiration);
+    // console.debug("[0xFútbol ID] Transaction completed:", tx);
+
+    res.json({ ...signatureData, claimed: true });
   } catch (error) {
     console.error('Error in claim route:', error);
     res.status(500).json({ error: 'Internal server error' });
