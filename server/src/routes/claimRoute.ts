@@ -1,6 +1,6 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { registerUsername, wallet } from '../common/web3';
+import { registerUsername } from '../common/web3';
 import { saveUserIfDoesntExists } from '../repo/db';
 
 const claimRouter = express.Router();
@@ -19,16 +19,9 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
   try {
     await oxFutboId.validateSignature(message, owner, username, expiration);
 
-    // We are enhancing the transparency of the username registration process by transitioning to a new 
-    // smart contract (OxFutbolID) that allows the backend to register usernames onchain.
-    // Since the new contract is not yet deployed, we continue to use the old contract (MetaSoccerID) 
-    // and sign the request with the backend wallet address.
-    // Therefore, we need to generate a new signature using the backend wallet address.
-    console.debug("[0xFútbol ID] Generating signature for username:", username, wallet.address);
-    const { signature, signatureExpiration } = await oxFutboId.generateSignature(username, wallet.address);
     console.debug("[0xFútbol ID] Registering username:", username);
-    const tx = await registerUsername(username, signature, signatureExpiration);
-    console.debug("[0xFútbol ID] Transaction completed:", tx);
+    const tx = await registerUsername(username);
+    console.debug("[0xFútbol ID] Username registered successfully");
     
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");

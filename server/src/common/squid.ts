@@ -1,9 +1,8 @@
 import axios from 'axios';
 import { keccak256, toUtf8Bytes } from 'ethers';
 import { getUserByUsername } from '../repo/db';
-import { wallet } from './web3';
 
-export async function getOxFutbolIdByUsername(username: string, maxWaitSeconds: number = 0, adaptOwner: boolean = true): Promise<{ owner: string } | null> {
+export async function getOxFutbolIdByUsername(username: string, maxWaitSeconds: number = 0): Promise<{ owner: string } | null> {
   const usernameHash = keccak256(toUtf8Bytes(username));
   let totalWaitSeconds = 0;
 
@@ -16,15 +15,11 @@ export async function getOxFutbolIdByUsername(username: string, maxWaitSeconds: 
 
     if (metaSoccerIds.length > 0 || totalWaitSeconds >= maxWaitSeconds) {
       if (metaSoccerIds.length > 0) {
-        if (adaptOwner && metaSoccerIds[0].owner.toLowerCase() === wallet.address.toLowerCase()) {
-          const user = await getUserByUsername(username);
-          return {
-            ...metaSoccerIds[0],
-            owner: user!.address,
-          };
-        } else {
-          return metaSoccerIds[0];
-        }
+        const user = await getUserByUsername(username);
+        return {
+          ...metaSoccerIds[0],
+          owner: user!.address,
+        };
       }
       return null;
     }
