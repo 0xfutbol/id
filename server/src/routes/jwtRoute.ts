@@ -7,9 +7,9 @@ import { saveUserIfDoesntExists } from '../repo/db';
 const jwtRouter = express.Router();
 
 jwtRouter.post('/jwt', express.json(), async (req, res) => {
-  const { username, owner, message, loginMethod, expiration } = req.body;
+  const { username, message, loginMethod, expiration } = req.body;
 
-  if (!isValidRequest(username, owner, message, expiration)) {
+  if (!isValidRequest(username, message, expiration)) {
     return res.status(400).json({ error: 'Invalid request parameters' });
   }
 
@@ -18,11 +18,13 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 
   try {
-    const oxFutbolId = await getOxFutbolIdByUsername(username, 60, false);
+    const oxFutbolId = await getOxFutbolIdByUsername(username, 60);
 
     if (!oxFutbolId) {
       return res.status(404).json({ error: '0xFútbol ID not found' });
     }
+
+    const owner = oxFutbolId.owner;
 
     await oxFutboId.validateSignature(message, owner, username, expiration);
 
@@ -51,8 +53,8 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 });
 
-function isValidRequest(username: string, owner: string, signature: string, expiration: number): boolean {
-  return Boolean(username && owner && signature && expiration);
+function isValidRequest(username: string, signature: string, expiration: number): boolean {
+  return Boolean(username && signature && expiration);
 }
 
 export default jwtRouter;

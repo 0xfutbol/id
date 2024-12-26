@@ -9,6 +9,7 @@ import infoRouter from './routes/infoRoute';
 import jwtRouter from './routes/jwtRoute';
 import pingRouter from './routes/pingRoute';
 import preRouter from './routes/preRoute';
+import signRouter from './routes/signRoute';
 import validateRoute from './routes/validateRoute';
 
 const app = express();
@@ -22,6 +23,7 @@ const authRouter = express.Router();
 authRouter.use(claimRouter);
 authRouter.use(jwtRouter);
 authRouter.use(preRouter);
+authRouter.use(signRouter);
 authRouter.use(validateRoute);
 app.use('/auth', authRouter);
 

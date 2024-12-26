@@ -47,20 +47,48 @@ const useMsIdState = () => {
     console.debug("[0xFútbol ID] Claiming username:", username);
     if (!account) throw new Error("No account found");
 
-    const { claimed, signature, signatureExpiration } = await authService.claimSignature(username, account.address);
+    const { claimed, signature, signatureExpiration } = await authService.sign(username, account.address);
     console.debug("[0xFútbol ID] Claim signature response:", { claimed, signature, signatureExpiration });
 
-    const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-    const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
-    setIsWaitingForSignature(true);
-    try {
-      const signedMessage = await account.signMessage({ message });
-      console.debug("[0xFútbol ID] Signed message:", signedMessage);
-      const jwt = await authService.getJWT(username, account.address, signedMessage, expiration);
-      console.debug("[0xFútbol ID] JWT received");
-      login(jwt);
-    } finally {
-      setIsWaitingForSignature(false);
+    const handleClaimedUsername = async (username: string) => {
+      console.debug("[0xFútbol ID] Handling claimed username:", username);
+      const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
+      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
+      setIsWaitingForSignature(true);
+      try {
+        const signedMessage = await account.signMessage({ message });
+        console.debug("[0xFútbol ID] Signed message:", signedMessage);
+        const jwt = await authService.getJWT(username, signedMessage, expiration);
+        console.debug("[0xFútbol ID] JWT received");
+        login(jwt);
+      } finally {
+        setIsWaitingForSignature(false);
+      }
+    };
+
+    const handleUnclaimedUsername = async (username: string) => {
+      console.debug("[0xFútbol ID] Handling unclaimed username:", username);
+      const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
+      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
+      setIsWaitingForSignature(true);
+      try {
+        const signedMessage = await account.signMessage({ message });
+        console.debug("[0xFútbol ID] Signed message:", signedMessage);
+        await authService.claim(username, account.address, signedMessage, expiration);
+        console.debug("[0xFútbol ID] Registered username");
+        const jwt = await authService.getJWT(username, signedMessage, expiration);
+        console.debug("[0xFútbol ID] JWT received");
+        login(jwt);
+      } catch (error) {
+        console.error("[0xFútbol ID] Error claiming username:", error);
+        throw error;
+      }
+    };
+
+    if (claimed) {
+      return handleClaimedUsername(username);
+    } else {
+      return handleUnclaimedUsername(username);
     }
   }, [account, activeWallet]);
 
@@ -109,7 +137,7 @@ const useMsIdState = () => {
     try {
       const signedMessage = await account.signMessage({ message });
       console.debug("[0xFútbol ID] Signed message for JWT:", signedMessage);
-      return await authService.getJWT(username, account.address, signedMessage, expiration);
+      return await authService.getJWT(username, signedMessage, expiration);
     } finally {
       setIsWaitingForSignature(false);
     }
