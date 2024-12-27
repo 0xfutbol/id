@@ -52,6 +52,33 @@
   resolved "https://registry.npmjs.org/@noble/hashes/-/hashes-1.3.2.tgz"
   integrity sha512-MVC8EAQp7MvEcm30KWENFjgR+Mkmf+D189XJTkFIlwohU5hcBbn1ZkKq7KVTi2Hme3PMGF390DaL52beVrIihQ==
 
+"@telegram-apps/init-data-node@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.npmjs.org/@telegram-apps/init-data-node/-/init-data-node-1.2.1.tgz"
+  integrity sha512-buTUGiJkpXefveCAUJeRWCXmnYuWdaBNERw92wpf1WIKyxwyBQ0+4Rob7OfdFZ0v3IgNEQF/b2yXMOo0ETYh5g==
+  dependencies:
+    "@telegram-apps/toolkit" "^1.1.0"
+    "@telegram-apps/transformers" "^1.2.1"
+    "@telegram-apps/types" "^1.2.0"
+
+"@telegram-apps/toolkit@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.npmjs.org/@telegram-apps/toolkit/-/toolkit-1.1.0.tgz"
+  integrity sha512-fJAxbvfTjp8MWKEb4oR8Fr8NppxSE4FZ8utNLClBMbC8or3vNZfvNzwHLMhltD4YWHdxLuMH6mnmo+BZLSUSzg==
+
+"@telegram-apps/transformers@^1.2.1":
+  version "1.2.1"
+  resolved "https://registry.npmjs.org/@telegram-apps/transformers/-/transformers-1.2.1.tgz"
+  integrity sha512-BDMBZhsyLgt06bAB7gXX3Y46JSiXHivtMsV45WaB3xqfkhf3FcwSMQj6b7fkqHXjpGXPVun+snjSArHMPIVmJQ==
+  dependencies:
+    "@telegram-apps/toolkit" "^1.1.0"
+    "@telegram-apps/types" "^1.2.0"
+
+"@telegram-apps/types@^1.2.0":
+  version "1.2.0"
+  resolved "https://registry.npmjs.org/@telegram-apps/types/-/types-1.2.0.tgz"
+  integrity sha512-HhvnSCsqlJpes5ZGsZP/qbDNq8eLLnjgZKaF5NRsDqAKUPvaIIFT1HdyDII/8EioUgoI4FHsP8MylK2Gzm2efg==
+
 "@tsconfig/node10@^1.0.7":
   version "1.0.11"
   resolved "https://registry.npmjs.org/@tsconfig/node10/-/node10-1.0.11.tgz"
