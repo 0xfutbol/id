@@ -22,7 +22,7 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
     console.debug("[0xFútbol ID] Registering username:", username);
     const tx = await registerUsername(username);
     console.debug("[0xFútbol ID] Username registered successfully");
-    
+
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
 

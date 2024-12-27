@@ -1,5 +1,6 @@
 import { randomUUID } from 'crypto';
 import knex from 'knex';
+import { TelegramUser } from '../routes/jwtTgRoute';
 
 export const db = knex({
   client: 'pg',
@@ -101,6 +102,19 @@ export async function saveDiscordAccount(discordId: string, address: string, inf
   await db('discord_accounts').insert({
     discord_id: discordId,
     address: address.toLowerCase(),
+    info: JSON.stringify(info),
+  }).onConflict('address').merge();
+}
+
+// Telegram-related methods
+export async function getTelegramAccountByTelegramId(telegramId: number): Promise<{ telegram_id: string; address: string; info: any } | undefined> {
+  const result = await db('telegram_accounts').where('telegram_id', telegramId.toString()).first();
+  return result;
+}
+
+export async function saveTelegramAccount(telegramId: number, info: TelegramUser): Promise<void> {
+  await db('telegram_accounts').insert({
+    telegram_id: telegramId.toString(),
     info: JSON.stringify(info),
   }).onConflict('address').merge();
 }
