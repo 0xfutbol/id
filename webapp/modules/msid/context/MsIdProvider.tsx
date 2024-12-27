@@ -1,25 +1,23 @@
 import { authService } from "@/modules/msid/services/AuthService";
 import { decodeJWT } from "@/utils/decodeJWT";
-import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
+import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION, OxFUTBOL_LOCAL_STORAGE_KEY } from "@0xfutbol/id";
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
 import { accountService } from "../services/AccountService";
 import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
 
-const OxFUTBOL_ID_JWT = "OxFUTBOL_ID_JWT";
-
 export const getSavedJWT = (): string | undefined => {
-  return localStorage?.getItem(OxFUTBOL_ID_JWT)?.replaceAll("\"", "") || undefined;
+  return localStorage?.getItem(OxFUTBOL_LOCAL_STORAGE_KEY)?.replaceAll("\"", "") || undefined;
 };
 
 export const setSavedJWT = (jwt: string | undefined) => {
   if (jwt) {
-    console.debug("[0xFútbol ID] Setting JWT in localStorage:");
-    localStorage?.setItem(OxFUTBOL_ID_JWT, jwt);
+    console.debug("[0xFútbol ID] Setting JWT in localStorage:", jwt);
+    localStorage?.setItem(OxFUTBOL_LOCAL_STORAGE_KEY, jwt);
   } else {
     console.debug("[0xFútbol ID] Removing JWT from localStorage");
-    localStorage?.removeItem(OxFUTBOL_ID_JWT);
+    localStorage?.removeItem(OxFUTBOL_LOCAL_STORAGE_KEY);
   }
 };
 
@@ -79,9 +77,8 @@ const useMsIdState = () => {
         const jwt = await authService.getJWT(username, signedMessage, expiration);
         console.debug("[0xFútbol ID] JWT received");
         login(jwt);
-      } catch (error) {
-        console.error("[0xFútbol ID] Error claiming username:", error);
-        throw error;
+      } finally {
+        setIsWaitingForSignature(false);
       }
     };
 
