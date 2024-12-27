@@ -320,7 +320,7 @@ export default function ProfilePage() {
               <div>
                 <p className="text-gray-400">
                   {username}
-                  <span className="text-gray-500">.ms</span>
+                  <span className="text-gray-500">.fut</span>
                 </p>
               </div>
             </div>
