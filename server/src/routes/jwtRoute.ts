@@ -1,4 +1,3 @@
-import { MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id";
 import express from 'express';
 import { oxFutboId } from '../common/id';
 import { getOxFutbolIdByUsername } from '../common/squid';
@@ -32,18 +31,6 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
     
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
-
-    const host = req.get('host');
-    const isLocalhost = host?.includes('localhost') || host?.includes('127.0.0.1');
-
-    // Set the secure cookie
-    res.cookie('auth_token', token, {
-      httpOnly: !isLocalhost,
-      secure: !isLocalhost,
-      sameSite: 'strict',
-      domain: isLocalhost ? 'localhost' : '.metasoccer.com',
-      maxAge: MAX_SIGNATURE_EXPIRATION,
-    });
 
     // Return the token in the JSON response as well
     res.json({ token });
