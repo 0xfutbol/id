@@ -103,8 +103,8 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
             connectModal={{
               size: "compact",
               showThirdwebBranding: false,
-              privacyPolicyUrl: "https://metasoccer.com/privacy-policy",
-              termsOfServiceUrl: "https://metasoccer.com/terms-of-service",
+              privacyPolicyUrl: "https://0xfutbol.com/privacy-policy",
+              termsOfServiceUrl: "https://0xfutbol.com/terms-of-service",
             }}
             wallets={[option.wallet]}
           />
@@ -117,7 +117,7 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
           isExternal
           showAnchorIcon
           className="text-xs"
-          href="https://metasoccer.com/terms-of-service"
+          href="https://0xfutbol.com/terms-of-service"
         >
           Terms of Service
         </Link>{" "}
@@ -126,7 +126,7 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
           isExternal
           showAnchorIcon
           className="text-xs"
-          href="https://metasoccer.com/privacy-policy"
+          href="https://0xfutbol.com/privacy-policy"
         >
           Privacy Policy
         </Link>
