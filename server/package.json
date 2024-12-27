@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@0xfutbol/id": "^1.0.11",
+    "@0xfutbol/id": "^1.0.12",
     "@telegram-apps/init-data-node": "^1.2.1",
     "axios": "^1.7.7",
     "cors": "^2.8.5",
