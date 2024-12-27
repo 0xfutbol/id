@@ -1,13 +1,14 @@
 
 import axios from 'axios';
-import { ethers, keccak256, parseEther, toUtf8Bytes } from 'ethers';
+import { ethers, keccak256, parseEther, toUtf8Bytes, Wallet } from 'ethers';
 import { oxFutboId } from './id';
 
 const FAUCET_URL = 'https://sfuel-faucet-h8r2g.ondigitalocean.app/gas';
 
-const provider = new ethers.JsonRpcProvider(process.env.ONCHAIN_RPC_URL);
+export const provider = new ethers.JsonRpcProvider(process.env.ONCHAIN_RPC_URL);
+
 const privateKey = process.env.ONCHAIN_PRIVATE_KEY!;
-const wallet = new ethers.Wallet(privateKey, provider);
+const wallet = new Wallet(privateKey, provider);
 
 const contractAbi = [
   {
