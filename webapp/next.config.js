@@ -20,7 +20,8 @@ const nextConfig = {
       },
     ];
   },
-  basePath: process.env.BASE_PATH !== undefined ? process.env.BASE_PATH : "/id",
+  assetPrefix: process.env.BASE_PATH !== undefined ? process.env.BASE_PATH : "/id",
+  // basePath: process.env.BASE_PATH !== undefined ? process.env.BASE_PATH : "/id",
   images: {
     remotePatterns: [
       {
