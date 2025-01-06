@@ -361,7 +361,7 @@ export default function ProfilePage() {
             <Chip size="sm" color="success">Play</Chip>
           </CardFooter>
         </Card>
-        <Card isFooterBlurred className="aspect-video">
+        <Card isFooterBlurred className="aspect-video" onClick={() => window.open("https://t.me/WonderkidBot", "_blank")}>
           <NextImage
             removeWrapper
             alt="Wonderkid"
@@ -375,7 +375,7 @@ export default function ProfilePage() {
                 <p className="text-tiny text-white/60">Telegram mini-game to raise the next super star.</p>
               </div>
             </div>
-            <Chip size="sm" color="warning">Coming soon</Chip>
+            <Chip size="sm" color="success">Play</Chip>
           </CardFooter>
         </Card>
       </div>
