@@ -8,16 +8,24 @@ import { getTelegramAccountByTelegramId, saveTelegramAccount } from '../repo/db'
 
 const jwtTgRouter = express.Router();
 
-const botToken = process.env.TELEGRAM_BOT_TOKEN!;
+function getBotToken(environment: string) {
+  if (environment === 'local') {
+    return process.env.TELEGRAM_BOT_TOKEN_LOCAL!;
+  }
+  if (environment === 'dev') {
+    return process.env.TELEGRAM_BOT_TOKEN_DEV!;
+  }
+  return process.env.TELEGRAM_BOT_TOKEN!;
+}
 
 jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { initDataRaw?: string }, res) => {
-  const { initDataRaw } = req.body;
+  const { environment, initDataRaw } = req.body;
 
   if (!initDataRaw) {
     return res.status(400).json({ message: "Init data missing" });
   }
 
-  if (!isTelegramInitDataValid(initDataRaw)) {
+  if (!isTelegramInitDataValid(environment, initDataRaw)) {
     return res.status(400).json({ message: "Init data is invalid" });
   }
 
@@ -47,10 +55,9 @@ jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { init
   }
 });
 
-export const isTelegramInitDataValid = (initDataRaw: string): boolean => {
+export const isTelegramInitDataValid = (environment: string, initDataRaw: string): boolean => {
   try {
-    console.log(initDataRaw);
-    console.log(botToken);
+    const botToken = getBotToken(environment);
     validate(initDataRaw, botToken);
     return true;
   } catch (error) {
