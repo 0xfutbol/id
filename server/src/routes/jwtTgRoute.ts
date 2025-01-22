@@ -4,7 +4,7 @@ import { keccak256, toUtf8Bytes, Wallet } from 'ethers';
 import express from 'express';
 import { oxFutboId } from '../common/id';
 import { provider } from '../common/web3';
-import { getTelegramAccountByTelegramId, saveTelegramAccount } from '../repo/db';
+import { getAddress, getTelegramAccountByTelegramId, saveAddress, saveTelegramAccount } from '../repo/db';
 
 const jwtTgRouter = express.Router();
 
@@ -18,8 +18,14 @@ function getBotToken(environment: string) {
   return process.env.TELEGRAM_BOT_TOKEN!;
 }
 
+function generateAddressFromTelegramId(telegramId: number) {
+  const username = `telegram:${telegramId}`;
+  const privateKey = keccak256(toUtf8Bytes(`0xFútbolID:${username}`));
+  return new Wallet(privateKey, provider).address;
+}
+
 jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { initDataRaw?: string }, res) => {
-  const { environment, initDataRaw } = req.body;
+  const { environment, initDataRaw, referrerUserId } = req.body;
 
   if (!initDataRaw) {
     return res.status(400).json({ message: "Init data missing" });
@@ -36,17 +42,20 @@ jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { init
   }
 
   const username = `telegram:${initData.user.id}`;
-  const privateKey = keccak256(toUtf8Bytes(`0xFútbolID:${username}`));
-  const owner = new Wallet(privateKey, provider).address;
+  const userEvmAddress = generateAddressFromTelegramId(initData.user.id);
+  const referrerEvmAddress = referrerUserId ? generateAddressFromTelegramId(referrerUserId) : undefined;
 
   try {
     const existingTelegramAccount = await getTelegramAccountByTelegramId(initData.user.id);
 
     if (!existingTelegramAccount) {
+      await saveAddress(userEvmAddress, referrerEvmAddress);
       await saveTelegramAccount(initData.user.id, initData.user);
+    } else if (!getAddress(userEvmAddress)) {
+      await saveAddress(userEvmAddress, referrerEvmAddress);
     }
 
-    const token = oxFutboId.createJWT(username, owner, initData.signature, MAX_SIGNATURE_EXPIRATION, initData.user);
+    const token = oxFutboId.createJWT(username, userEvmAddress, initData.signature, MAX_SIGNATURE_EXPIRATION, initData.user);
 
     return res.json({ token });
   } catch (error) {
