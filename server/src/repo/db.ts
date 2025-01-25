@@ -118,3 +118,16 @@ export async function saveTelegramAccount(telegramId: number, info: User): Promi
     info: JSON.stringify(info),
   }).onConflict('telegram_id').merge();
 }
+
+// TON-related methods
+export async function getTonAccountByTonAddress(tonAddress: string): Promise<{ ton_address: string; address: string } | undefined> {
+  const result = await db('ton_accounts').where('ton_address', tonAddress).first();
+  return result;
+}
+
+export async function saveTonAccount(tonAddress: string, address: string): Promise<void> {
+  await db('ton_accounts').insert({
+    ton_address: tonAddress,
+    address: address.toLowerCase(),
+  }).onConflict('ton_address').merge();
+}
