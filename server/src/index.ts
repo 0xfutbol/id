@@ -3,6 +3,7 @@ dotenv.config();
 
 import cors from 'cors';
 import express from 'express';
+import adminRoute from './routes/adminRoute';
 import claimRouter from './routes/claimRoute';
 import discordRouter from './routes/discordRoute';
 import infoRouter from './routes/infoRoute';
@@ -30,6 +31,7 @@ authRouter.use(validateRoute);
 app.use('/auth', authRouter);
 
 const adminRouter = express.Router();
+adminRouter.use(adminRoute);
 app.use('/admin', adminRouter);
 
 const accountRouter = express.Router();
