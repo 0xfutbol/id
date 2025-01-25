@@ -29,6 +29,9 @@ authRouter.use(signRouter);
 authRouter.use(validateRoute);
 app.use('/auth', authRouter);
 
+const adminRouter = express.Router();
+app.use('/admin', adminRouter);
+
 const accountRouter = express.Router();
 accountRouter.use(discordRouter);
 accountRouter.use(infoRouter);
