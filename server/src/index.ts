@@ -12,6 +12,7 @@ import jwtTgRouter from './routes/jwtTgRoute';
 import pingRouter from './routes/pingRoute';
 import preRouter from './routes/preRoute';
 import signRouter from './routes/signRoute';
+import tonRouter from './routes/tonRoute';
 import validateRoute from './routes/validateRoute';
 
 const app = express();
@@ -38,6 +39,7 @@ const accountRouter = express.Router();
 accountRouter.use(discordRouter);
 accountRouter.use(infoRouter);
 accountRouter.use(pingRouter);
+accountRouter.use(tonRouter);
 app.use('/account', accountRouter);
 
 app.listen(port, () => {
