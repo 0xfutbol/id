@@ -23,7 +23,7 @@ tonRouter.post('/ton', express.json(), authenticateJWT, async (req: express.Requ
 
       res.json({ message: "TON account connected successfully" });
     } else {
-      res.status(400).json({ message: "TON account already connected" });
+      res.json({ message: "TON account already connected" });
     }
   } catch (error) {
     console.error('Error connecting TON', error);
