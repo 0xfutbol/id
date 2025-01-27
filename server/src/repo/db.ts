@@ -120,6 +120,11 @@ export async function saveTelegramAccount(telegramId: number, info: User): Promi
 }
 
 // TON-related methods
+export async function getTonAccountByAddress(address: string): Promise<{ ton_address: string; address: string } | undefined> {
+  const result = await db('ton_accounts').where('address', address.toLowerCase()).first();
+  return result;
+}
+
 export async function getTonAccountByTonAddress(tonAddress: string): Promise<{ ton_address: string; address: string } | undefined> {
   const result = await db('ton_accounts').where('ton_address', tonAddress).first();
   return result;

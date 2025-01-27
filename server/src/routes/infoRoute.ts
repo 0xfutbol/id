@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateJWT } from '../common/auth';
-import { getDiscordAccountByAddress, getReferralCount, getTonAccountByTonAddress, getUserByAddress } from '../repo/db';
+import { getDiscordAccountByAddress, getReferralCount, getTonAccountByAddress, getUserByAddress } from '../repo/db';
 
 const infoRouter = express.Router();
 
@@ -11,7 +11,7 @@ infoRouter.get('/info', authenticateJWT, async (req: express.Request & { user?: 
 
   try {
     const discordAccount = await getDiscordAccountByAddress(req.user.owner);
-    const tonAccount = await getTonAccountByTonAddress(req.user.owner);
+    const tonAccount = await getTonAccountByAddress(req.user.owner);
     const referralCount = await getReferralCount(req.user.owner);
 
     const info = {
