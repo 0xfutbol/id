@@ -112,10 +112,11 @@ export async function getTelegramAccountByTelegramId(telegramId: number): Promis
   return result;
 }
 
-export async function saveTelegramAccount(telegramId: number, info: User): Promise<void> {
+export async function saveTelegramAccount(telegramId: number, info: User, evmAddress: string): Promise<void> {
   await db('telegram_accounts').insert({
     telegram_id: telegramId.toString(),
     info: JSON.stringify(info),
+    evm_address: evmAddress,
   }).onConflict('telegram_id').merge();
 }
 
