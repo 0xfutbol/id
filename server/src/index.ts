@@ -1,6 +1,9 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import './instrument';
+
+import * as Sentry from "@sentry/node";
 import cors from 'cors';
 import express from 'express';
 import adminRoute from './routes/adminRoute';
@@ -41,6 +44,8 @@ accountRouter.use(infoRouter);
 accountRouter.use(pingRouter);
 accountRouter.use(tonRouter);
 app.use('/account', accountRouter);
+
+Sentry.setupExpressErrorHandler(app);
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
