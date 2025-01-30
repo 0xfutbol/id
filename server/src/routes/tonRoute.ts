@@ -1,6 +1,6 @@
 import express from 'express';
 import { authenticateJWT } from '../common/auth';
-import { getTonAccountByTonAddress, saveTonAccount } from '../repo/db';
+import { getTonAccountByAddress, getTonAccountByTonAddress, saveTonAccount } from '../repo/db';
 
 const tonRouter = express.Router();
 
@@ -16,12 +16,17 @@ tonRouter.post('/ton', express.json(), authenticateJWT, async (req: express.Requ
   }
 
   try {
+    const userAlreadyConnected = await getTonAccountByAddress(req.user.owner);
     const tonAlreadyConnected = await getTonAccountByTonAddress(tonAddress);
 
-    if (!tonAlreadyConnected) {
+    if (!userAlreadyConnected && !tonAlreadyConnected) {
       await saveTonAccount(tonAddress, req.user.owner);
 
       res.json({ message: "TON account connected successfully" });
+    } if (userAlreadyConnected && !tonAlreadyConnected) {
+      console.warn(`User ${req.user.owner} already connected to a TON account other than ${tonAddress}`);
+
+      res.json({ message: "TON account already connected" });
     } else {
       res.json({ message: "TON account already connected" });
     }
