@@ -51,7 +51,7 @@ jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { init
     if (!existingTelegramAccount) {
       await saveAddress(userEvmAddress, referrerEvmAddress);
       await saveTelegramAccount(initData.user.id, initData.user, userEvmAddress);
-    } else if (!getAddress(userEvmAddress)) {
+    } else if (!(await getAddress(userEvmAddress))) {
       await saveAddress(userEvmAddress, referrerEvmAddress);
     }
 
