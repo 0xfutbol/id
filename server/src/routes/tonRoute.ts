@@ -22,13 +22,13 @@ tonRouter.post('/ton', express.json(), authenticateJWT, async (req: express.Requ
     if (!userAlreadyConnected && !tonAlreadyConnected) {
       await saveTonAccount(tonAddress, req.user.owner);
 
-      res.json({ message: "TON account connected successfully" });
+      return res.json({ message: "TON account connected successfully" });
     } if (userAlreadyConnected && !tonAlreadyConnected) {
       console.warn(`User ${req.user.owner} already connected to a TON account other than ${tonAddress}`);
 
-      res.json({ message: "TON account already connected" });
+      return res.json({ message: "TON account already connected" });
     } else {
-      res.json({ message: "TON account already connected" });
+      return res.json({ message: "TON account already connected" });
     }
   } catch (error) {
     console.error('Error connecting TON', error);
