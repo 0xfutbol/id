@@ -19,9 +19,11 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
   try {
     await oxFutboId.validateSignature(message, owner, username, expiration);
 
-    console.debug("[0xFútbol ID] Registering username:", username);
-    const tx = await registerUsername(username);
-    console.debug("[0xFútbol ID] Username registered successfully");
+    if (process.env.OPTION_SAVE_ONCHAIN === 'true') {
+      console.debug("[0xFútbol ID] Registering username onchain:", username);
+      const tx = await registerUsername(username);
+      console.debug("[0xFútbol ID] Username registered successfully");
+    }
 
     // Save the user in the database
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
