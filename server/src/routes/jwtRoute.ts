@@ -1,7 +1,6 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getOxFutbolIdByUsername } from '../common/squid';
-import { saveUserIfDoesntExists } from '../repo/db';
+import { getUserByUsername, saveUserIfDoesntExists } from '../repo/db';
 
 const jwtRouter = express.Router();
 
@@ -17,13 +16,13 @@ jwtRouter.post('/jwt', express.json(), async (req, res) => {
   }
 
   try {
-    const oxFutbolId = await getOxFutbolIdByUsername(username, 60);
+    const oxFutbolId = await getUserByUsername(username);
 
     if (!oxFutbolId) {
       return res.status(404).json({ error: '0xFútbol ID not found' });
     }
 
-    const owner = oxFutbolId.owner;
+    const owner = oxFutbolId.address;
 
     await oxFutboId.validateSignature(message, owner, username, expiration);
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { getOxFutbolIdByOwner, getOxFutbolIdByUsername } from '../common/squid';
 import { validateUsername } from '../common/utils';
+import { getUserByAddress, getUserByUsername } from '../repo/db';
 
 const signRouter = express.Router();
 
@@ -13,17 +13,17 @@ signRouter.post('/sign', express.json(), async (req, res) => {
   }
 
   try {
-    const existingUserByOwner = await getOxFutbolIdByOwner(owner);
+    const existingUserByOwner = await getUserByAddress(owner);
     if (existingUserByOwner) {
-      const existingUserByUsername = await getOxFutbolIdByUsername(username);
-      if (existingUserByUsername?.owner.toLowerCase() === owner.toLowerCase()) {
+      const existingUserByUsername = await getUserByUsername(username);
+      if (existingUserByUsername?.address.toLowerCase() === owner.toLowerCase()) {
         const signatureData = await oxFutboId.generateSignature(username, owner);
         return res.json({ ...signatureData, claimed: true });
       }
       return res.status(400).json({ error: 'This address has already claimed another username' });
     }
 
-    const existingUserByUsername = await getOxFutbolIdByUsername(username);
+    const existingUserByUsername = await getUserByUsername(username);
     if (existingUserByUsername) {
       return res.status(400).json({ error: 'This username has already been claimed' });
     }

@@ -1,6 +1,6 @@
 import express from 'express';
-import { getOxFutbolIdByUsername } from '../common/squid';
 import { validateUsername } from '../common/utils';
+import { getUserByUsername } from '../repo/db';
 
 const validateRouter = express.Router();
 
@@ -18,7 +18,7 @@ validateRouter.post('/validate', express.json(), async (req, res) => {
       return res.status(400).json({ error: validationResult.error });
     }
 
-    const oxFutbolId = await getOxFutbolIdByUsername(trimmedUsername);
+    const oxFutbolId = await getUserByUsername(trimmedUsername);
     const claimed = oxFutbolId !== null;
 
     res.json({ claimed });

@@ -1,6 +1,5 @@
 import express from 'express';
 import { oxFutboId } from '../common/id';
-import { registerUsername } from '../common/web3';
 import { saveUserIfDoesntExists } from '../repo/db';
 
 const claimRouter = express.Router();
@@ -19,12 +18,10 @@ claimRouter.post('/claim', express.json(), async (req, res) => {
   try {
     await oxFutboId.validateSignature(message, owner, username, expiration);
 
-    console.debug("[0xFútbol ID] Registering username:", username);
-    const tx = await registerUsername(username);
-    console.debug("[0xFútbol ID] Username registered successfully");
-
     // Save the user in the database
+    console.debug("[0xFútbol ID] Registering username:", username);
     await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
+    console.debug("[0xFútbol ID] Username registered successfully");
 
     // Return the token in the JSON response as well
     res.json({ success: true });

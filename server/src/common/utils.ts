@@ -1,6 +1,5 @@
-import { getUsername, saveUsernameIfItDoesntExists } from '../repo/db';
+import { getUserByUsername, getUsername, saveUsernameIfItDoesntExists } from '../repo/db';
 import { validateUsernameWithAI } from './openai';
-import { getOxFutbolIdByUsername } from './squid';
 
 const offensiveWords: string[] = [
   "idiot", "moron", "stupid", "dumb", "asshole", "bastard", 
@@ -60,7 +59,7 @@ export async function validateUsername(username: string): Promise<{ isValid: boo
     return { isValid: false, error: 'Username contains inappropriate content or violates our guidelines. Please choose a different username.' };
   }
 
-  if (await getOxFutbolIdByUsername(trimmedUsername)) {
+  if (await getUserByUsername(trimmedUsername)) {
     return { isValid: false, error: 'Username is already registered in the MetaSoccer system. Please choose a different username.' };
   }
 
