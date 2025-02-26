@@ -4,7 +4,7 @@ import { keccak256, toUtf8Bytes, Wallet } from 'ethers';
 import express from 'express';
 import { oxFutboId } from '../common/id';
 import { provider } from '../common/web3';
-import { getAddress, getTelegramAccountByTelegramId, saveAddress, saveTelegramAccount } from '../repo/db';
+import { saveAddress, saveTelegramAccount } from '../repo/db';
 
 const jwtTgRouter = express.Router();
 
@@ -46,14 +46,8 @@ jwtTgRouter.post('/jwt/tg', express.json(), async (req: express.Request & { init
   const referrerEvmAddress = referrerUserId ? generateAddressFromTelegramId(referrerUserId) : undefined;
 
   try {
-    const existingTelegramAccount = await getTelegramAccountByTelegramId(initData.user.id);
-
-    if (!existingTelegramAccount) {
-      await saveAddress(userEvmAddress, referrerEvmAddress);
-      await saveTelegramAccount(initData.user.id, initData.user, userEvmAddress);
-    } else if (!(await getAddress(userEvmAddress))) {
-      await saveAddress(userEvmAddress, referrerEvmAddress);
-    }
+    await saveAddress(userEvmAddress, referrerEvmAddress);
+    await saveTelegramAccount(initData.user.id, initData.user, userEvmAddress);
 
     const token = oxFutboId.createJWT(username, userEvmAddress, initData.signature, MAX_SIGNATURE_EXPIRATION, initData.user);
 
