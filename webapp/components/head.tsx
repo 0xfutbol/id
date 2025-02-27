@@ -29,13 +29,6 @@ export default function DynamicHead() {
         name="description" 
         content={APP_CONFIG[app].description} 
       />
-      <style>
-        {`
-          a {
-            color: ${APP_CONFIG[app].accentColor} !important;
-          }
-        `}
-      </style>
     </Head>
   );
 }

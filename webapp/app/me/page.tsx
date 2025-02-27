@@ -9,9 +9,9 @@ import {
   CardFooter,
   Chip,
   CircularProgress,
+  Link,
   Image as NextImage,
   Snippet,
-  Spacer,
   Tab,
   Tabs,
   Tooltip
@@ -21,7 +21,8 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { ThirdwebContract } from "thirdweb";
-import { NFT, useWalletBalance } from "thirdweb/react";
+import { balanceOf } from "thirdweb/extensions/erc721";
+import { NFT, useReadContract, useWalletBalance } from "thirdweb/react";
 
 import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
@@ -110,6 +111,11 @@ export default function ProfilePage() {
     client: siteConfig.thirdwebClient,
     chain: chains.polygon.ref,
     address,
+  });
+
+  const { data: tokenVestingBalance } = useReadContract(balanceOf, {
+    contract: siteConfig.contracts.ethereumSepolia.tokenVesting,
+    owner: address!,
   });
 
   const tokens = useMemo(() => {
@@ -356,6 +362,18 @@ export default function ProfilePage() {
           </div>
         </CardBody>
       </Card>
+      {tokenVestingBalance && (
+        <Snippet
+          color="warning"
+          hideCopyButton
+          size="md"
+          symbol="⚠️"
+        >
+          <span className="text-wrap">
+            You have $FUTBOL tokens to claim! Head to <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim them. If you have any questions, join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link>.
+          </span>
+        </Snippet>
+      )}
       <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://app.metasoccer.com?utm_source=msid&utm_medium=profile&utm_campaign=game_card", "_blank")}>
           <NextImage
@@ -392,19 +410,6 @@ export default function ProfilePage() {
           </CardFooter>
         </Card>
       </div>
-      <Snippet
-        codeString={`${window.location.origin}?referrer=${address}`}
-        color="success"
-        symbol=""
-      >
-        <span className="text-wrap">
-          0xFútbol&apos;s referral program is live! Invite your friends to
-          join the game, and you&apos;ll earn the Referrer Medal. Simply copy
-          your referral link and share it with them
-        </span>
-        <Spacer y={1} />
-        <span className="text-wrap">Referrals: {referralCount}</span>
-      </Snippet>
       <div className="w-full flex-grow">
         <Tabs
           aria-label="Profile tabs"

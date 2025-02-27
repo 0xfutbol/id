@@ -12,6 +12,14 @@ export const siteConfig = {
   backendUrl: process.env.NODE_ENV === "development" ? "http://localhost:6743" : "https://id.0xfutbol.com/api",
   chain: chains.skaleNebula.ref,
   contracts: {
+    ethereumSepolia: {
+      tokenVesting: getContract({
+        address: "0x68b6986416c7a38f630cbc644a2833a0b78b3631",
+        abi: erc721Abi,
+        client: thirdwebClient,
+        chain: chains.ethereumSepolia.ref
+      }),
+    },
     polygon: {
       lands: getContract({
         address: "0x5b40f62fe5dd53ec89d82d432c05b9ed79764c5a",
