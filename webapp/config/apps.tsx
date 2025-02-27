@@ -18,7 +18,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     accentColor: "#00ff00",
     background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png?v=100"),
     description: "The web3 hub for 4 billion fútbol fans.",
-    favicon: "/0xfutbol.ico",
+    favicon: "https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.ico",
     logo: (
       <img
         alt="0xFútbol ID"
@@ -48,7 +48,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     accentColor: "#00ff00",
     background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png"),
     description: "The web3 hub for 4 billion fútbol fans.",
-    favicon: "/0xfutbol.ico",
+    favicon: "https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.ico",
     logo: (
       <img
         alt="0xFútbol ID"
@@ -81,7 +81,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     accentColor: "rgb(0, 111, 238)",
     background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer.png"),
     description: "MetaSoccer: Your next-gen fútbol club",
-    favicon: "/metasoccer.ico",
+    favicon: "https://assets.metasoccer.com/0xfutbol/msid/metasoccer.ico",
     logo: (
       <img
         alt="DevSoccer"
@@ -112,7 +112,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     accentColor: "rgb(0, 111, 238)",
     background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer.png"),
     description: "MetaSoccer: Your next-gen fútbol club",
-    favicon: "/metasoccer.ico",
+    favicon: "https://assets.metasoccer.com/0xfutbol/msid/metasoccer.ico",
     logo: (
       <img
         alt="MetaSoccer"
