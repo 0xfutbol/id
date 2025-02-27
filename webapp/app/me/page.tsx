@@ -364,7 +364,7 @@ export default function ProfilePage() {
       </Card>
       {tokenVestingBalance && (
         <Snippet
-          color="warning"
+          color="success"
           hideCopyButton
           size="md"
           symbol="⚠️"
