@@ -344,7 +344,7 @@ export default function ProfilePage() {
         </CardBody>
       </Card>
       <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://manag3r.metasoccer.com", "_blank")}>
+        <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://app.metasoccer.com?utm_source=msid&utm_medium=profile&utm_campaign=game_card", "_blank")}>
           <NextImage
             removeWrapper
             alt="MetaSoccer"
@@ -361,7 +361,7 @@ export default function ProfilePage() {
             <Chip size="sm" color="success">Play</Chip>
           </CardFooter>
         </Card>
-        <Card isFooterBlurred className="aspect-video" onClick={() => window.open("https://t.me/WonderkidBot", "_blank")}>
+        <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://0xfutbol.com/wonderkid?utm_source=msid&utm_medium=profile&utm_campaign=game_card", "_blank")}>
           <NextImage
             removeWrapper
             alt="Wonderkid"
