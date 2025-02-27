@@ -1,25 +1,15 @@
 import "@/styles/globals.css";
 
 import clsx from "clsx";
-import { Metadata, Viewport } from "next";
+import { Viewport } from "next";
 
 import { Providers } from "./providers";
 
 import { AuthGuard } from "@/components/auth-guard";
 import BaseRouter from "@/components/base-router";
+import DynamicHead from "@/components/head";
 import { fontSans } from "@/config/fonts";
-import { siteConfig } from "@/config/site";
-
-export const metadata: Metadata = {
-  title: {
-    default: siteConfig.name,
-    template: `%s - ${siteConfig.name}`,
-  },
-  description: siteConfig.description,
-  icons: {
-    icon: "/favicon.ico",
-  },
-};
+import { AppProvider } from "@/context/AppContext";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -42,12 +32,15 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        {/* @ts-ignore */}
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <BaseRouter>
-            <AuthGuard>{children}</AuthGuard>
-          </BaseRouter>
-        </Providers>
+        <AppProvider>
+          {/* @ts-ignore */}
+          <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+            <DynamicHead />
+            <BaseRouter>
+              <AuthGuard>{children}</AuthGuard>
+            </BaseRouter>
+          </Providers>
+        </AppProvider>
       </body>
     </html>
   );

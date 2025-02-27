@@ -1,12 +1,18 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { createContext, ReactNode, useContext, useEffect } from "react";
 import { useSessionStorage } from "react-use";
 
 const OxFUTBOL_ID_SESSION_APP = "OxFUTBOL_ID_SESSION_APP";
 
-export function useAppParam() {
+interface AppContextType {
+  app: string;
+}
+
+const AppContext = createContext<AppContextType | undefined>(undefined);
+
+export function AppProvider({ children }: { children: ReactNode }) {
   const searchParams = useSearchParams();
   const router = useRouter();
 
@@ -27,5 +33,17 @@ export function useAppParam() {
     }
   }, [appParam, router, searchParams]);
 
-  return app;
+  return (
+    <AppContext.Provider value={{ app }}>
+      {children}
+    </AppContext.Provider>
+  );
+}
+
+export function useAppParam() {
+  const context = useContext(AppContext);
+  if (!context) {
+    throw new Error("useAppParam must be used within an AppProvider");
+  }
+  return context.app;
 }

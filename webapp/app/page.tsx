@@ -6,9 +6,8 @@ import { useEffect } from "react";
 import { ClaimForm } from "@/components/claim-form";
 import { LoginForm } from "@/components/login-form";
 import { APP_CONFIG } from "@/config/apps";
-import { useAppParam } from "@/hooks/useAppParam";
+import { useAppParam } from "@/context/AppContext";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { getImgUrl } from "@/utils/getImgUrl";
 
 export default function Home() {
   const { isAuthenticated, isClaimPending } =
@@ -37,9 +36,9 @@ export default function Home() {
     <div className="flex h-screen w-full flex-col md:flex-row">
       <div className="flex-1 h-full">
         <img
-          alt="0xFútbol ID"
+          alt={APP_CONFIG[app].name}
           className="h-full w-full object-cover"
-          src={getImgUrl("https://assets.metasoccer.com/ui/login/1.png")}
+          src={APP_CONFIG[app].background}
         />
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">

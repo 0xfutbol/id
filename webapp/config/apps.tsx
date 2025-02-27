@@ -2,6 +2,10 @@ import { getImgUrl } from "@/utils/getImgUrl";
 
 type AppConfig = {
   name: string;
+  accentColor: string;
+  background: string;
+  description: string;
+  favicon: string;
   logo: JSX.Element;
   pre: JSX.Element;
   redirectUri?: string;
@@ -11,11 +15,15 @@ type AppConfig = {
 export const APP_CONFIG: Record<string, AppConfig> = {
   ID: {
     name: "0xFútbol ID",
+    accentColor: "#00ff00",
+    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png?v=100"),
+    description: "The web3 hub for 4 billion fútbol fans.",
+    favicon: "/0xfutbol.ico",
     logo: (
       <img
         alt="0xFútbol ID"
-        src={getImgUrl("https://assets.metasoccer.com/msid-logo.png")}
-        style={{ height: "40px", width: "auto" }}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png")}
+        style={{ height: "48px", width: "auto" }}
       />
     ),
     pre: (
@@ -28,7 +36,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
           </p>
         </div>
         <p className="text-sm">
-          Don’t have one yet? No worries! Just connect your wallet, and you’ll
+          Don't have one yet? No worries! Just connect your wallet, and you'll
           be able to claim yours instantly.
         </p>
       </>
@@ -37,11 +45,15 @@ export const APP_CONFIG: Record<string, AppConfig> = {
   },
   LOCAL: {
     name: "0xFútbol ID",
+    accentColor: "#00ff00",
+    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png"),
+    description: "The web3 hub for 4 billion fútbol fans.",
+    favicon: "/0xfutbol.ico",
     logo: (
       <img
         alt="0xFútbol ID"
-        src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
-        style={{ height: "40px", width: "auto", filter: "invert(1)" }}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png")}
+        style={{ height: "48px", width: "auto" }}
       />
     ),
     pre: (
@@ -54,7 +66,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
           </p>
         </div>
         <p className="text-sm">
-          Don’t have one yet? No worries! Just connect your wallet, and you’ll
+          Don't have one yet? No worries! Just connect your wallet, and you'll
           be able to claim yours instantly.
         </p>
       </>
@@ -66,10 +78,14 @@ export const APP_CONFIG: Record<string, AppConfig> = {
   // MetaSoccer
   DEVSOCCER: {
     name: "DevSoccer",
+    accentColor: "rgb(0, 111, 238)",
+    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer.png"),
+    description: "MetaSoccer: Your next-gen fútbol club",
+    favicon: "/metasoccer.ico",
     logo: (
       <img
         alt="DevSoccer"
-        src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer-logo.svg")}
         style={{ height: "40px", width: "auto", filter: "invert(1)" }}
       />
     ),
@@ -83,7 +99,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
           </p>
         </div>
         <p className="text-sm">
-          Don’t have one yet? No worries! Just connect your wallet, and you’ll
+          Don't have one yet? No worries! Just connect your wallet, and you'll
           be able to claim yours instantly.
         </p>
       </>
@@ -93,10 +109,14 @@ export const APP_CONFIG: Record<string, AppConfig> = {
   },
   METASOCCER: {
     name: "MetaSoccer",
+    accentColor: "rgb(0, 111, 238)",
+    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer.png"),
+    description: "MetaSoccer: Your next-gen fútbol club",
+    favicon: "/metasoccer.ico",
     logo: (
       <img
         alt="MetaSoccer"
-        src={getImgUrl("https://assets.metasoccer.com/metasoccer-logo.svg")}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer-logo.svg")}
         style={{ height: "40px", width: "auto", filter: "invert(1)" }}
       />
     ),
@@ -110,7 +130,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
           </p>
         </div>
         <p className="text-sm">
-          Don’t have one yet? No worries! Just connect your wallet, and you’ll
+          Don't have one yet? No worries! Just connect your wallet, and you'll
           be able to claim yours instantly.
         </p>
       </>

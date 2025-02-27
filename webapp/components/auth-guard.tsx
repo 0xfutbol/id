@@ -8,7 +8,7 @@ import LoadingScreen from "./loading-screen";
 
 import { APP_CONFIG } from "@/config/apps";
 import { siteConfig } from "@/config/site";
-import { useAppParam } from "@/hooks/useAppParam";
+import { useAppParam } from "@/context/AppContext";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 const PUBLIC_ROUTES = ["/", "/logout"];
