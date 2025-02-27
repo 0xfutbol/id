@@ -22,7 +22,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     logo: (
       <img
         alt="0xFútbol ID"
-        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png")}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png?v=2")}
         style={{ height: "48px", width: "auto" }}
       />
     ),
@@ -52,7 +52,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     logo: (
       <img
         alt="0xFútbol ID"
-        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png")}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png?v=2")}
         style={{ height: "48px", width: "auto" }}
       />
     ),

@@ -5,7 +5,9 @@ import Image from "next/image";
 import { ConnectButton } from "thirdweb/react";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 
+import { APP_CONFIG } from "@/config/apps";
 import { siteConfig } from "@/config/site";
+import { useAppParam } from "@/context/AppContext";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 const walletOptions = [
@@ -60,6 +62,8 @@ const walletOptions = [
 
 export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
   const { isWaitingForSignature } = useMsIdContext();
+
+  const app = useAppParam();
 
   return (
     <div className="flex flex-col space-y-4 w-full">
@@ -116,7 +120,7 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
         <Link
           isExternal
           showAnchorIcon
-          className="text-xs"
+          className={`text-xs text-[#${APP_CONFIG[app].accentColor}]`}
           href="https://0xfutbol.com/terms-of-service"
         >
           Terms of Service
@@ -125,7 +129,7 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
         <Link
           isExternal
           showAnchorIcon
-          className="text-xs"
+          className={`text-xs text-[#${APP_CONFIG[app].accentColor}]`}
           href="https://0xfutbol.com/privacy-policy"
         >
           Privacy Policy
