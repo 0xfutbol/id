@@ -91,13 +91,20 @@ export default function ProfilePage() {
     address,
   });
 
-  const { data: xFutbolBalance } = useWalletBalance({
-    tokenAddress: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
+  const { data: futbolBalance } = useWalletBalance({
+    tokenAddress: "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c",
     client: siteConfig.thirdwebClient,
-    chain: chains.xdcApothem.ref,
+    chain: chains.base.ref,
     address,
   });
 
+  const { data: futbolXdcBalance } = useWalletBalance({
+    tokenAddress: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
+    client: siteConfig.thirdwebClient,
+    chain: chains.xdc.ref,
+    address,
+  });
+  
   const { data: msaBalance } = useWalletBalance({
     tokenAddress: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B",
     client: siteConfig.thirdwebClient,
@@ -126,13 +133,19 @@ export default function ProfilePage() {
         chain: "polygon" as keyof typeof chains,
       },
       {
+        address: "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c",
+        symbol: "FUTBOL (Base)",
+        balance: formatBalance(futbolBalance?.displayValue),
+        chain: "base" as keyof typeof chains,
+      },
+      {
         address: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
-        symbol: "FUTBOL",
-        balance: formatBalance(xFutbolBalance?.displayValue),
-        chain: "xdcApothem" as keyof typeof chains,
+        symbol: "FUTBOL (XDC)",
+        balance: formatBalance(futbolXdcBalance?.displayValue),
+        chain: "xdc" as keyof typeof chains,
       },
     ];
-  }, [msuBalance, xFutbolBalance, msaBalance]);
+  }, [msuBalance, futbolXdcBalance, msaBalance]);
 
   const tabs = useMemo(
     () => ["achievements", ...Object.keys(assets), "tokens"],
@@ -290,7 +303,7 @@ export default function ProfilePage() {
           </div>
         }
         src={getImgUrl(
-          `https://assets.metasoccer.com/tokens/${item.symbol.toLowerCase()}.png`,
+          `https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`,
         )}
         title={`${item.balance} ${item.symbol}`}
       />

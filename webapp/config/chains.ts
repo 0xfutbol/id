@@ -2,9 +2,19 @@
 // Icons from https://coinpaper.com/crypto-logos
 
 import { defineChain } from "thirdweb";
-import { polygon } from "thirdweb/chains";
+import { base, polygon, sepolia } from "thirdweb/chains";
 
 export const chains = {
+  base: {
+    name: "Base",
+    icon: "https://payload-marketing.moonpay.com/api/media/file/base%20logo.webp",
+    ref: base
+  },
+  ethereumSepolia: {
+    name: "Ethereum Sepolia",
+    icon: "https://res.coinpaper.com/coinpaper/ethereum_eth_logo_e69b1c2368.png",
+    ref: sepolia
+  },
   polygon: {
     name: "Polygon",
     icon: "https://res.coinpaper.com/coinpaper/polygon_matic_logo_4f17efa0e5.png",
@@ -26,18 +36,18 @@ export const chains = {
       ]
     })
   },
-  xdcApothem: {
-    name: "XDC Apothem Network",
+  xdc: {
+    name: "XDC Network",
     icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/2634.png",
     ref: defineChain({
-      id: 51,
-      name: "XDC Apothem Network",
-      nativeCurrency: { name: "TXDC", symbol: "TXDC", decimals: 18 },
+      id: 50,
+      name: "XDC Network",
+      nativeCurrency: { name: "XDC", symbol: "XDC", decimals: 18 },
       blockExplorers: [
         {
-          name: "Skale Nebula Hub Explorer",
-          url: "https://apothem.xdcscan.io",
-          apiUrl: "https://apothem.xdcscan.io/api",
+          name: "XDC Network Explorer",
+          url: "https://xdcscan.com",
+          apiUrl: "https://xdcscan.com/api",
         },
       ]
     })

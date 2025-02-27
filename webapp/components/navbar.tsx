@@ -21,10 +21,10 @@ export const Navbar = () => {
         <NavbarBrand as="li" className="gap-3 max-w-fit p-2">
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image
-              alt="0xFútbol"
-              height={42}
-              src="https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png"
-              width={42}
+              alt="0xFútbol ID"
+              height={32}
+              src="https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png?v=2"
+              width={70}
             />
           </NextLink>
         </NavbarBrand>

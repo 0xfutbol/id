@@ -14,7 +14,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "frame-ancestors 'self' http://localhost:8090 https://manag3r.devsoccer.com https://manag3r.metasoccer.com",
+              "frame-ancestors 'self' http://localhost:8090 https://app.devsoccer.com https://app.metasoccer.com https://manag3r.devsoccer.com https://manag3r.metasoccer.com",
           },
         ],
       },
@@ -33,6 +33,10 @@ const nextConfig = {
       },
       {
         hostname: "img.metasoccer.com",
+        protocol: "https",
+      },
+      {
+        hostname: "payload-marketing.moonpay.com",
         protocol: "https",
       },
       {
