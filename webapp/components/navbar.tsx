@@ -22,9 +22,9 @@ export const Navbar = () => {
           <NextLink className="flex justify-start items-center gap-1" href="/">
             <Image
               alt="0xFútbol"
-              height={24}
-              src="https://assets.metasoccer.com/msid-logo.png"
-              width={64}
+              height={42}
+              src="https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png"
+              width={42}
             />
           </NextLink>
         </NavbarBrand>
