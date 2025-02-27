@@ -12,6 +12,7 @@ import {
   Link,
   Image as NextImage,
   Snippet,
+  Spacer,
   Tab,
   Tabs,
   Tooltip
@@ -366,11 +367,15 @@ export default function ProfilePage() {
         <Snippet
           color="success"
           hideCopyButton
+          hideSymbol
           size="md"
-          symbol="⚠️"
         >
           <span className="text-wrap">
-            You have $FUTBOL tokens to claim! Head to <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim them. If you have any questions, join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link>.
+            You can claim $FUTBOL tokens based on your MSU balance!
+          </span>
+          <Spacer y={1} />
+          <span className="text-wrap">
+            Head to <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim them. If you have any questions, join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link>
           </span>
         </Snippet>
       )}
