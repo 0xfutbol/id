@@ -32,15 +32,15 @@ export default function RootLayout({
           fontSans.variable,
         )}
       >
-        <AppProvider>
-          {/* @ts-ignore */}
-          <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+        {/* @ts-ignore */}
+        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+          <AppProvider>
             <DynamicHead />
             <BaseRouter>
               <AuthGuard>{children}</AuthGuard>
             </BaseRouter>
-          </Providers>
-        </AppProvider>
+          </AppProvider>
+        </Providers>
       </body>
     </html>
   );
