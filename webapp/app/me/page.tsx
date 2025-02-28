@@ -371,11 +371,11 @@ export default function ProfilePage() {
           size="md"
         >
           <span className="text-wrap">
-            You can claim $FUTBOL tokens based on your MSU balance!
+          You’re eligible to claim <b>{Math.round((parseFloat((msuBalance?.displayValue ?? "0")) * 0.0018) / 0.03)} $FUTBOL</b> tokens based on your MSU balance!
           </span>
           <Spacer y={1} />
           <span className="text-wrap">
-            Head to <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim them. If you have any questions, join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link>
+            Visit <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim your tokens. Have questions? Join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link> for support!
           </span>
         </Snippet>
       )}
