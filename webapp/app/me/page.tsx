@@ -371,7 +371,7 @@ export default function ProfilePage() {
           size="md"
         >
           <span className="text-wrap">
-          You’re eligible to claim <b>{Math.round((parseFloat((msuBalance?.displayValue ?? "0")) * 0.0018) / 0.03)} $FUTBOL</b> tokens based on your MSU balance!
+          You’re eligible to claim <b>{Math.round((parseFloat((msuBalance?.displayValue ?? "0")) * 0.001925) / 0.03)} $FUTBOL</b> tokens based on your MSU balance!
           </span>
           <Spacer y={1} />
           <span className="text-wrap">
