@@ -46,7 +46,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
   LOCAL: {
     name: "0xFútbol ID",
     accentColor: "#00ff00",
-    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png"),
+    background: getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.png?v=100"),
     description: "The web3 hub for 4 billion fútbol fans.",
     favicon: "https://assets.metasoccer.com/0xfutbol/msid/0xfutbol.ico",
     logo: (
