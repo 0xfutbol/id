@@ -375,7 +375,7 @@ export default function ProfilePage() {
           </span>
           <Spacer y={1} />
           <span className="text-wrap">
-            Visit <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim your tokens. Have questions? Join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/telegram" target="_blank">Telegram community</Link> for support!
+            Visit <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim your tokens. Have questions? Join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/discord" target="_blank">community</Link> for support!
           </span>
         </Snippet>
       )}
