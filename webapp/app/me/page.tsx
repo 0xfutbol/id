@@ -31,7 +31,10 @@ import { chains } from "@/config/chains";
 import { siteConfig } from "@/config/site";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 import { accountService } from "@/modules/msid/services/AccountService";
+import { bobaService } from "@/modules/squid/services/BobaService";
+import { matchainService } from "@/modules/squid/services/MatchainService";
 import { polygonService } from "@/modules/squid/services/PolygonService";
+import { xdcService } from "@/modules/squid/services/XdcService";
 import { getImgUrl } from "@/utils/getImgUrl";
 
 interface Achievement {
@@ -178,28 +181,101 @@ export default function ProfilePage() {
     if (!address) return;
 
     try {
-      const [landsData, playersData, scoutsData] = await Promise.all([
+      const [
+        bobaLandsData,
+        bobaPlayersData,
+        bobaScoutsData,
+        matchainLandsData,
+        matchainPlayersData,
+        matchainScoutsData,
+        polygonLandsData,
+        polygonPlayersData,
+        polygonScoutsData,
+        xdcLandsData,
+        xdcPlayersData,
+        xdcScoutsData,
+      ] = await Promise.all([
+        bobaService.queryLands(address),
+        bobaService.queryPlayers(address),
+        bobaService.queryScouts(address),
+        matchainService.queryLands(address),
+        matchainService.queryPlayers(address),
+        matchainService.queryScouts(address),
         polygonService.queryLands(address),
         polygonService.queryPlayers(address),
         polygonService.queryScouts(address),
+        xdcService.queryLands(address),
+        xdcService.queryPlayers(address),
+        xdcService.queryScouts(address),
       ]);
 
       setAssets({
-        lands: landsData.map((land: any) => ({
-          contract: siteConfig.contracts.polygon.lands,
-          tokenId: BigInt(land.id),
-          chain: "polygon",
-        })),
-        players: playersData.map((player: any) => ({
-          contract: siteConfig.contracts.polygon.players,
-          tokenId: BigInt(player.id),
-          chain: "polygon",
-        })),
-        scouts: scoutsData.map((scout: any) => ({
-          contract: siteConfig.contracts.polygon.scouts,
-          tokenId: BigInt(scout.id),
-          chain: "polygon",
-        })),
+        lands: [
+          ...bobaLandsData.map((land: any) => ({
+            contract: siteConfig.contracts.boba.lands,
+            tokenId: BigInt(land.id),
+            chain: "boba",
+          })),
+          ...matchainLandsData.map((land: any) => ({
+            contract: siteConfig.contracts.matchain.lands,
+            tokenId: BigInt(land.id),
+            chain: "matchain",
+          })),
+          ...polygonLandsData.map((land: any) => ({
+            contract: siteConfig.contracts.polygon.lands,
+            tokenId: BigInt(land.id),
+            chain: "polygon",
+          })),
+          ...xdcLandsData.map((land: any) => ({
+            contract: siteConfig.contracts.xdc.lands,
+            tokenId: BigInt(land.id),
+            chain: "xdc",
+          })),
+        ],
+        players: [
+          ...bobaPlayersData.map((player: any) => ({
+            contract: siteConfig.contracts.boba.players,
+            tokenId: BigInt(player.id),
+            chain: "boba",
+          })),
+          ...matchainPlayersData.map((player: any) => ({
+            contract: siteConfig.contracts.matchain.players,
+            tokenId: BigInt(player.id),
+            chain: "matchain",
+          })),
+          ...polygonPlayersData.map((player: any) => ({
+            contract: siteConfig.contracts.polygon.players,
+            tokenId: BigInt(player.id),
+            chain: "polygon",
+          })),
+          ...xdcPlayersData.map((player: any) => ({
+            contract: siteConfig.contracts.xdc.players,
+            tokenId: BigInt(player.id),
+            chain: "xdc",
+          })),
+        ],
+        scouts: [
+          ...bobaScoutsData.map((scout: any) => ({
+            contract: siteConfig.contracts.boba.scouts,
+            tokenId: BigInt(scout.id),
+            chain: "boba",
+          })),
+          ...matchainScoutsData.map((scout: any) => ({
+            contract: siteConfig.contracts.matchain.scouts,
+            tokenId: BigInt(scout.id),
+            chain: "matchain",
+          })),
+          ...polygonScoutsData.map((scout: any) => ({
+            contract: siteConfig.contracts.polygon.scouts,
+            tokenId: BigInt(scout.id),
+            chain: "polygon",
+          })),
+          ...xdcScoutsData.map((scout: any) => ({
+            contract: siteConfig.contracts.xdc.scouts,
+            tokenId: BigInt(scout.id),
+            chain: "xdc",
+          })),
+        ],
       });
     } catch (error) {
       console.error("Error fetching assets:", error);
