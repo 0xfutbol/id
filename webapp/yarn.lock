@@ -7,7 +7,7 @@
   resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-1.0.30.tgz#49746a692efebb83e2c54d7f559e6d18ab2c5208"
   integrity sha512-5vYmSmPv860p4vmn0eDBHGqbZv0f2DaZKmmM64GqtLcq7K2ASFNjS8NXRT9fHXbHTMFtSNiKibPLlo6bMQRUew==
 
-"@0xfutbol/id@^1.0.30":
+"@0xfutbol/id@^1.0.12":
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-1.0.12.tgz#04315a475582597163435225e138abe19da79091"
   integrity sha512-7Zi/hzATdxyF2aYEVlH6wsoje2i1nwikB3IctxKY1JN7foFbbkugHFQ8cGRlbTra/7Nsqw+x5JqngdwjhN2qwg==
