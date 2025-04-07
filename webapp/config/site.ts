@@ -13,6 +13,14 @@ export const siteConfig = {
   backendUrl: process.env.NODE_ENV === "development" ? "http://localhost:6743" : "https://id.0xfutbol.com/api",
   chain: chains.base.ref,
   contracts: {
+    base: {
+      ultras: getContract({
+        address: "0x84eb2086352ec0c08c1f7217caa49e11b16f34e8",
+        abi: erc721Abi,
+        client: thirdwebClient,
+        chain: chains.base.ref
+      })
+    },
     boba: {
       lands: getContract({
         address: networkConfig.boba.scLogs.MetaSoccerLand!.address,

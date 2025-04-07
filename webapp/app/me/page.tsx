@@ -21,8 +21,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SiDiscord } from "react-icons/si";
-import { ThirdwebContract } from "thirdweb";
-import { balanceOf } from "thirdweb/extensions/erc721";
+import { balanceOf, getOwnedNFTs } from "thirdweb/extensions/erc721";
 import { NFT, useReadContract, useWalletBalance } from "thirdweb/react";
 
 import { Gallery } from "@/components/gallery";
@@ -44,23 +43,8 @@ interface Achievement {
   isAchieved: (params: { referralCount: number }) => boolean;
 }
 
-const ACHIEVEMENTS: Achievement[] = [
-  {
-    src: "https://assets.metasoccer.com/badges/early-adopter.png?v=2",
-    alt: "Early Adopter Medal",
-    title: "Early Adopter",
-    isAchieved: () => true, // Always achieved for now
-  },
-  {
-    src: "https://assets.metasoccer.com/badges/referrer.png?v=2",
-    alt: "Referrer Medal",
-    title: "Referrer",
-    isAchieved: ({ referralCount }) => referralCount >= 3,
-  },
-];
-
 interface AssetItem {
-  contract: ThirdwebContract;
+  contract: any;
   tokenId: bigint;
   chain: keyof typeof chains;
 }
@@ -72,9 +56,24 @@ interface TokenItem {
   chain: keyof typeof chains;
 }
 
+const ACHIEVEMENTS: Achievement[] = [
+  {
+    src: "https://assets.metasoccer.com/badges/early-adopter.png?v=2",
+    alt: "Early Adopter Medal",
+    title: "Early Adopter",
+    isAchieved: () => true,
+  },
+  {
+    src: "https://assets.metasoccer.com/badges/referrer.png?v=2",
+    alt: "Referrer Medal",
+    title: "Referrer",
+    isAchieved: ({ referralCount }) => referralCount >= 3,
+  },
+];
+
 export default function ProfilePage() {
   const searchParams = useSearchParams();
-  const tab = searchParams.get("tab");
+  const initialTab = searchParams.get("tab");
 
   const { address, isAuthenticated, username } = useMsIdContext();
 
@@ -83,12 +82,12 @@ export default function ProfilePage() {
     players: [],
     scouts: [],
   });
-
   const [discordAccount, setDiscordAccount] = useState<string | null>(null);
   const [referralCount, setReferralCount] = useState<number>(0);
-
   const [selectedTab, setSelectedTab] = useState<string>("achievements");
+  const [ultras, setUltras] = useState<AssetItem[]>([]);
 
+  // Token balances
   const { data: msuBalance } = useWalletBalance({
     tokenAddress: "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1",
     client: siteConfig.thirdwebClient,
@@ -109,7 +108,7 @@ export default function ProfilePage() {
     chain: chains.xdc.ref,
     address,
   });
-  
+
   const { data: msaBalance } = useWalletBalance({
     tokenAddress: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B",
     client: siteConfig.thirdwebClient,
@@ -119,13 +118,17 @@ export default function ProfilePage() {
 
   const { data: tokenVestingBalance } = useReadContract(balanceOf, {
     contract: siteConfig.contracts.ethereumSepolia.tokenVesting,
-    owner: address!,
+    owner: address!
+  });
+
+  const { data: ultrasNFTs } = useReadContract(getOwnedNFTs, {
+    contract: siteConfig.contracts.base.ultras,
+    owner: address!
   });
 
   const tokens = useMemo(() => {
     const formatBalance = (balance: string | undefined) => {
       const num = Number(balance ?? "0");
-
       return num.toFixed(num % 1 === 0 ? 0 : 2);
     };
 
@@ -155,11 +158,11 @@ export default function ProfilePage() {
         chain: "xdc" as keyof typeof chains,
       },
     ];
-  }, [msuBalance, futbolXdcBalance, msaBalance]);
+  }, [msuBalance, msaBalance, futbolBalance, futbolXdcBalance]);
 
   const tabs = useMemo(
-    () => ["achievements", ...Object.keys(assets), "tokens"],
-    [assets],
+    () => ["achievements", ...Object.keys(assets), "tokens", "ultras"],
+    [assets]
   );
 
   const fetchAccountInfo = useCallback(async () => {
@@ -167,11 +170,8 @@ export default function ProfilePage() {
 
     try {
       const info = await accountService.getInfo();
-
-      if (info.discord?.info?.username) {
-        setDiscordAccount(info.discord.info.username);
-      }
-      setReferralCount(info.referralCount);
+      setDiscordAccount(info.discord?.info?.username ?? null);
+      setReferralCount(info.referralCount ?? 0);
     } catch (error) {
       console.error("Error fetching account info:", error);
     }
@@ -214,66 +214,66 @@ export default function ProfilePage() {
           ...bobaLandsData.map((land: any) => ({
             contract: siteConfig.contracts.boba.lands,
             tokenId: BigInt(land.id),
-            chain: "boba",
+            chain: "boba" as keyof typeof chains,
           })),
           ...matchainLandsData.map((land: any) => ({
             contract: siteConfig.contracts.matchain.lands,
             tokenId: BigInt(land.id),
-            chain: "matchain",
+            chain: "matchain" as keyof typeof chains,
           })),
           ...polygonLandsData.map((land: any) => ({
             contract: siteConfig.contracts.polygon.lands,
             tokenId: BigInt(land.id),
-            chain: "polygon",
+            chain: "polygon" as keyof typeof chains,
           })),
           ...xdcLandsData.map((land: any) => ({
             contract: siteConfig.contracts.xdc.lands,
             tokenId: BigInt(land.id),
-            chain: "xdc",
+            chain: "xdc" as keyof typeof chains,
           })),
         ],
         players: [
           ...bobaPlayersData.map((player: any) => ({
             contract: siteConfig.contracts.boba.players,
             tokenId: BigInt(player.id),
-            chain: "boba",
+            chain: "boba" as keyof typeof chains,
           })),
           ...matchainPlayersData.map((player: any) => ({
             contract: siteConfig.contracts.matchain.players,
             tokenId: BigInt(player.id),
-            chain: "matchain",
+            chain: "matchain" as keyof typeof chains,
           })),
           ...polygonPlayersData.map((player: any) => ({
             contract: siteConfig.contracts.polygon.players,
             tokenId: BigInt(player.id),
-            chain: "polygon",
+            chain: "polygon" as keyof typeof chains,
           })),
           ...xdcPlayersData.map((player: any) => ({
             contract: siteConfig.contracts.xdc.players,
             tokenId: BigInt(player.id),
-            chain: "xdc",
+            chain: "xdc" as keyof typeof chains,
           })),
         ],
         scouts: [
           ...bobaScoutsData.map((scout: any) => ({
             contract: siteConfig.contracts.boba.scouts,
             tokenId: BigInt(scout.id),
-            chain: "boba",
+            chain: "boba" as keyof typeof chains,
           })),
           ...matchainScoutsData.map((scout: any) => ({
             contract: siteConfig.contracts.matchain.scouts,
             tokenId: BigInt(scout.id),
-            chain: "matchain",
+            chain: "matchain" as keyof typeof chains,
           })),
           ...polygonScoutsData.map((scout: any) => ({
             contract: siteConfig.contracts.polygon.scouts,
             tokenId: BigInt(scout.id),
-            chain: "polygon",
+            chain: "polygon" as keyof typeof chains,
           })),
           ...xdcScoutsData.map((scout: any) => ({
             contract: siteConfig.contracts.xdc.scouts,
             tokenId: BigInt(scout.id),
-            chain: "xdc",
+            chain: "xdc" as keyof typeof chains,
           })),
         ],
       });
@@ -282,35 +282,60 @@ export default function ProfilePage() {
     }
   }, [address]);
 
+  const fetchUltras = useCallback(async () => {
+    if (!ultrasNFTs) return;
+
+    try {
+      const ultrasTokens: AssetItem[] = [];
+      for (let i = 0; i < ultrasNFTs.length; i++) {
+        try {
+          const tokenId = ultrasNFTs[i].id;
+          ultrasTokens.push({
+            contract: siteConfig.contracts.base.ultras,
+            tokenId,
+            chain: "base" as keyof typeof chains,
+          });
+        } catch (error) {
+          console.error(`Error fetching Ultras token at index ${i}:`, error);
+        }
+      }
+
+      setUltras(ultrasTokens);
+    } catch (error) {
+      console.error("Error fetching Ultras:", error);
+    }
+  }, [ultrasNFTs]);
+
   useEffect(() => {
     if (address && isAuthenticated) {
       fetchAccountInfo();
       fetchAssets();
+      fetchUltras();
     }
-  }, [address, isAuthenticated, fetchAccountInfo, fetchAssets]);
+  }, [address, isAuthenticated, fetchAccountInfo, fetchAssets, fetchUltras]);
 
   useEffect(() => {
-    if (tab && tabs.includes(tab)) {
-      setSelectedTab(tab);
+    if (initialTab && tabs.includes(initialTab)) {
+      setSelectedTab(initialTab);
     }
-  }, [tab, tabs]);
+  }, [initialTab, tabs]);
 
   const handleConnectDiscord = () => {
     const clientId = "1229091313333309480";
     const redirectUri = `${window.location.origin}/discord-oauth`;
-
-    window.location.href = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+    const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+    window.location.href = url;
   };
 
   const handleTabChange = useCallback(
-    (key: string) => {
-      setSelectedTab(key);
-      const params = new URLSearchParams(searchParams);
-
-      params.set("tab", key);
+    (key: string | number) => {
+      const tabKey = String(key);
+      setSelectedTab(tabKey);
+      const params = new URLSearchParams(searchParams.toString());
+      params.set("tab", tabKey);
       window.history.pushState(null, "", `?${params.toString()}`);
     },
-    [searchParams],
+    [searchParams]
   );
 
   const renderAchievementItem = useCallback(
@@ -322,7 +347,7 @@ export default function ProfilePage() {
         title={item.title}
       />
     ),
-    [],
+    []
   );
 
   const renderAssetItem = useCallback(
@@ -335,7 +360,7 @@ export default function ProfilePage() {
         <GalleryCard
           alt=""
           headerComponent={
-            <div className="flex f-full justify-end">
+            <div className="flex w-full justify-end">
               <Tooltip content={chains[item.chain].name}>
                 <Image
                   alt={chains[item.chain].name}
@@ -349,23 +374,23 @@ export default function ProfilePage() {
           src={
             <Suspense
               fallback={
-                <div className="flex h-full items-center justify-center w-full">
+                <div className="flex h-full w-full items-center justify-center">
                   <CircularProgress color="default" size="sm" />
                 </div>
               }
             >
-              <NFT.Media style={{ width: "100%", height: "100%" }} />
+              <NFT.Media style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </Suspense>
           }
           title={
-            <Suspense fallback={<></>}>
+            <Suspense fallback={<span>Loading...</span>}>
               <NFT.Name />
             </Suspense>
           }
         />
       </NFT>
     ),
-    [],
+    []
   );
 
   const renderTokenItem = useCallback(
@@ -374,7 +399,7 @@ export default function ProfilePage() {
         key={item.symbol}
         alt={`${item.symbol} token`}
         headerComponent={
-          <div className="flex f-full justify-end">
+          <div className="flex w-full justify-end">
             <Tooltip content={chains[item.chain].name}>
               <Image
                 alt={chains[item.chain].name}
@@ -386,32 +411,44 @@ export default function ProfilePage() {
           </div>
         }
         src={getImgUrl(
-          `https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`,
+          `https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`
         )}
         title={`${item.balance} ${item.symbol}`}
       />
     ),
-    [],
+    []
   );
 
   const achievedAchievements = useMemo(
     () =>
       ACHIEVEMENTS.filter((achievement) =>
-        achievement.isAchieved({ referralCount }),
+        achievement.isAchieved({ referralCount })
       ),
-    [referralCount],
+    [referralCount]
   );
 
+  if (!address || !isAuthenticated) {
+    return (
+      <div className="flex justify-center items-center h-[50vh]">
+        <Card>
+          <CardBody>
+            <p>Please connect your wallet to view your profile.</p>
+          </CardBody>
+        </Card>
+      </div>
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full">
+    <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full mx-auto">
       <Card className="w-full">
         <CardBody>
-          <div className="flex justify-between items-center">
+          <div className="flex justify-between items-center flex-wrap gap-4">
             <div className="flex items-center">
               <Avatar
                 className="mr-4"
                 size="lg"
-                src={`https://effigy.im/a/${address ?? "0x0000000000000000000000000000000000000000"}.png`}
+                src={ultrasNFTs && ultrasNFTs.length > 0 ? ultrasNFTs[0].metadata.image : `https://effigy.im/a/${address}.png`}
               />
               <div>
                 <p className="text-gray-400">
@@ -423,13 +460,13 @@ export default function ProfilePage() {
             <div className="flex items-center">
               {discordAccount ? (
                 <div className="flex items-center gap-2">
-                  <SiDiscord height={24} width={24} />
+                  <SiDiscord size={24} />
                   <p>{discordAccount}</p>
                 </div>
               ) : (
                 <Button
                   color="primary"
-                  startContent={<SiDiscord height={24} width={24} />}
+                  startContent={<SiDiscord size={24} />}
                   onClick={handleConnectDiscord}
                 >
                   Connect Discord
@@ -439,7 +476,8 @@ export default function ProfilePage() {
           </div>
         </CardBody>
       </Card>
-      {tokenVestingBalance && (
+
+      {tokenVestingBalance && Number(tokenVestingBalance) > 0 && (
         <Snippet
           color="success"
           hideCopyButton
@@ -447,56 +485,96 @@ export default function ProfilePage() {
           size="md"
         >
           <span className="text-wrap">
-          You’re eligible to claim <b>{Math.round((parseFloat((msuBalance?.displayValue ?? "0")) * 0.001925) / 0.03)} $FUTBOL</b> tokens based on your MSU balance!
+            You're eligible to claim{" "}
+            <b>
+              {Math.round(
+                (parseFloat(msuBalance?.displayValue ?? "0") * 0.001925) / 0.03
+              )}{" "}
+              $FUTBOL
+            </b>{" "}
+            tokens based on your MSU balance!
           </span>
           <Spacer y={1} />
           <span className="text-wrap">
-            Visit <Link className="text-[#00ff00]" size="sm" href="https://app.hedgey.finance/vesting" target="_blank">hedgey.finance</Link> and connect your wallet to claim your tokens. Have questions? Join our <Link className="text-[#00ff00]" size="sm" href="https://0xfutbol.com/discord" target="_blank">community</Link> for support!
+            Visit{" "}
+            <Link
+              className="text-[#00ff00]"
+              size="sm"
+              href="https://app.hedgey.finance/vesting"
+              target="_blank"
+            >
+              hedgey.finance
+            </Link>{" "}
+            and connect your wallet to claim your tokens. Have questions? Join our{" "}
+            <Link
+              className="text-[#00ff00]"
+              size="sm"
+              href="https://0xfutbol.com/discord"
+              target="_blank"
+            >
+              community
+            </Link>{" "}
+            for support!
           </span>
         </Snippet>
       )}
+
       <div className="gap-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-        <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://app.metasoccer.com?utm_source=msid&utm_medium=profile&utm_campaign=game_card", "_blank")}>
-          <NextImage
-            removeWrapper
-            alt="MetaSoccer"
-            className="z-0 w-full h-full object-cover"
-            src="https://assets.metasoccer.com/banner/metasoccer.png?v=1"
-          />
-          <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 gap-1">
-            <div className="flex flex-grow gap-2 items-start">
-              <div className="flex flex-col text-left">
-                <p className="text-tiny text-white">MetaSoccer</p>
-                <p className="text-tiny text-white/60">Multi-player soccer manager game offering rewards for competitions.</p>
+        {[
+          {
+            title: "MetaSoccer",
+            description: "Multi-player soccer manager game offering rewards for competitions.",
+            image: "https://assets.metasoccer.com/banner/metasoccer.png?v=1",
+            url: "https://app.metasoccer.com?utm_source=msid&utm_medium=profile&utm_campaign=game_card",
+            buttonText: "Play",
+          },
+          {
+            title: "Wonderkid",
+            description: "Telegram mini-game to raise the next super star.",
+            image: "https://assets.metasoccer.com/banner/wonderkid.png?v=2",
+            url: "https://0xfutbol.com/wonderkid?utm_source=msid&utm_medium=profile&utm_campaign=game_card",
+            buttonText: "Play",
+          },
+          {
+            title: "Ultras",
+            description: "The official NFT Collection of the 0xFútbol community.",
+            image: "https://assets.metasoccer.com/banner/ultras.png?v=4",
+            url: "https://magiceden.io/collections/base/0x84eb2086352ec0c08c1f7217caa49e11b16f34e8",
+            buttonText: "Explore",
+          }
+        ].map((card) => (
+          <Card
+            key={card.title}
+            isFooterBlurred
+            className="aspect-video"
+            isPressable
+            onClick={() => window.open(card.url, "_blank")}
+          >
+            <NextImage
+              removeWrapper
+              alt={card.title}
+              className="z-0 w-full h-full object-cover"
+              src={getImgUrl(card.image)}
+            />
+            <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 gap-1">
+              <div className="flex flex-grow gap-2 items-start">
+                <div className="flex flex-col text-left">
+                  <p className="text-tiny text-white">{card.title}</p>
+                  <p className="text-tiny text-white/60">{card.description}</p>
+                </div>
               </div>
-            </div>
-            <Chip size="sm" color="success">Play</Chip>
-          </CardFooter>
-        </Card>
-        <Card isFooterBlurred className="aspect-video" isPressable onClick={() => window.open("https://0xfutbol.com/wonderkid?utm_source=msid&utm_medium=profile&utm_campaign=game_card", "_blank")}>
-          <NextImage
-            removeWrapper
-            alt="Wonderkid"
-            className="z-0 w-full h-full object-cover"
-            src="https://assets.metasoccer.com/banner/wonderkid.png?v=2"
-          />
-          <CardFooter className="absolute bg-black/40 bottom-0 z-10 border-t-1 border-default-600 dark:border-default-100 gap-1">
-            <div className="flex flex-grow gap-2">
-              <div className="flex flex-col text-left">
-                <p className="text-tiny text-white">Wonderkid</p>
-                <p className="text-tiny text-white/60">Telegram mini-game to raise the next super star.</p>
-              </div>
-            </div>
-            <Chip size="sm" color="success">Play</Chip>
-          </CardFooter>
-        </Card>
+              <Chip size="sm" color="success">{card.buttonText}</Chip>
+            </CardFooter>
+          </Card>
+        ))}
       </div>
+
       <div className="w-full flex-grow">
         <Tabs
           aria-label="Profile tabs"
           className="w-full pb-4"
           selectedKey={selectedTab}
-          onSelectionChange={(key) => handleTabChange(key as string)}
+          onSelectionChange={handleTabChange}
         >
           <Tab key="achievements" title="Achievements">
             <Gallery
@@ -511,6 +589,9 @@ export default function ProfilePage() {
           ))}
           <Tab key="tokens" title="Tokens">
             <Gallery items={tokens} renderItem={renderTokenItem} />
+          </Tab>
+          <Tab key="ultras" title="Ultras">
+            <Gallery items={ultras} renderItem={renderAssetItem} />
           </Tab>
         </Tabs>
       </div>
