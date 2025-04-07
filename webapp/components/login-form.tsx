@@ -1,16 +1,47 @@
 "use client";
 
 import { Link, Listbox, ListboxItem } from "@nextui-org/react";
+import { useFlags } from "flagsmith/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import { ConnectButton } from "thirdweb/react";
-import { createWallet, inAppWallet } from "thirdweb/wallets";
+import { createWallet, inAppWallet, Wallet } from "thirdweb/wallets";
 
 import { APP_CONFIG } from "@/config/apps";
 import { siteConfig } from "@/config/site";
 import { useAppParam } from "@/context/AppContext";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
+import { useMemo } from "react";
 
-const walletOptions = [
+const createThirdwebWalletButton = (key: string, label: string, wallet: Wallet) => {
+  return (
+    <ConnectButton
+      key={key}
+      client={siteConfig.thirdwebClient}
+      connectButton={{
+        className: `connect-button-${key}`,
+        label: label,
+        style: {
+          opacity: 0,
+          position: "absolute",
+        },
+      }}
+      connectModal={{
+        size: "compact",
+        showThirdwebBranding: false,
+        privacyPolicyUrl: "https://0xfutbol.com/privacy-policy",
+        termsOfServiceUrl: "https://0xfutbol.com/terms-of-service",
+      }}
+      wallets={[wallet]}
+    />
+  );
+}
+
+const MatchainConnect = dynamic(() => import("@/components/matchain-connect"), {
+  ssr: false,
+});
+
+const WALLET_OPTIONS = [
   {
     key: "metamask",
     label: "MetaMask",
@@ -23,7 +54,24 @@ const walletOptions = [
         width={48}
       />
     ),
-    wallet: createWallet("io.metamask"),
+    component: createThirdwebWalletButton("metamask", "MetaMask", createWallet("io.metamask")),
+  },
+  {
+    key: "matchain_id",
+    label: "Matchain ID",
+    description: "Use Matchain ID to connect",
+    icon: (
+      <Image
+        alt="Matchain ID"
+        height={48}
+        src="data:image/jpg;base64,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"
+        style={{ borderRadius: 8 }}
+        width={48}
+      />
+    ),
+    component: (
+      <MatchainConnect />
+    )
   },
   {
     key: "walletconnect",
@@ -37,7 +85,11 @@ const walletOptions = [
         width={48}
       />
     ),
-    wallet: createWallet("walletConnect"),
+    component: createThirdwebWalletButton("walletConnect", "WalletConnect", inAppWallet({
+      auth: {
+        options: ["apple", "google", "email", "passkey"],
+      },
+    })),
   },
   {
     key: "thirdweb",
@@ -52,11 +104,11 @@ const walletOptions = [
         width={48}
       />
     ),
-    wallet: inAppWallet({
+    component: createThirdwebWalletButton("thirdweb", "Social Login", inAppWallet({
       auth: {
         options: ["apple", "google", "email", "passkey"],
       },
-    }),
+    })),
   },
 ];
 
@@ -64,6 +116,17 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
   const { isWaitingForSignature } = useMsIdContext();
 
   const app = useAppParam();
+  const flags = useFlags(["matchain_id"]);
+  const wallets = useMemo(() => (
+    WALLET_OPTIONS.filter((wallet) => {
+      switch (wallet.key) {
+        case "matchain_id":
+          return flags.matchain_id.enabled;
+        default:
+          return true;
+      }
+    })
+  ), [flags]);
 
   return (
     <div className="flex flex-col space-y-4 w-full">
@@ -72,7 +135,7 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
       {isWaitingForSignature && <div>Waiting for signature...</div>}
 
       <Listbox aria-label="Select wallet">
-        {walletOptions.map((option) => (
+        {wallets.map((option) => (
           <ListboxItem
             key={option.key}
             description={option.description}
@@ -92,26 +155,8 @@ export const LoginForm = ({ pre }: { pre: React.ReactNode }) => {
         ))}
       </Listbox>
       <div className="absolute opacity-0">
-        {walletOptions.map((option) => (
-          <ConnectButton
-            key={option.key}
-            client={siteConfig.thirdwebClient}
-            connectButton={{
-              className: `connect-button-${option.key}`,
-              label: option.label,
-              style: {
-                opacity: 0,
-                position: "absolute",
-              },
-            }}
-            connectModal={{
-              size: "compact",
-              showThirdwebBranding: false,
-              privacyPolicyUrl: "https://0xfutbol.com/privacy-policy",
-              termsOfServiceUrl: "https://0xfutbol.com/terms-of-service",
-            }}
-            wallets={[option.wallet]}
-          />
+        {WALLET_OPTIONS.map((option) => (
+          option.component!
         ))}
       </div>
 

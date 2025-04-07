@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@0xfutbol/constants": "^1.0.30",
 		"@0xfutbol/id": "^1.0.12",
+		"@matchain/matchid-sdk-react": "^0.1.56",
 		"@nextui-org/react": "^2.4.6",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",
@@ -20,6 +21,7 @@
 		"clsx": "2.1.1",
 		"create-hmac": "^1.1.7",
 		"ethers": "^6.13.2",
+		"flagsmith": "^9.0.5",
 		"framer-motion": "~11.1.1",
 		"intl-messageformat": "^10.5.0",
 		"next": "^14.2.9",

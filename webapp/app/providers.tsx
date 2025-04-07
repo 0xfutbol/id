@@ -2,6 +2,8 @@
 
 import { NextUIProvider } from "@nextui-org/system";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import flagsmith from 'flagsmith';
+import { FlagsmithProvider } from "flagsmith/react";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { ThemeProviderProps } from "next-themes/dist/types";
 import { useRouter } from "next/navigation";
@@ -11,6 +13,11 @@ import { ThirdwebProvider } from "thirdweb/react";
 
 import LoadingScreen from "@/components/loading-screen";
 import { MsIdContextProvider } from "@/modules/msid/context/MsIdProvider";
+
+const FLAGSMITH_OPTIONS = {
+  environmentID: process.env.NEXT_PUBLIC_BASE_PATH ?? "LC7s8jPGYB5aK5smocTyQq",
+  cacheFlags: true
+};
 
 export interface ProvidersProps {
   children: React.ReactNode;
@@ -22,16 +29,18 @@ export function Providers({ children, themeProps }: ProvidersProps) {
   const queryClient = new QueryClient();
 
   return (
-    <NextUIProvider navigate={router.push}>
-      <NextThemesProvider {...themeProps}>
-        <Suspense fallback={<LoadingScreen />}>
-          <QueryClientProvider client={queryClient}>
-            <ThirdwebProvider>
-              <MsIdContextProvider>{children}</MsIdContextProvider>
-            </ThirdwebProvider>
-          </QueryClientProvider>
-        </Suspense>
-      </NextThemesProvider>
-    </NextUIProvider>
+    <Suspense fallback={<LoadingScreen />}>
+      <FlagsmithProvider options={FLAGSMITH_OPTIONS} flagsmith={flagsmith}>
+        <NextUIProvider navigate={router.push}>
+          <NextThemesProvider {...themeProps}>
+            <QueryClientProvider client={queryClient}>
+              <ThirdwebProvider>
+                <MsIdContextProvider>{children}</MsIdContextProvider>
+              </ThirdwebProvider>
+            </QueryClientProvider>
+          </NextThemesProvider>
+        </NextUIProvider>
+      </FlagsmithProvider>
+    </Suspense>
   );
 }
