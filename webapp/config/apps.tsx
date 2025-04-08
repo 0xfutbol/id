@@ -104,7 +104,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
         </p>
       </>
     ),
-    redirectUri: "https://manag3r.devsoccer.com",
+    redirectUri: "https://play.devsoccer.com",
     title: "DevSoccer",
   },
   METASOCCER: {
@@ -135,7 +135,7 @@ export const APP_CONFIG: Record<string, AppConfig> = {
         </p>
       </>
     ),
-    redirectUri: "https://manag3r.metasoccer.com",
+    redirectUri: "https://play.metasoccer.com",
     title: "MetaSoccer",
   }
 };

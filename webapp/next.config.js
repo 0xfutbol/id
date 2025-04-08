@@ -14,7 +14,7 @@ const nextConfig = {
           {
             key: "Content-Security-Policy",
             value:
-              "frame-ancestors 'self' http://localhost:8090 https://app.devsoccer.com https://app.metasoccer.com https://manag3r.devsoccer.com https://manag3r.metasoccer.com",
+              "frame-ancestors 'self' http://localhost:8090 https://app.devsoccer.com https://app.metasoccer.com https://play.devsoccer.com https://play.metasoccer.com",
           },
         ],
       },
