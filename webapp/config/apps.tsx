@@ -1,6 +1,6 @@
 import { getImgUrl } from "@/utils/getImgUrl";
 
-type AppConfig = {
+export type AppConfig = {
   name: string;
   accentColor: string;
   background: string;

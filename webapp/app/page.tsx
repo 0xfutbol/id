@@ -1,20 +1,25 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { ClaimForm } from "@/components/claim-form";
-import { LoginForm } from "@/components/login-form";
+import LoadingScreen from "@/components/loading-screen";
 import { APP_CONFIG } from "@/config/apps";
 import { useAppParam } from "@/context/AppContext";
 import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
+const LoginForm = dynamic(() => import("@/components/login-form"), {
+  ssr: false,
+  loading: () => (
+    <LoadingScreen />
+  ),
+});
+
 export default function Home() {
-  const { isAuthenticated, isClaimPending } =
-    useMsIdContext();
+  const { isAuthenticated } = useMsIdContext();
 
   const app = useAppParam();
-
   const router = useRouter();
 
   useEffect(() => {
@@ -26,14 +31,14 @@ export default function Home() {
         router.push("/me");
       }
     }
-  }, [router, isAuthenticated]);
+  }, [app, router, isAuthenticated]);
 
   if (isAuthenticated) {
     return null;
   }
 
   return (
-    <div className="flex h-screen w-full flex-col md:flex-row">
+    <div className="relative flex h-screen w-full flex-col overflow-hidden md:flex-row">
       <div className="flex-1 h-full">
         <img
           alt={APP_CONFIG[app].name}
@@ -42,16 +47,7 @@ export default function Home() {
         />
       </div>
       <div className="flex h-screen flex-1 items-center justify-center bg-background p-8">
-        <div className="flex max-w-[386px] flex-col gap-8 transition-[height] duration-300 ease-in-out">
-          <div className="flex items-center justify-center">
-            {APP_CONFIG[app].logo}
-          </div>
-          {isClaimPending ? (
-            <ClaimForm />
-          ) : (
-            <LoginForm pre={APP_CONFIG[app].pre} />
-          )}
-        </div>
+        <LoginForm appConfig={APP_CONFIG[app]} />
       </div>
     </div>
   );
