@@ -485,7 +485,7 @@ export default function ProfilePage() {
           size="md"
         >
           <span className="text-wrap">
-            You're eligible to claim{" "}
+            You&apos;re eligible to claim{" "}
             <b>
               {Math.round(
                 (parseFloat(msuBalance?.displayValue ?? "0") * 0.001925) / 0.03
