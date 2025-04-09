@@ -15,7 +15,7 @@ import LoadingScreen from "@/components/loading-screen";
 import { MsIdContextProvider } from "@/modules/msid/context/MsIdProvider";
 
 const FLAGSMITH_OPTIONS = {
-  environmentID: process.env.NEXT_PUBLIC_BASE_PATH ?? "LC7s8jPGYB5aK5smocTyQq",
+  environmentID: process.env.NEXT_PUBLIC_FLAG_ENVIRONMENT_ID ?? "LC7s8jPGYB5aK5smocTyQq",
   cacheFlags: true
 };
 
