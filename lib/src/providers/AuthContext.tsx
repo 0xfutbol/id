@@ -1,34 +1,18 @@
-import { authService } from "@/modules/msid/services/AuthService";
-import { decodeJWT } from "@/utils/decodeJWT";
-import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION, OxFUTBOL_LOCAL_STORAGE_KEY } from "@0xfutbol/id";
+import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id-sign";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 import { Account } from "thirdweb/wallets";
-import { accountService } from "../services/AccountService";
-import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "./useReferrerParam";
 
-export const getSavedJWT = (): string | undefined => {
-  return localStorage?.getItem(OxFUTBOL_LOCAL_STORAGE_KEY)?.replaceAll("\"", "") || undefined;
-};
+import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "@/hooks";
+import { accountService, authService } from "@/services";
+import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 
-export const setSavedJWT = (jwt: string | undefined) => {
-  if (jwt) {
-    console.debug("[0xFútbol ID] Setting JWT in localStorage:", jwt);
-    localStorage?.setItem(OxFUTBOL_LOCAL_STORAGE_KEY, jwt);
-  } else {
-    console.debug("[0xFútbol ID] Removing JWT from localStorage");
-    localStorage?.removeItem(OxFUTBOL_LOCAL_STORAGE_KEY);
-  }
-};
+import { useWeb3Context } from "./Web3Context";
 
-type MsIdContextProviderProps = { children: React.ReactNode };
+type AuthContextProviderProps = { children: React.ReactNode };
 
-const useMsIdState = () => {
-  const status = useActiveWalletConnectionStatus();
-  const activeWallet = useActiveWallet();
+const useAuthContextState = () => {
+  const { activeWallet, disconnect, status } = useWeb3Context();
   const account = activeWallet?.getAccount();
-
-  const { disconnect } = useDisconnect();
 
   useReferrerParam();
 
@@ -39,7 +23,7 @@ const useMsIdState = () => {
 
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setisAuthenticated] = useState(false);
 
   const claim = useCallback(async (username: string) => {
     console.debug("[0xFútbol ID] Claiming username:", username);
@@ -92,7 +76,7 @@ const useMsIdState = () => {
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");
 
-    setIsAuthenticated(true);
+    setisAuthenticated(true);
     setSavedJWT(jwt);
 
     username.current = decodeJWT(jwt).payload.username;
@@ -101,7 +85,7 @@ const useMsIdState = () => {
     console.debug("[0xFútbol ID] Posting JWT to redirect URI:", redirectUri.current);
 
     if (redirectUri.current) {
-      window.parent.postMessage({ type: 'JWT', jwt }, redirectUri.current);
+      window?.parent?.postMessage({ type: 'JWT', jwt }, redirectUri.current);
     }
   }, []);
 
@@ -112,7 +96,7 @@ const useMsIdState = () => {
       disconnect(activeWallet);
     }
 
-    setIsAuthenticated(false);
+    setisAuthenticated(false);
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
     setSavedJWT(undefined);
@@ -121,7 +105,7 @@ const useMsIdState = () => {
     validJWT.current = undefined;
 
     if (redirectUri.current) {
-      window.parent.postMessage({ type: 'JWT', jwt: undefined }, redirectUri.current);
+      window?.parent?.postMessage({ type: 'JWT', jwt: undefined }, redirectUri.current);
     }
   }, [activeWallet, disconnect]);
 
@@ -141,7 +125,7 @@ const useMsIdState = () => {
   }, []);
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
+    const urlParams = new URLSearchParams(window?.location?.search ?? "");
     const uri = urlParams.get('redirect_uri');
     console.debug("[0xFútbol ID] Redirect URI:", uri);
     redirectUri.current = uri ?? undefined;
@@ -207,11 +191,17 @@ const useMsIdState = () => {
   };
 };
 
-const MsIdContext = React.createContext<ReturnType<typeof useMsIdState> | undefined>(undefined);
+export const AuthContext = React.createContext<ReturnType<typeof useAuthContextState> | undefined>(undefined);
 
-const MsIdContextProvider = ({ children }: MsIdContextProviderProps) => {
-  const state = useMsIdState();
-  return <MsIdContext.Provider value={state}>{children}</MsIdContext.Provider>;
+export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
+  const state = useAuthContextState();
+  return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 };
 
-export { MsIdContext, MsIdContextProvider };
+export const useAuthContext = () => {
+	const context = React.useContext(AuthContext);
+	if (context === undefined) {
+		throw new Error("useAuthContext must be used within a AuthContextProvider");
+	}
+	return context;
+};

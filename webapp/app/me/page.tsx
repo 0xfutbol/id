@@ -1,6 +1,7 @@
 /* eslint-disable no-console */
 "use client";
 
+import { accountService, chains, thirdwebClient, useMsIdContext } from "@0xfutbol/id";
 import {
   Avatar,
   Button,
@@ -15,21 +16,18 @@ import {
   Spacer,
   Tab,
   Tabs,
-  Tooltip
+  Tooltip,
 } from "@nextui-org/react";
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useMemo, useState } from "react";
 import { SiDiscord } from "react-icons/si";
 import { balanceOf, getOwnedNFTs } from "thirdweb/extensions/erc721";
-import { NFT, useReadContract, useWalletBalance } from "thirdweb/react";
+import { NFTMedia, NFTName, NFTProvider, useReadContract, useWalletBalance } from "thirdweb/react";
 
 import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
-import { chains } from "@/config/chains";
 import { siteConfig } from "@/config/site";
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { accountService } from "@/modules/msid/services/AccountService";
 import { bobaService } from "@/modules/squid/services/BobaService";
 import { matchainService } from "@/modules/squid/services/MatchainService";
 import { polygonService } from "@/modules/squid/services/PolygonService";
@@ -90,45 +88,46 @@ export default function ProfilePage() {
   // Token balances
   const { data: msuBalance } = useWalletBalance({
     tokenAddress: "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1",
-    client: siteConfig.thirdwebClient,
+    client: thirdwebClient,
     chain: chains.polygon.ref,
     address,
   });
 
   const { data: futbolBalance } = useWalletBalance({
     tokenAddress: "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c",
-    client: siteConfig.thirdwebClient,
+    client: thirdwebClient,
     chain: chains.base.ref,
     address,
   });
 
   const { data: futbolXdcBalance } = useWalletBalance({
     tokenAddress: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9",
-    client: siteConfig.thirdwebClient,
+    client: thirdwebClient,
     chain: chains.xdc.ref,
     address,
   });
 
   const { data: msaBalance } = useWalletBalance({
     tokenAddress: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B",
-    client: siteConfig.thirdwebClient,
+    client: thirdwebClient,
     chain: chains.polygon.ref,
     address,
   });
 
   const { data: tokenVestingBalance } = useReadContract(balanceOf, {
     contract: siteConfig.contracts.ethereumSepolia.tokenVesting,
-    owner: address!
+    owner: address!,
   });
 
   const { data: ultrasNFTs } = useReadContract(getOwnedNFTs, {
     contract: siteConfig.contracts.base.ultras,
-    owner: address!
+    owner: address!,
   });
 
   const tokens = useMemo(() => {
     const formatBalance = (balance: string | undefined) => {
       const num = Number(balance ?? "0");
+
       return num.toFixed(num % 1 === 0 ? 0 : 2);
     };
 
@@ -160,16 +159,14 @@ export default function ProfilePage() {
     ];
   }, [msuBalance, msaBalance, futbolBalance, futbolXdcBalance]);
 
-  const tabs = useMemo(
-    () => ["achievements", ...Object.keys(assets), "tokens", "ultras"],
-    [assets]
-  );
+  const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "tokens", "ultras"], [assets]);
 
   const fetchAccountInfo = useCallback(async () => {
     if (!isAuthenticated) return;
 
     try {
       const info = await accountService.getInfo();
+
       setDiscordAccount(info.discord?.info?.username ?? null);
       setReferralCount(info.referralCount ?? 0);
     } catch (error) {
@@ -287,9 +284,11 @@ export default function ProfilePage() {
 
     try {
       const ultrasTokens: AssetItem[] = [];
+
       for (let i = 0; i < ultrasNFTs.length; i++) {
         try {
           const tokenId = ultrasNFTs[i].id;
+
           ultrasTokens.push({
             contract: siteConfig.contracts.base.ultras,
             tokenId,
@@ -324,50 +323,37 @@ export default function ProfilePage() {
     const clientId = "1229091313333309480";
     const redirectUri = `${window.location.origin}/discord-oauth`;
     const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+
     window.location.href = url;
   };
 
   const handleTabChange = useCallback(
     (key: string | number) => {
       const tabKey = String(key);
+
       setSelectedTab(tabKey);
       const params = new URLSearchParams(searchParams.toString());
+
       params.set("tab", tabKey);
       window.history.pushState(null, "", `?${params.toString()}`);
     },
-    [searchParams]
+    [searchParams],
   );
 
   const renderAchievementItem = useCallback(
-    (item: Achievement) => (
-      <GalleryCard
-        key={item.title}
-        alt={item.alt}
-        src={getImgUrl(item.src)}
-        title={item.title}
-      />
-    ),
-    []
+    (item: Achievement) => <GalleryCard key={item.title} alt={item.alt} src={getImgUrl(item.src)} title={item.title} />,
+    [],
   );
 
   const renderAssetItem = useCallback(
     (item: AssetItem) => (
-      <NFT
-        key={`${item.chain}-${item.tokenId}`}
-        contract={item.contract}
-        tokenId={item.tokenId}
-      >
+      <NFTProvider key={`${item.chain}-${item.tokenId}`} contract={item.contract} tokenId={item.tokenId}>
         <GalleryCard
           alt=""
           headerComponent={
             <div className="flex w-full justify-end">
               <Tooltip content={chains[item.chain].name}>
-                <Image
-                  alt={chains[item.chain].name}
-                  height={18}
-                  src={chains[item.chain].icon}
-                  width={18}
-                />
+                <Image alt={chains[item.chain].name} height={18} src={chains[item.chain].icon} width={18} />
               </Tooltip>
             </div>
           }
@@ -379,18 +365,18 @@ export default function ProfilePage() {
                 </div>
               }
             >
-              <NFT.Media style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              <NFTMedia style={{ width: "100%", height: "100%", objectFit: "contain" }} />
             </Suspense>
           }
           title={
             <Suspense fallback={<span>Loading...</span>}>
-              <NFT.Name />
+              <NFTName />
             </Suspense>
           }
         />
-      </NFT>
+      </NFTProvider>
     ),
-    []
+    [],
   );
 
   const renderTokenItem = useCallback(
@@ -401,30 +387,20 @@ export default function ProfilePage() {
         headerComponent={
           <div className="flex w-full justify-end">
             <Tooltip content={chains[item.chain].name}>
-              <Image
-                alt={chains[item.chain].name}
-                height={18}
-                src={chains[item.chain].icon}
-                width={18}
-              />
+              <Image alt={chains[item.chain].name} height={18} src={chains[item.chain].icon} width={18} />
             </Tooltip>
           </div>
         }
-        src={getImgUrl(
-          `https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`
-        )}
+        src={getImgUrl(`https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`)}
         title={`${item.balance} ${item.symbol}`}
       />
     ),
-    []
+    [],
   );
 
   const achievedAchievements = useMemo(
-    () =>
-      ACHIEVEMENTS.filter((achievement) =>
-        achievement.isAchieved({ referralCount })
-      ),
-    [referralCount]
+    () => ACHIEVEMENTS.filter((achievement) => achievement.isAchieved({ referralCount })),
+    [referralCount],
   );
 
   if (!address || !isAuthenticated) {
@@ -448,7 +424,11 @@ export default function ProfilePage() {
               <Avatar
                 className="mr-4"
                 size="lg"
-                src={ultrasNFTs && ultrasNFTs.length > 0 ? ultrasNFTs[0].metadata.image : `https://effigy.im/a/${address}.png`}
+                src={
+                  ultrasNFTs && ultrasNFTs.length > 0
+                    ? ultrasNFTs[0].metadata.image
+                    : `https://effigy.im/a/${address}.png`
+                }
               />
               <div>
                 <p className="text-gray-400">
@@ -464,11 +444,7 @@ export default function ProfilePage() {
                   <p>{discordAccount}</p>
                 </div>
               ) : (
-                <Button
-                  color="primary"
-                  startContent={<SiDiscord size={24} />}
-                  onClick={handleConnectDiscord}
-                >
+                <Button color="primary" startContent={<SiDiscord size={24} />} onClick={handleConnectDiscord}>
                   Connect Discord
                 </Button>
               )}
@@ -478,40 +454,20 @@ export default function ProfilePage() {
       </Card>
 
       {tokenVestingBalance && Number(tokenVestingBalance) > 0 && (
-        <Snippet
-          color="success"
-          hideCopyButton
-          hideSymbol
-          size="md"
-        >
+        <Snippet hideCopyButton hideSymbol color="success" size="md">
           <span className="text-wrap">
             You&apos;re eligible to claim{" "}
-            <b>
-              {Math.round(
-                (parseFloat(msuBalance?.displayValue ?? "0") * 0.001925) / 0.03
-              )}{" "}
-              $FUTBOL
-            </b>{" "}
-            tokens based on your MSU balance!
+            <b>{Math.round((parseFloat(msuBalance?.displayValue ?? "0") * 0.001925) / 0.03)} $FUTBOL</b> tokens based on
+            your MSU balance!
           </span>
           <Spacer y={1} />
           <span className="text-wrap">
             Visit{" "}
-            <Link
-              className="text-[#00ff00]"
-              size="sm"
-              href="https://app.hedgey.finance/vesting"
-              target="_blank"
-            >
+            <Link className="text-[#00ff00]" href="https://app.hedgey.finance/vesting" size="sm" target="_blank">
               hedgey.finance
             </Link>{" "}
             and connect your wallet to claim your tokens. Have questions? Join our{" "}
-            <Link
-              className="text-[#00ff00]"
-              size="sm"
-              href="https://0xfutbol.com/discord"
-              target="_blank"
-            >
+            <Link className="text-[#00ff00]" href="https://0xfutbol.com/discord" size="sm" target="_blank">
               community
             </Link>{" "}
             for support!
@@ -541,13 +497,13 @@ export default function ProfilePage() {
             image: "https://assets.metasoccer.com/banner/ultras.png?v=4",
             url: "https://magiceden.io/collections/base/0x84eb2086352ec0c08c1f7217caa49e11b16f34e8",
             buttonText: "Explore",
-          }
+          },
         ].map((card) => (
           <Card
             key={card.title}
             isFooterBlurred
-            className="aspect-video"
             isPressable
+            className="aspect-video"
             onClick={() => window.open(card.url, "_blank")}
           >
             <NextImage
@@ -563,7 +519,9 @@ export default function ProfilePage() {
                   <p className="text-tiny text-white/60">{card.description}</p>
                 </div>
               </div>
-              <Chip size="sm" color="success">{card.buttonText}</Chip>
+              <Chip color="success" size="sm">
+                {card.buttonText}
+              </Chip>
             </CardFooter>
           </Card>
         ))}
@@ -577,10 +535,7 @@ export default function ProfilePage() {
           onSelectionChange={handleTabChange}
         >
           <Tab key="achievements" title="Achievements">
-            <Gallery
-              items={achievedAchievements}
-              renderItem={renderAchievementItem}
-            />
+            <Gallery items={achievedAchievements} renderItem={renderAchievementItem} />
           </Tab>
           {Object.entries(assets).map(([key, items]) => (
             <Tab key={key} title={key.charAt(0).toUpperCase() + key.slice(1)}>

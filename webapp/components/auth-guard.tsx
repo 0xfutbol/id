@@ -1,15 +1,13 @@
 "use client";
 
+import { AutoConnect, thirdwebClient, useMsIdContext } from "@0xfutbol/id";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AutoConnect } from "thirdweb/react";
 
 import LoadingScreen from "./loading-screen";
 
 import { APP_CONFIG } from "@/config/apps";
-import { siteConfig } from "@/config/site";
 import { useAppParam } from "@/context/AppContext";
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
 
 const PUBLIC_ROUTES = ["/", "/logout"];
 
@@ -40,12 +38,8 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   return (
     <>
-      <AutoConnect client={siteConfig.thirdwebClient} />
-      {PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? (
-        children
-      ) : (
-        <LoadingScreen />
-      )}
+      <AutoConnect client={thirdwebClient} />
+      {PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? children : <LoadingScreen />}
     </>
   );
 }

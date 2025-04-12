@@ -1,15 +1,16 @@
+"use client";
+
 import "@/styles/globals.css";
 
+import { NextUIProvider } from "@nextui-org/react";
 import clsx from "clsx";
 import { Viewport } from "next";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { useRouter } from "next/navigation";
 
-import { Providers } from "./providers";
+import Main from "./main";
 
-import { AuthGuard } from "@/components/auth-guard";
-import BaseRouter from "@/components/base-router";
-import DynamicHead from "@/components/head";
 import { fontSans } from "@/config/fonts";
-import { AppProvider } from "@/context/AppContext";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -18,29 +19,21 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body
-        className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        {/* @ts-ignore */}
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <AppProvider>
-            <DynamicHead />
-            <BaseRouter>
-              <AuthGuard>{children}</AuthGuard>
-            </BaseRouter>
-          </AppProvider>
-        </Providers>
+      <body className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
+        <Main>
+          <NextUIProvider navigate={router.push}>
+            {/* @ts-ignore */}
+            <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+              {children}
+            </NextThemesProvider>
+          </NextUIProvider>
+        </Main>
       </body>
     </html>
   );

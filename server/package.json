@@ -1,5 +1,5 @@
 {
-  "name": "msid",
+  "name": "msid-server",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@0xfutbol/id": "^1.0.12",
+    "@0xfutbol/id-sign": "^1.0.2",
     "@sentry/node": "^8.52.1",
     "@sentry/profiling-node": "^8.52.1",
     "@telegram-apps/init-data-node": "^1.2.1",

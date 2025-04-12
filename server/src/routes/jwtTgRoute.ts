@@ -1,4 +1,4 @@
-import { MAX_SIGNATURE_EXPIRATION } from '@0xfutbol/id';
+import { MAX_SIGNATURE_EXPIRATION } from '@0xfutbol/id-sign';
 import { parse, validate } from '@telegram-apps/init-data-node';
 import { keccak256, toUtf8Bytes, Wallet } from 'ethers';
 import express from 'express';

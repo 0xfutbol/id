@@ -1,0 +1,66 @@
+{
+  "name": "@0xfutbol/id",
+  "version": "2.0.52",
+  "main": "dist/index.js",
+  "module": "dist/index.esm.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.esm.js",
+      "require": "./dist/index.js",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "sideEffects": [
+    "**/*.css"
+  ],
+  "keywords": [
+    "react",
+    "providers",
+    "web3",
+    "identity"
+  ],
+  "author": "",
+  "license": "ISC",
+  "description": "React component library with shared providers for 0xFutbol ID",
+  "dependencies": {
+    "@0xfutbol/constants": "^1.0.30",
+    "@0xfutbol/id-sign": "^1.0.2",
+    "@matchain/matchid-sdk-react": "^0.1.56",
+    "react-use": "^17.6.0",
+    "thirdweb": "^5.93.15",
+    "wagmi": "^2.14.16"
+  },
+  "peerDependencies": {
+    "@rainbow-me/rainbowkit": "^2.0.0",
+    "@tanstack/react-query": "^4.0.0 || ^5.0.0",
+    "react": "^16.8.0 || ^17.0.0 || ^18.0.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@rainbow-me/rainbowkit": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@rollup/plugin-commonjs": "^28.0.3",
+    "@rollup/plugin-json": "^6.1.0",
+    "@rollup/plugin-node-resolve": "^16.0.1",
+    "@rollup/plugin-typescript": "^12.1.2",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.2",
+    "rollup": "^4.39.0",
+    "rollup-plugin-dts": "^6.2.1",
+    "rollup-plugin-postcss": "^4.0.2",
+    "tslib": "^2.8.1",
+    "typescript": "^5.8.3"
+  },
+  "scripts": {
+    "build": "rollup -c --bundleConfigAsCjs",
+    "prepare": "npm run build"
+  }
+}

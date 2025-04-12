@@ -1,9 +1,10 @@
-import { siteConfig } from "@/config/site";
 import axios from "axios";
+
+import { backendUrl } from "@/config";
 
 class AuthService {
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: `${siteConfig.backendUrl}/auth` })
+		private readonly httpClient = axios.create({ baseURL: `${backendUrl}/auth` })
 	) {}
 
 	async claim(username: string, owner: string, message: string, expiration: number): Promise<void> {

@@ -1,16 +1,9 @@
 "use client";
 
-import {
-  NavbarBrand,
-  NavbarContent,
-  NavbarItem,
-  Navbar as NextUINavbar,
-} from "@nextui-org/navbar";
+import { ConnectButton, thirdwebClient, useActiveWallet } from "@0xfutbol/id";
+import { NavbarBrand, NavbarContent, NavbarItem, Navbar as NextUINavbar } from "@nextui-org/navbar";
 import Image from "next/image";
 import NextLink from "next/link";
-import { ConnectButton, useActiveWallet } from "thirdweb/react";
-
-import { siteConfig } from "@/config/site";
 
 export const Navbar = () => {
   const address = useActiveWallet();
@@ -33,7 +26,7 @@ export const Navbar = () => {
       {address && (
         <NavbarContent className="basis-1/5" justify="end">
           <NavbarItem>
-            <ConnectButton client={siteConfig.thirdwebClient} />
+            <ConnectButton client={thirdwebClient} />
           </NavbarItem>
         </NavbarContent>
       )}

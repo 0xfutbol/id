@@ -33,11 +33,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
   }, [appParam, router, searchParams]);
 
-  return (
-    <AppContext.Provider value={{ app }}>
-      {children}
-    </AppContext.Provider>
-  );
+  return <AppContext.Provider value={{ app }}>{children}</AppContext.Provider>;
 }
 
 export function useAppParam() {

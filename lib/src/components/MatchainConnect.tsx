@@ -1,13 +1,11 @@
-"use client";
-
-import { chains } from "@/config/chains";
-import { siteConfig } from "@/config/site";
-import { createEmitter } from "@/utils/createEmitter";
 import { Components, Hooks } from "@matchain/matchid-sdk-react";
-import { useEffect, useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useActiveWallet, useConnect } from "thirdweb/react";
 import type { Wallet } from "thirdweb/src/wallets/interfaces/wallet.js";
 import { WalletEmitterEvents } from "thirdweb/wallets";
+
+import { chains, thirdwebClient } from "@/config";
+import { createEmitter } from "@/utils";
 
 import "@matchain/matchid-sdk-react/index.css";
 
@@ -65,12 +63,13 @@ export const createMatchainWallet = (userInfo: MatchainUserInfo, wallet: Matchai
     }
   } as Wallet<"embedded">;
 }
-const MatchainConnect: React.FC = () => {
+
+export const MatchainConnect: React.FC = () => {
   const isConnecting = useRef(false);
 
   const activeWallet = useActiveWallet();
   const { connect } = useConnect({
-    client: siteConfig.thirdwebClient,
+    client: thirdwebClient,
   });
 
   const matchIdUser = Hooks.useUserInfo();
@@ -81,7 +80,7 @@ const MatchainConnect: React.FC = () => {
       console.log("[Matchain ID] Login");
     },
     onLogout: () => {
-      activeWallet?.disconnect();
+      console.log("[Matchain ID] Logout");
     }
   });
 
@@ -119,5 +118,3 @@ const MatchainConnect: React.FC = () => {
     />
   );
 };
-
-export default MatchainConnect;

@@ -1,10 +1,11 @@
-import { siteConfig } from "@/config/site";
 import axios from "axios";
-import { getSavedJWT } from "../context/MsIdProvider";
+
+import { backendUrl } from "@/config";
+import { getSavedJWT } from "@/utils";
 
 class AccountService {
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: `${siteConfig.backendUrl}/account` })
+		private readonly httpClient = axios.create({ baseURL: `${backendUrl}/account` })
 	) {}
 
 	async getInfo(): Promise<{ discord: any, referralCount: number }> {

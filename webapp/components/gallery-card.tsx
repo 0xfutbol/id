@@ -8,28 +8,15 @@ type GalleryCardProps = {
   headerComponent?: ReactElement;
 };
 
-export const GalleryCard: React.FC<GalleryCardProps> = ({
-  alt,
-  src,
-  title,
-  headerComponent,
-}) => (
-  <Card
-    isFooterBlurred
-    className="aspect-square col-span-12 sm:col-span-5 w-full"
-  >
+export const GalleryCard: React.FC<GalleryCardProps> = ({ alt, src, title, headerComponent }) => (
+  <Card isFooterBlurred className="aspect-square col-span-12 sm:col-span-5 w-full">
     {headerComponent && (
       <CardHeader className="absolute flex-col justify-center items-stretch p-2 w-full z-10">
         {headerComponent}
       </CardHeader>
     )}
     {typeof src === "string" ? (
-      <Image
-        removeWrapper
-        alt={alt}
-        className="h-full object-cover w-full z-0"
-        src={src}
-      />
+      <Image removeWrapper alt={alt} className="h-full object-cover w-full z-0" src={src} />
     ) : (
       <div className="h-full object-cover w-full z-0">{src}</div>
     )}

@@ -31,13 +31,13 @@ export const APP_CONFIG: Record<string, AppConfig> = {
         <p className="text-sm">Connect to get your 0xFútbol ID.</p>
         <div className="flex items-start gap-2">
           <p className="text-sm text-foreground-500">
-            0xFútbol ID is your unique identifier in the 0xFútbol
-            Hub—think of it like your username for any 0xFútbol product.
+            0xFútbol ID is your unique identifier in the 0xFútbol Hub—think of it like your username for any 0xFútbol
+            product.
           </p>
         </div>
         <p className="text-sm">
-          Don't have one yet? No worries! Just connect your wallet, and you'll
-          be able to claim yours instantly.
+          Don&apos;t have one yet? No worries! Just connect your wallet, and you&apos;ll be able to claim yours
+          instantly.
         </p>
       </>
     ),
@@ -61,13 +61,13 @@ export const APP_CONFIG: Record<string, AppConfig> = {
         <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
         <div className="flex items-start gap-2">
           <p className="text-sm text-foreground-500">
-            0xFútbol ID is your unique identifier in the 0xFútbol
-            Hub—think of it like your username for any 0xFútbol product.
+            0xFútbol ID is your unique identifier in the 0xFútbol Hub—think of it like your username for any 0xFútbol
+            product.
           </p>
         </div>
         <p className="text-sm">
-          Don't have one yet? No worries! Just connect your wallet, and you'll
-          be able to claim yours instantly.
+          Don&apos;apos;t have one yet? No worries! Just connect your wallet, an&apos; you&apos;ll be able to claim
+          yours instantly.
         </p>
       </>
     ),
@@ -91,16 +91,16 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     ),
     pre: (
       <>
-        <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
+        <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
         <div className="flex items-start gap-2">
           <p className="text-sm text-foreground-500">
-            MetaSoccer ID is your unique identifier in the MetaSoccer
-            World—think of it like your username for any MetaSoccer game.
+            0xFútbol ID is your unique identifier in the MetaSoccer World—think of it like your username for any
+            MetaSoccer game.
           </p>
         </div>
         <p className="text-sm">
-          Don't have one yet? No worries! Just connect your wallet, and you'll
-          be able to claim yours instantly.
+          Don&apos;t have one yet? No worries! Just connect your wallet, and you&apos;ll be able to claim yours
+          instantly.
         </p>
       </>
     ),
@@ -122,20 +122,20 @@ export const APP_CONFIG: Record<string, AppConfig> = {
     ),
     pre: (
       <>
-        <p className="text-sm">Connect your MetaSoccer ID to start playing.</p>
+        <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
         <div className="flex items-start gap-2">
           <p className="text-sm text-foreground-500">
-            MetaSoccer ID is your unique identifier in the MetaSoccer
-            World—think of it like your username for any MetaSoccer game.
+            0xFútbol ID is your unique identifier in the MetaSoccer World—think of it like your username for any
+            MetaSoccer game.
           </p>
         </div>
         <p className="text-sm">
-          Don't have one yet? No worries! Just connect your wallet, and you'll
-          be able to claim yours instantly.
+          Don&apos;t have one yet? No worries! Just connect your wallet, and you&apos;ll be able to claim yours
+          instantly.
         </p>
       </>
     ),
     redirectUri: "https://play.metasoccer.com",
     title: "MetaSoccer",
-  }
+  },
 };
