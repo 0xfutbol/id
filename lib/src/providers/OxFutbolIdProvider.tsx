@@ -2,7 +2,9 @@ import { MatchProvider } from "@matchain/matchid-sdk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import * as React from "react";
 import { createContext } from "react";
-import { ThirdwebProvider } from "thirdweb/react";
+import { AutoConnect, ThirdwebProvider } from "thirdweb/react";
+
+import { thirdwebClient } from "@/config";
 
 import { AuthContextProvider, useAuthContext } from "./AuthContext";
 import { useWeb3Context, Web3ContextProvider } from "./Web3Context";
@@ -52,6 +54,7 @@ export function OxFutbolIdProvider({ children }: OxFutbolIdProviderProps) {
           <Web3ContextProvider>
             <AuthContextProvider>
               <OxFutbolIdInnerProvider>
+                <AutoConnect client={thirdwebClient} />
                 {children}
               </OxFutbolIdInnerProvider>
             </AuthContextProvider>

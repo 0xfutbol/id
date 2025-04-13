@@ -21,9 +21,9 @@ const useAuthContextState = () => {
   const username = useRef<string | undefined>(undefined);
   const validJWT = useRef<string | undefined>(undefined);
 
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
-  const [isAuthenticated, setisAuthenticated] = useState(false);
 
   const claim = useCallback(async (username: string) => {
     console.debug("[0xFútbol ID] Claiming username:", username);
@@ -76,7 +76,7 @@ const useAuthContextState = () => {
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");
 
-    setisAuthenticated(true);
+    setIsAuthenticated(true);
     setSavedJWT(jwt);
 
     username.current = decodeJWT(jwt).payload.username;
@@ -96,7 +96,7 @@ const useAuthContextState = () => {
       disconnect(activeWallet);
     }
 
-    setisAuthenticated(false);
+    setIsAuthenticated(false);
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
     setSavedJWT(undefined);
@@ -181,7 +181,6 @@ const useAuthContextState = () => {
 
   return {
     address: account?.address,
-    clientId: decodeURIComponent(redirectUri.current ?? "undefined"),
     isAuthenticated,
     isClaimPending,
     isWaitingForSignature,

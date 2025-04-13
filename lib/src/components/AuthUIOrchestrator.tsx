@@ -49,7 +49,7 @@ const WALLET_OPTIONS = [
         width={48}
       />
     ),
-    component: () => createThirdwebWalletButton("walletConnect", "WalletConnect", inAppWallet({
+    component: () => createThirdwebWalletButton("walletconnect", "WalletConnect", inAppWallet({
       auth: {
         options: ["apple", "google", "email", "passkey"],
       },
@@ -126,6 +126,8 @@ export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIO
     const connectButton = document.querySelector(
       `.connect-button-${walletKey}`,
     );
+
+    console.log(`[AuthUIOrchestrator] Connecting to ${walletKey}`, connectButton);
 
     if (connectButton instanceof HTMLElement) {
       connectButton.click();

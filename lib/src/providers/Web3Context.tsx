@@ -60,7 +60,7 @@ const useWeb3ContextState = () => {
     fetchSigner();
   }, [activeWallet, chainName]);
 
-  return { activeWallet, chainName, disconnect, signer, status, switchingChain, switchChainAndThen };
+  return { activeWallet, chainName, signer, status, switchingChain, disconnect, switchChainAndThen };
 };
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);

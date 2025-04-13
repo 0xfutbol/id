@@ -1,6 +1,6 @@
 import { Components, Hooks } from "@matchain/matchid-sdk-react";
-import React, { useEffect, useRef } from "react";
-import { useActiveWallet, useConnect } from "thirdweb/react";
+import React, { useCallback, useEffect, useRef } from "react";
+import { useConnect } from "thirdweb/react";
 import type { Wallet } from "thirdweb/src/wallets/interfaces/wallet.js";
 import { WalletEmitterEvents } from "thirdweb/wallets";
 
@@ -65,9 +65,9 @@ export const createMatchainWallet = (userInfo: MatchainUserInfo, wallet: Matchai
 }
 
 export const MatchainConnect: React.FC = () => {
+  const instanceId = useRef(`matchain_${Math.random().toString(36).substring(2, 10)}`);
   const isConnecting = useRef(false);
 
-  const activeWallet = useActiveWallet();
   const { connect } = useConnect({
     client: thirdwebClient,
   });
@@ -77,28 +77,45 @@ export const MatchainConnect: React.FC = () => {
 
   Hooks.useMatchEvents({
     onLogin: () => {
-      console.log("[Matchain ID] Login");
+      console.log(`[Matchain ID ${instanceId.current}] Login`);
     },
     onLogout: () => {
-      console.log("[Matchain ID] Logout");
+      console.log(`[Matchain ID ${instanceId.current}] Logout`);
     }
   });
 
   useEffect(() => {
-    if (isConnecting.current) return;
-    if (!matchIdUser.isLogin) return;
-    if (!matchIdWallet.walletReady) return;
+    console.log(`[Matchain ID ${instanceId.current}] Component initialized`);
+    
+    return () => {
+      console.log(`[Matchain ID ${instanceId.current}] Component unmounted`);
+    };
+  }, []);
 
-    console.log("[Matchain ID] Ready to connect to thirdweb");
+  const connectWallet = useCallback(() => {
+    if (isConnecting.current) {
+      console.log(`[Matchain ID ${instanceId.current}] Connection already in progress, skipping`);
+      return;
+    }
+    if (!matchIdUser.isLogin) {
+      console.log(`[Matchain ID ${instanceId.current}] User not logged in, skipping connection`);
+      return;
+    }
+    if (!matchIdWallet.walletReady) {
+      console.log(`[Matchain ID ${instanceId.current}] Wallet not ready, skipping connection`);
+      return;
+    }
+
+    console.log(`[Matchain ID ${instanceId.current}] Ready to connect to thirdweb`);
 
     (async () => {
       try {
         isConnecting.current = true;
         await connect(createMatchainWallet(matchIdUser, matchIdWallet));
-        console.log("[Matchain ID] Wallet connection initiated");
+        console.log(`[Matchain ID ${instanceId.current}] Wallet connection initiated`);
       } catch (error) {
         await matchIdUser.logout();
-        console.error("[Matchain ID] Failed to connect wallet", error);
+        console.error(`[Matchain ID ${instanceId.current}] Failed to connect wallet`, error);
       } finally {
         isConnecting.current = false;
       }
@@ -107,7 +124,7 @@ export const MatchainConnect: React.FC = () => {
 
   return (
     <Components.LoginButton
-      key="matchain_id"
+      key={instanceId.current}
       className={`connect-button-matchain_id`}
       methods={['telegram', 'twitter']}
       popoverPosition="center"
@@ -115,6 +132,10 @@ export const MatchainConnect: React.FC = () => {
       popoverGap={10}
       recommendMethods={['email', 'google']}
       walletMethods={[]}
+      onLoginClick={() => {
+        console.log(`[Matchain ID ${instanceId.current}] Login clicked`);
+        connectWallet();
+      }}
     />
   );
 };
