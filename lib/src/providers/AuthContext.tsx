@@ -11,13 +11,12 @@ import { useWeb3Context } from "./Web3Context";
 type AuthContextProviderProps = { children: React.ReactNode };
 
 const useAuthContextState = () => {
-  const { activeWallet, disconnect, status } = useWeb3Context();
+  const { activeWallet, status } = useWeb3Context();
   const account = activeWallet?.getAccount();
 
   useReferrerParam();
 
-  const redirectUri = useRef<string | undefined>(undefined);
-  const savedJWTChecked = useRef(false);
+  const authReady = useRef(false);
   const username = useRef<string | undefined>(undefined);
   const validJWT = useRef<string | undefined>(undefined);
 
@@ -81,20 +80,10 @@ const useAuthContextState = () => {
 
     username.current = decodeJWT(jwt).payload.username;
     validJWT.current = jwt;
-
-    console.debug("[0xFútbol ID] Posting JWT to redirect URI:", redirectUri.current);
-
-    if (redirectUri.current) {
-      window?.parent?.postMessage({ type: 'JWT', jwt }, redirectUri.current);
-    }
   }, []);
 
   const logout = useCallback(() => {
     console.debug("[0xFútbol ID] Logging out");
-
-    if (activeWallet) {
-      disconnect(activeWallet);
-    }
 
     setIsAuthenticated(false);
     setIsClaimPending(false);
@@ -103,11 +92,7 @@ const useAuthContextState = () => {
 
     username.current = undefined;
     validJWT.current = undefined;
-
-    if (redirectUri.current) {
-      window?.parent?.postMessage({ type: 'JWT', jwt: undefined }, redirectUri.current);
-    }
-  }, [activeWallet, disconnect]);
+  }, []);
 
   const signForJWT = useCallback(async (account: Account, username: string) => {
     console.debug("[0xFútbol ID] Signing for JWT with username:", username);
@@ -122,13 +107,6 @@ const useAuthContextState = () => {
     } finally {
       setIsWaitingForSignature(false);
     }
-  }, []);
-
-  useEffect(() => {
-    const urlParams = new URLSearchParams(window?.location?.search ?? "");
-    const uri = urlParams.get('redirect_uri');
-    console.debug("[0xFútbol ID] Redirect URI:", uri);
-    redirectUri.current = uri ?? undefined;
   }, []);
 
   useEffect(() => {
@@ -158,7 +136,7 @@ const useAuthContextState = () => {
         }
       }
 
-      savedJWTChecked.current = true;
+      authReady.current = true;
     };
 
     const pingAccount = async () => {
@@ -171,7 +149,7 @@ const useAuthContextState = () => {
   }, [account?.address]);
 
   useEffect(() => {
-    if (!savedJWTChecked.current) return;
+    if (!authReady.current) return;
 
     if (status === "disconnected") {
       console.debug("[0xFútbol ID] Status is disconnected, logging out");
@@ -180,11 +158,10 @@ const useAuthContextState = () => {
   }, [status, logout]);
 
   return {
-    address: account?.address,
+    authReady: authReady.current,
     isAuthenticated,
     isClaimPending,
     isWaitingForSignature,
-    status,
     username: username.current,
     claim
   };

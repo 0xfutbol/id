@@ -1,5 +1,5 @@
 import { ChainName, networkConfig } from "@0xfutbol/constants";
-import React, { createContext, ReactNode, useCallback, useEffect, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { useActiveWallet, useActiveWalletConnectionStatus, useDisconnect } from "thirdweb/react";
 
@@ -17,6 +17,8 @@ const useWeb3ContextState = () => {
   const activeWallet = useActiveWallet();
   const status = useActiveWalletConnectionStatus();
   const { disconnect } = useDisconnect();
+
+  const statusReady = useRef(false);
 
   const [chainName, setChainName] = useState<ChainName | undefined>("polygon");
   const [signer, setSigner] = useState<ReturnType<typeof ethers5Adapter.provider.toEthers> | undefined>(undefined);
@@ -60,7 +62,26 @@ const useWeb3ContextState = () => {
     fetchSigner();
   }, [activeWallet, chainName]);
 
-  return { activeWallet, chainName, signer, status, switchingChain, disconnect, switchChainAndThen };
+  useEffect(() => {
+    if (status === "connected" || status === "disconnected") {
+      console.debug("[0xFútbol ID] Web3 is ready");
+      statusReady.current = true;
+    } else {
+      statusReady.current = false;
+    }
+  }, [status]);
+
+  return {
+    activeWallet,
+    address: activeWallet?.getAccount()?.address,
+    chainName,
+    signer,
+    status,
+    statusReady: statusReady.current,
+    switchingChain,
+    disconnect,
+    switchChainAndThen
+  };
 };
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);
