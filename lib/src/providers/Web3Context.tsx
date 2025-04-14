@@ -19,22 +19,23 @@ const useWeb3ContextState = () => {
   const { disconnect } = useDisconnect();
 
   const statusReady = useRef(false);
+  const switchingChain = useRef(false);
 
   const [chainName, setChainName] = useState<ChainName | undefined>("polygon");
   const [signer, setSigner] = useState<ReturnType<typeof ethers5Adapter.provider.toEthers> | undefined>(undefined);
-  const [switchingChain, setSwitchingChain] = useState(false);
 
   const switchChainAndThen = useCallback(async (chainId: number, action: () => unknown) => {
     if (!activeWallet) return;
+    if (switchingChain.current) return;
 
     if (activeWallet.getChain()?.id !== chainId) {
       console.log("Switching chain", chainId);
-      setSwitchingChain(true);
+      switchingChain.current = true;
       const activeChain = Object.values(chains).find((c) => c.ref.id === chainId)!.ref;
       await activeWallet.switchChain(activeChain);
       console.log("Switched chain", activeChain);
       setChainName(getChainName(chainId));
-      setSwitchingChain(false);
+      switchingChain.current = false;
       action();
     } else {
       console.log("Executing action on chain", chainId);
@@ -78,7 +79,7 @@ const useWeb3ContextState = () => {
     signer,
     status,
     statusReady: statusReady.current,
-    switchingChain,
+    switchingChain: switchingChain.current,
     disconnect,
     switchChainAndThen
   };
