@@ -1,12 +1,15 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-import { backendUrl } from "@/config";
 import { getSavedJWT } from "@/utils";
 
-class AccountService {
+export class AccountService {
+	private readonly httpClient: AxiosInstance;
+
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: `${backendUrl}/account` })
-	) {}
+		backendUrl: string
+	) {
+		this.httpClient = axios.create({ baseURL: `${backendUrl}/account` })
+	}
 
 	async getInfo(): Promise<{ discord: any, referralCount: number }> {
 		try {
@@ -42,5 +45,3 @@ class AccountService {
 		}
 	}
 }
-
-export const accountService = new AccountService();

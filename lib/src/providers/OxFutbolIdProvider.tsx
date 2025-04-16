@@ -10,6 +10,7 @@ import { AuthContextProvider, useAuthContext } from "./AuthContext";
 import { useWeb3Context, Web3ContextProvider } from "./Web3Context";
 
 type OxFutbolIdProviderProps = {
+  backendUrl: string;
   children: React.ReactNode;
 }
 
@@ -33,12 +34,12 @@ type OxFutbolIdState = {
 }
 
 const useOxFutbolIdState = (): OxFutbolIdState => {
-  const authContext = useAuthContext();
   const web3Context = useWeb3Context();
+  const authContext = useAuthContext();
 
   return {
-    ...authContext,
     ...web3Context,
+    ...authContext,
   };
 };
 
@@ -56,7 +57,7 @@ const MatchIDProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function OxFutbolIdInnerProvider({ children }: OxFutbolIdProviderProps) {
+function OxFutbolIdInnerProvider({ children }: Omit<OxFutbolIdProviderProps, "backendUrl">) {
   const state = useOxFutbolIdState();
 
   return (
@@ -66,7 +67,7 @@ function OxFutbolIdInnerProvider({ children }: OxFutbolIdProviderProps) {
   );
 }
 
-export function OxFutbolIdProvider({ children }: OxFutbolIdProviderProps) {
+export function OxFutbolIdProvider({ backendUrl, children }: OxFutbolIdProviderProps) {
   const queryClient = new QueryClient();
 
   return (
@@ -74,7 +75,7 @@ export function OxFutbolIdProvider({ children }: OxFutbolIdProviderProps) {
       <ThirdwebProvider>
         <MatchIDProvider>
           <Web3ContextProvider>
-            <AuthContextProvider>
+            <AuthContextProvider backendUrl={backendUrl}>
               <OxFutbolIdInnerProvider>
                 {children}
               </OxFutbolIdInnerProvider>

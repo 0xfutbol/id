@@ -30,8 +30,6 @@ const useMatchIdContextState = () => {
       `.connect-button-matchain_id`,
     );
 
-    console.log(`[MatchIdContext] Connecting to matchain_id`, connectButton);
-
     if (connectButton instanceof HTMLElement) {
       connectButton.click();
     }
@@ -50,8 +48,6 @@ const useMatchIdContextState = () => {
   }, [chain]);
 
   useEffect(() => {
-    console.log(`[MatchIdContext] Effect triggered with chain:`, chain, `and wallet:`, wallet);
-
     const matchainChainId = chain.chainId ?? undefined;
     const matchainAddress = wallet.address ?? undefined;
     const matchainWalletReady = wallet.walletReady ?? false;
@@ -59,35 +55,19 @@ const useMatchIdContextState = () => {
     const chainIdChanged = matchainChainId !== chainId.current;
     const walletAddressChanged = matchainAddress !== currentAddress.current;
     const walletReadyChanged = matchainWalletReady !== walletReady.current;
-    
-    console.log(`[MatchIdContext] State changes detected:`, {
-      chainIdChanged,
-      walletAddressChanged,
-      currentChainId: chainId.current,
-      newChainId: matchainChainId,
-      currentWalletAddress: currentAddress.current,
-      newWalletAddress: matchainAddress,
-      currentWalletReady: walletReady.current,
-      newWalletReady: matchainWalletReady
-    });
-    
-    if (status.current !== "unknown" && !chainIdChanged && !walletAddressChanged && !walletReadyChanged) {
-      console.log(`[MatchIdContext] No relevant changes, skipping effect`);
+
+    if (!chainIdChanged && !walletAddressChanged && !walletReadyChanged) {
       return;
     }
 
-    console.log(`[MatchIdContext] Updating context state`);
-    
     chainId.current = matchainChainId;
     currentAddress.current = matchainAddress;
     walletReady.current = matchainWalletReady;
 
     if (chainId.current !== undefined) {
       const newChainName = getChainName(chainId.current);
-      console.log(`[MatchIdContext] Setting chain name to:`, newChainName);
       setChainName(newChainName);
     } else {
-      console.log(`[MatchIdContext] Chain ID is undefined`);
       setChainName(undefined);
     }
 
@@ -95,18 +75,10 @@ const useMatchIdContextState = () => {
 
     status.current = isConnected ? "connected" : "disconnected";
     web3Ready.current = isConnected ? wallet.walletReady : true;
-    console.log(`[MatchIdContext] Status updated:`, {
-      status: status.current,
-      web3Ready: web3Ready.current
-    });
 
-    console.log(`[MatchIdContext] Wallet is ready, creating new MatchIdSigner`);
-    if (web3Ready.current) {
+    if (wallet.walletReady) {
       const newSigner = new MatchIdSigner(chain, wallet);
-      console.log(`[MatchIdContext] MatchIdSigner created successfully:`, newSigner);
       setSigner(newSigner);
-    } else {
-      console.log(`[MatchIdContext] Wallet is not ready, skipping signer creation`);
     }
   }, [chain, wallet]);
 

@@ -147,10 +147,6 @@ const useWeb3ContextState = (): Web3ContextState => {
     return await action();
   }, [thirdwebContext, walletProvider]);
 
-  console.log("[Web3Context] Wallet provider:", walletProvider);
-  console.log("[Web3Context] MatchId context:", matchIdContext);
-  console.log("[Web3Context] Thirdweb context:", thirdwebContext);
-
   return {
     address: {
       matchain_id: matchIdContext.address,

@@ -7,7 +7,6 @@ import { ThemeProviderProps } from "next-themes/dist/types";
 
 import { AuthGuard } from "@/components/auth-guard";
 import BaseRouter from "@/components/base-router";
-import DynamicHead from "@/components/head";
 import { AppProvider } from "@/context/AppContext";
 
 const FLAGSMITH_OPTIONS = {
@@ -25,7 +24,6 @@ export default function Main({ children }: { children: React.ReactNode }) {
     <OxFutbolIdProvider>
       <FlagsmithProvider flagsmith={flagsmith} options={FLAGSMITH_OPTIONS}>
         <AppProvider>
-          <DynamicHead />
           <BaseRouter>
             <AuthGuard>{children}</AuthGuard>
           </BaseRouter>

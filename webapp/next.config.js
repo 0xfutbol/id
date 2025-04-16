@@ -20,7 +20,6 @@ const nextConfig = {
       },
     ];
   },
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH !== undefined ? process.env.NEXT_PUBLIC_BASE_PATH : "/id",
   typescript: {
     ignoreBuildErrors: true,
   },

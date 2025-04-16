@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 "use client";
 
-import { accountService, chains, thirdwebClient, useMsIdContext } from "@0xfutbol/id";
+import { accountService, chains, thirdwebClient, useOxFutbolIdContext } from "@0xfutbol/id";
 import {
   Avatar,
   Button,
@@ -73,7 +73,7 @@ export default function ProfilePage() {
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab");
 
-  const { address, isAuthenticated, username } = useMsIdContext();
+  const { address, isAuthenticated, username } = useOxFutbolIdContext();
 
   const [assets, setAssets] = useState<{ [key: string]: AssetItem[] }>({
     lands: [],

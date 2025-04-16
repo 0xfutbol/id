@@ -1,11 +1,13 @@
-import axios from "axios";
+import axios, { AxiosInstance } from "axios";
 
-import { backendUrl } from "@/config";
+export class AuthService {
+	private readonly httpClient: AxiosInstance;
 
-class AuthService {
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: `${backendUrl}/auth` })
-	) {}
+		backendUrl: string
+	) {
+		this.httpClient = axios.create({ baseURL: `${backendUrl}/auth` })
+	}
 
 	async claim(username: string, owner: string, message: string, expiration: number): Promise<void> {
 		try {
@@ -42,5 +44,3 @@ class AuthService {
 		}
 	}
 }
-
-export const authService = new AuthService();

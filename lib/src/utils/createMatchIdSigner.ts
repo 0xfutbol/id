@@ -3,7 +3,6 @@ import { Hooks } from '@matchain/matchid-sdk-react';
 import { BigNumber, ethers, Signer, TypedDataDomain, TypedDataField } from 'ethers';
 import { Deferrable } from 'ethers/lib/utils';
 import { TypedDataDefinition } from 'viem';
-import { toHex } from 'viem/utils';
 
 export class MatchIdSigner implements Signer {
   _isSigner: boolean = true;
@@ -13,42 +12,66 @@ export class MatchIdSigner implements Signer {
     this.provider = chain.chain?.rpcUrls.default.http[0]
       ? new ethers.providers.JsonRpcProvider(chain.chain.rpcUrls.default.http[0])
       : undefined;
+    console.log(`[MatchIdSigner] Initialized with provider:`, this.provider ? 'connected' : 'undefined');
   }
 
   async getAddress(): Promise<string> {
+    console.log(`[MatchIdSigner] Getting address: ${this.wallet.address}`);
     return this.wallet.address;
   }
 
   async signMessage(message: string): Promise<string> {
-    return this.wallet.evmAccount?.signMessage?.({ message }) ?? Promise.reject('No signing method available');
+    console.log(`[MatchIdSigner] Signing message:`, message);
+    const signature = await this.wallet.evmAccount?.signMessage?.({ message });
+    console.log(`[MatchIdSigner] Message signed successfully:`, signature);
+    return signature ?? Promise.reject('No signing method available');
   }
 
   async signTransaction(transaction: Deferrable<TransactionRequest>): Promise<string> {
+    console.log(`[MatchIdSigner] Signing transaction:`, transaction);
     if (!this.provider) {
       throw new Error('No provider connected');
     }
-
+  
     const tx = await this.populateTransaction(transaction);
+    console.log(`[MatchIdSigner] Populated transaction for signing:`, tx);
+  
+    if (!tx.gasLimit || tx.gasLimit == 0) {
+      throw new Error('Gas limit is zero or undefined after population');
+    }
 
-    // Convert ethers.js transaction to Viem-compatible format
-    const viemTx = {
-      chainId: tx.chainId,
-      nonce: tx.nonce,
-      gasLimit: tx.gasLimit ? BigNumber.from(tx.gasLimit).toNumber() : undefined,
-      gasPrice: tx.gasPrice ? BigNumber.from(tx.gasPrice).toHexString() : undefined,
-      maxFeePerGas: tx.maxFeePerGas ? BigNumber.from(tx.maxFeePerGas).toHexString() : undefined,
-      maxPriorityFeePerGas: tx.maxPriorityFeePerGas ? BigNumber.from(tx.maxPriorityFeePerGas).toHexString() : undefined,
-      to: tx.to ? tx.to : undefined,
-      value: tx.value ? BigNumber.from(tx.value).toHexString() : undefined,
-      // @ts-ignore
-      data: tx.data ? toHex(tx.data) : undefined,
-    };
-
-    // @ts-ignore
-    return this.wallet.evmAccount?.signTransaction?.(viemTx) ?? Promise.reject('No signing method available');
+    console.log({
+      chain: this.chain.chain!,
+      transaction: {
+        chainId: tx.chainId,
+        nonce: parseInt(tx.nonce?.toString() ?? '0'),
+        gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
+        gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
+        to: tx.to as `0x${string}`,
+        data: tx.data as `0x${string}`,
+        value: BigInt(tx.value?.toString() ?? '0'),
+      },
+    });
+  
+    const signedTx = await this.wallet?.signTransaction?.({
+      chain: this.chain.chain!,
+      transaction: {
+        type: "eip2930",
+        chainId: this.chain.chain!.id,
+        nonce: parseInt(tx.nonce?.toString() ?? '0'),
+        gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
+        gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
+        to: tx.to as `0x${string}`,
+        data: tx.data as `0x${string}`,
+        value: BigInt(tx.value?.toString() ?? '0'),
+      },
+    });
+    console.log(`[MatchIdSigner] Transaction signed successfully:`, signedTx);
+    return signedTx ?? Promise.reject('No signing method available');
   }
 
   connect(provider: Provider): Signer {
+    console.log(`[MatchIdSigner] Connecting to new provider`);
     const newSigner = new MatchIdSigner(this.chain, this.wallet);
     newSigner.provider = provider;
     return newSigner;
@@ -56,66 +79,78 @@ export class MatchIdSigner implements Signer {
 
   async getBalance(blockTag?: BlockTag): Promise<BigNumber> {
     if (!this.provider) throw new Error('No provider connected');
-    return this.provider.getBalance(this.wallet.address, blockTag);
+    console.log(`[MatchIdSigner] Getting balance for address: ${this.wallet.address}, blockTag: ${blockTag}`);
+    const balance = await this.provider.getBalance(this.wallet.address, blockTag);
+    console.log(`[MatchIdSigner] Balance retrieved:`, balance.toString());
+    return balance;
   }
 
   async getTransactionCount(blockTag?: BlockTag): Promise<number> {
     if (!this.provider) throw new Error('No provider connected');
-    return this.provider.getTransactionCount(this.wallet.address, blockTag);
+    console.log(`[MatchIdSigner] Getting transaction count for address: ${this.wallet.address}, blockTag: ${blockTag}`);
+    const count = await this.provider.getTransactionCount(this.wallet.address, blockTag);
+    console.log(`[MatchIdSigner] Transaction count:`, count);
+    return count;
   }
 
   async estimateGas(transaction: Deferrable<TransactionRequest>): Promise<BigNumber> {
     if (!this.provider) throw new Error('No provider connected');
+    console.log(`[MatchIdSigner] Estimating gas for transaction:`, transaction);
     const tx = await this.populateTransaction(transaction);
-    return this.provider.estimateGas(tx);
+    console.log(`[MatchIdSigner] Populated transaction for gas estimation:`, tx);
+    const gasEstimate = await this.provider.estimateGas(tx);
+    console.log(`[MatchIdSigner] Gas estimate:`, gasEstimate.toString());
+    return gasEstimate;
   }
+
   async call(transaction: Deferrable<TransactionRequest>, blockTag?: BlockTag): Promise<string> {
     if (!this.provider) throw new Error('No provider connected');
-    console.log(`[MatchIdSigner] Calling transaction`, { to: transaction.to, data: transaction.data });
+    console.log(`[MatchIdSigner] Calling transaction`, transaction, blockTag);
     const tx = await this.populateTransaction(transaction);
-    console.log(`[MatchIdSigner] Populated transaction for call`, { from: tx.from, to: tx.to, nonce: tx.nonce });
-
+    console.log(`[MatchIdSigner] Populated transaction for call`, tx);
     const result = await this.provider.call(tx, blockTag);
-    console.log(`[MatchIdSigner] Call successful`, { result });
+    console.log(`[MatchIdSigner] Call successful`, result);
     return result;
   }
 
   async sendTransaction(transaction: Deferrable<TransactionRequest>): Promise<TransactionResponse> {
     if (!this.provider) throw new Error('No provider connected');
-    console.log(`[MatchIdSigner] Sending transaction`, { to: transaction.to, value: transaction.value });
+    console.log(`[MatchIdSigner] Sending transaction`, transaction);
     const tx = await this.populateTransaction(transaction);
-    console.log(`[MatchIdSigner] Populated transaction for sending`, { 
-      from: tx.from, 
-      to: tx.to, 
-      value: tx.value, 
-      nonce: tx.nonce 
-    });
+    console.log(`[MatchIdSigner] Populated transaction for sending`, tx);
 
     const signedTx = await this.signTransaction(tx);
-    console.log(`[MatchIdSigner] Transaction signed successfully`);
+    console.log(`[MatchIdSigner] Transaction signed successfully, length: ${signedTx.length}`);
     const response = await this.provider.sendTransaction(signedTx);
-    console.log(`[MatchIdSigner] Transaction sent successfully`, { 
-      hash: response.hash, 
-      confirmations: response.confirmations 
+    console.log(`[MatchIdSigner] Transaction sent successfully`, {
+      hash: response.hash,
+      blockNumber: response.blockNumber,
+      confirmations: response.confirmations,
     });
     return response;
   }
 
   async getChainId(): Promise<number> {
     if (!this.provider) throw new Error('No provider connected');
+    console.log(`[MatchIdSigner] Getting chain ID`);
     const network = await this.provider.getNetwork();
+    console.log(`[MatchIdSigner] Chain ID:`, network.chainId);
     return network.chainId;
   }
 
   async getGasPrice(): Promise<BigNumber> {
     if (!this.provider) throw new Error('No provider connected');
+    console.log(`[MatchIdSigner] Getting gas price`);
     const gasPrice = await this.provider.getGasPrice();
+    console.log(`[MatchIdSigner] Gas price:`, gasPrice?.toString() || '0');
     return gasPrice ?? BigNumber.from(0); // Fallback to 0 if null
   }
 
   async getFeeData(): Promise<FeeData> {
     if (!this.provider) throw new Error('No provider connected');
+    console.log(`[MatchIdSigner] Getting fee data`);
     const feeData = await this.provider.getFeeData();
+    console.log(`[MatchIdSigner] Fee data:`, feeData);
     return {
       gasPrice: feeData.gasPrice ?? null,
       maxFeePerGas: feeData.maxFeePerGas ?? null,
@@ -126,11 +161,14 @@ export class MatchIdSigner implements Signer {
 
   async resolveName(name: string): Promise<string> {
     if (!this.provider) throw new Error('No provider connected');
+    console.log(`[MatchIdSigner] Resolving name:`, name);
     const address = await this.provider.resolveName(name);
+    console.log(`[MatchIdSigner] Name resolution result:`, address || 'not resolved');
     return address ?? Promise.reject(`Could not resolve name: ${name}`);
   }
 
-  checkTransaction(transaction: Deferrable<TransactionRequest>): Deferrable<TransactionRequest> {
+  checkTransaction(transaction: Deferrable<TransactionRequest>): Deferrable< TransactionRequest> {
+    console.log(`[MatchIdSigner] Checking transaction:`, transaction);
     return transaction;
   }
 
@@ -138,31 +176,41 @@ export class MatchIdSigner implements Signer {
     if (!this.provider) {
       throw new Error('No provider connected');
     }
-
-    const tx = transaction as TransactionRequest;
-
+  
+    const tx = { ...transaction } as TransactionRequest;
+  
     if (!tx.from) {
       tx.from = await this.getAddress();
     }
-
+  
+    // Set nonce for state-changing transactions
     if (!tx.nonce) {
       tx.nonce = await this.getTransactionCount();
     }
-
-    if (!tx.gasPrice && !tx.maxFeePerGas) {
+  
+    // Set gas price for state-changing transactions
+    if (!tx.gasPrice) {
       const feeData = await this.getFeeData();
-      if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
-        tx.maxFeePerGas = feeData.maxFeePerGas; // Already undefined if null
-        tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas; // Already undefined if null
-      } else {
-        tx.gasPrice = feeData.gasPrice ?? undefined; // Already undefined if null
-      }
+      tx.gasPrice = feeData.gasPrice ?? undefined;
     }
-
+  
+    // Estimate gas limit for state-changing transactions
+    if (!tx.gasLimit && tx.to && tx.data) {
+      const gasEstimate = await this.provider.estimateGas({
+        from: tx.from,
+        to: tx.to,
+        data: tx.data,
+        value: tx.value || 0,
+        gasPrice: tx.gasPrice,
+      });
+      tx.gasLimit = gasEstimate.mul(12).div(10); // Add 20% buffer to gas estimate
+      console.log(`[MatchIdSigner] Estimated gas limit: ${tx.gasLimit.toString()}`);
+    }
+  
     if (!tx.chainId) {
       tx.chainId = await this.getChainId();
     }
-
+  
     return tx;
   }
 
@@ -175,7 +223,7 @@ export class MatchIdSigner implements Signer {
   async signTypedData(
     domain: TypedDataDomain,
     types: Record<string, Array<TypedDataField>>,
-    value: Record<string, any>
+    value: Record<string, any>,
   ): Promise<string> {
     // @ts-ignore
     const typedData: TypedDataDefinition = { domain, types, message: value };

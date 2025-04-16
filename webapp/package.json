@@ -10,7 +10,7 @@
 	},
 	"dependencies": {
 		"@0xfutbol/constants": "^1.0.30",
-		"@0xfutbol/id": "^2.0.14",
+		"@0xfutbol/id": "^2.0.52",
 		"@nextui-org/react": "^2.4.6",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",

@@ -1,19 +1,25 @@
 import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id-sign";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "@/hooks";
-import { accountService, authService } from "@/services";
 import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 
+import { AccountService, AuthService } from "@/services";
 import { Signer } from "ethers";
 import { useWeb3Context } from "./Web3Context";
 
-type AuthContextProviderProps = { children: React.ReactNode };
+type AuthContextProviderProps = {
+  backendUrl: string;
+  children: React.ReactNode
+};
 
-const useAuthContextState = () => {
+const useAuthContextState = (backendUrl: string) => {
   const { address, status, signer } = useWeb3Context();
 
   useReferrerParam();
+
+  const authService = useMemo(() => new AuthService(backendUrl), [backendUrl]);
+  const accountService = useMemo(() => new AccountService(backendUrl), [backendUrl]);
 
   const username = useRef<string | undefined>(undefined);
   const validJWT = useRef<string | undefined>(undefined);
@@ -163,8 +169,8 @@ const useAuthContextState = () => {
 
 export const AuthContext = React.createContext<ReturnType<typeof useAuthContextState> | undefined>(undefined);
 
-export const AuthContextProvider = ({ children }: AuthContextProviderProps) => {
-  const state = useAuthContextState();
+export const AuthContextProvider = ({ backendUrl, children }: AuthContextProviderProps) => {
+  const state = useAuthContextState(backendUrl);
   return <AuthContext.Provider value={state}>{children}</AuthContext.Provider>;
 };
 
