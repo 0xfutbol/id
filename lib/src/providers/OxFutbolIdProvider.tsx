@@ -1,10 +1,10 @@
+import { ChainName } from "@0xfutbol/constants";
 import { MatchProvider } from "@matchain/matchid-sdk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Signer } from "ethers";
 import * as React from "react";
 import { createContext } from "react";
-import { AutoConnect, ThirdwebProvider } from "thirdweb/react";
-
-import { thirdwebClient } from "@/config";
+import { ThirdwebProvider } from "thirdweb/react";
 
 import { AuthContextProvider, useAuthContext } from "./AuthContext";
 import { useWeb3Context, Web3ContextProvider } from "./Web3Context";
@@ -13,11 +13,33 @@ type OxFutbolIdProviderProps = {
   children: React.ReactNode;
 }
 
-const useOxFutbolIdState = () => {
+type OxFutbolIdState = {
+  // web3
+  address?: string;
+  chainName?: ChainName;
+  signer?: Signer;
+  status: string;
+  switchingChain: boolean;
+  web3Ready: boolean;
+  connect: (walletKey: string) => Promise<void>;
+  disconnect: () => Promise<void>;
+  switchChainAndThen: <T extends void>(chainId: number, action: () => Promise<T>) => Promise<void>;
+  // auth
+  isAuthenticated: boolean;
+  isClaimPending: boolean;
+  isWaitingForSignature: boolean;
+  username?: string;
+  claim: (username: string) => Promise<void>;
+}
+
+const useOxFutbolIdState = (): OxFutbolIdState => {
   const authContext = useAuthContext();
   const web3Context = useWeb3Context();
 
-  return { ...web3Context, ...authContext };
+  return {
+    ...authContext,
+    ...web3Context,
+  };
 };
 
 export const OxFutbolIdContext = createContext<ReturnType<typeof useOxFutbolIdState> | undefined>(undefined);
@@ -54,7 +76,6 @@ export function OxFutbolIdProvider({ children }: OxFutbolIdProviderProps) {
           <Web3ContextProvider>
             <AuthContextProvider>
               <OxFutbolIdInnerProvider>
-                <AutoConnect client={thirdwebClient} />
                 {children}
               </OxFutbolIdInnerProvider>
             </AuthContextProvider>
