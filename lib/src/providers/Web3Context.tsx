@@ -1,14 +1,17 @@
 import { ChainName } from "@0xfutbol/constants";
 import { Signer } from "ethers";
 import * as React from "react";
-import { createContext, useCallback, useState } from "react";
+import { createContext, useCallback } from "react";
 import { AutoConnect } from "thirdweb/react";
 import { createWallet, inAppWallet } from "thirdweb/wallets";
 
 import { thirdwebClient } from "@/config";
 
+import { useLocalStorage } from "react-use";
 import { MatchIdContextProvider, useMatchIdContext } from "./MatchIdContext";
 import { ThirdwebContextProvider, useThirdwebContext } from "./ThirdwebContext";
+
+const OxFUTBOL_ID_PROVIDER = "OxFUTBOL_ID_PROVIDER";
 
 export const WALLET_OPTIONS = [
   {
@@ -105,7 +108,7 @@ const useWeb3ContextState = (): Web3ContextState => {
   const matchIdContext = useMatchIdContext();
   const thirdwebContext = useThirdwebContext();
 
-  const [walletProvider, setWalletProvider] = useState<"matchain_id" | "thirdweb" | "unknown">("unknown");
+  const [walletProvider, setWalletProvider] = useLocalStorage<"matchain_id" | "thirdweb" | "unknown">(OxFUTBOL_ID_PROVIDER, "unknown");
 
   const connect = useCallback(async (walletKey: string) => {
     const option = WALLET_OPTIONS.find((option) => option.key === walletKey);
@@ -152,27 +155,27 @@ const useWeb3ContextState = (): Web3ContextState => {
       matchain_id: matchIdContext.address,
       thirdweb: thirdwebContext.address,
       unknown: undefined
-    }[walletProvider],
+    }[walletProvider!],
     chainName: {
       matchain_id: matchIdContext.chainName,
       thirdweb: thirdwebContext.chainName,
       unknown: undefined
-    }[walletProvider],
+    }[walletProvider!],
     signer: {
       matchain_id: matchIdContext.signer,
       thirdweb: thirdwebContext.signer,
       unknown: undefined
-    }[walletProvider],
+    }[walletProvider!],
     status: {
       matchain_id: matchIdContext.status,
       thirdweb: thirdwebContext.status,
       unknown: "unknown"
-    }[walletProvider],
+    }[walletProvider!],
     switchingChain: {
       matchain_id: matchIdContext.switchingChain,
       thirdweb: thirdwebContext.switchingChain,
       unknown: false
-    }[walletProvider],
+    }[walletProvider!],
     web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
     connect,
     disconnect,

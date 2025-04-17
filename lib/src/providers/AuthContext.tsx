@@ -15,6 +15,26 @@ type AuthContextProviderProps = {
 
 const useAuthContextState = (backendUrl: string) => {
   const { address, status, signer } = useWeb3Context();
+  
+  const prevValues = useRef({ address, status, signer });
+  
+  useEffect(() => {
+    const addressChanged = prevValues.current.address !== address;
+    const statusChanged = prevValues.current.status !== status;
+    const signerChanged = prevValues.current.signer !== signer;
+    
+    if (addressChanged || statusChanged || signerChanged) {
+      console.debug("[0xFútbol ID] Web3Context values changed:", {
+        address: addressChanged ? { from: prevValues.current.address, to: address } : 'unchanged',
+        status: statusChanged ? { from: prevValues.current.status, to: status } : 'unchanged',
+        signer: signerChanged ? { from: prevValues.current.signer ? 'connected' : 'undefined', to: signer ? 'connected' : 'undefined' } : 'unchanged'
+      });
+      
+      prevValues.current = { address, status, signer };
+    }
+  }, [address, status, signer]);
+
+  console.debug("[0xFútbol ID] AuthContextState values:", { address, status, signer });
 
   useReferrerParam();
 
