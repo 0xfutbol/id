@@ -22,12 +22,12 @@ const useMatchIdContextState = () => {
   const chainId = useRef<number | undefined>(undefined);
   const currentAddress = useRef<string | undefined>(undefined);
   const status = useRef<"connected" | "disconnected" | "unknown">("unknown");
-  const switchingChain = useRef(false);
   const walletReady = useRef(false);
   const web3Ready = useRef(false);
-
+  
   const [chainName, setChainName] = useState<ChainName | undefined>("matchain");
   const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  const [switchingChain, setSwitchingChain] = useState(false);
 
   const connect = useCallback(async () => {
     if (!web3Ready.current) {
@@ -53,11 +53,11 @@ const useMatchIdContextState = () => {
   }, []);
 
   const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<unknown>) => {
-    switchingChain.current = true;
+    setSwitchingChain(true);
     chain.setChainId(chainId);
     setChainName(getChainName(chainId));
     await action();
-    switchingChain.current = false;
+    setSwitchingChain(false);
   }, [chain]);
 
   useEffect(() => {
@@ -114,7 +114,7 @@ const useMatchIdContextState = () => {
     chainName,
     signer,
     status: status.current,
-    switchingChain: switchingChain.current,
+    switchingChain,
     web3Ready: web3Ready.current,
     connect,
     disconnect,
