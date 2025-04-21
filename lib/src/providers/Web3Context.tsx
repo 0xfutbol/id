@@ -1,5 +1,5 @@
 import { ChainName } from "@0xfutbol/constants";
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 import * as React from "react";
 import { createContext, useCallback } from "react";
 import { AutoConnect } from "thirdweb/react";
@@ -101,6 +101,7 @@ type Web3ContextState = {
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
+  nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
   switchChainAndThen: <T extends void>(chainId: number, action: () => Promise<T>) => Promise<void>;
 }
 
@@ -135,6 +136,17 @@ const useWeb3ContextState = (): Web3ContextState => {
       await matchIdContext.disconnect();
     } else {
       throw new Error(`Invalid provider: ${walletProvider}`);
+    }
+  }, [thirdwebContext, walletProvider]);
+
+  const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
+    if (walletProvider === "thirdweb") {
+      return thirdwebContext.nativeBalanceOf(address, chainId);
+    } else if (walletProvider === "matchain_id") {
+      return matchIdContext.nativeBalanceOf(address, chainId);
+    } else {
+      console.warn("No provider found for native balance of", address, chainId);
+      return BigNumber.from(0);
     }
   }, [thirdwebContext, walletProvider]);
 
@@ -179,6 +191,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
     connect,
     disconnect,
+    nativeBalanceOf,
     switchChainAndThen
   };
 };

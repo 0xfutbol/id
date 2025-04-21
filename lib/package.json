@@ -1,6 +1,6 @@
 {
   "name": "@0xfutbol/id",
-  "version": "2.0.114",
+  "version": "2.0.115",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
   "types": "dist/index.d.ts",

@@ -4,7 +4,7 @@ import React, { createContext, ReactNode, useCallback, useEffect, useRef, useSta
 
 import { MatchainConnect } from "@/components";
 import { getChainName, MatchIdSigner } from "@/utils";
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 
 type MatchIdContextProviderProps = {
   children: ReactNode;
@@ -46,6 +46,11 @@ const useMatchIdContextState = () => {
   const disconnect = useCallback(async () => {
     await userInfo.logout();
   }, [userInfo]);
+
+  const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
+    console.warn("[MatchIdContext] nativeBalanceOf not implemented");
+    return BigNumber.from(0);
+  }, []);
 
   const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<unknown>) => {
     switchingChain.current = true;
@@ -98,7 +103,7 @@ const useMatchIdContextState = () => {
     status.current = isConnected ? "connected" : "disconnected";
     web3Ready.current = isConnected ? walletReady.current : true;
 
-    if (walletReady.current) {
+    if (currentAddress.current && walletReady.current) {
       const newSigner = new MatchIdSigner(chain, wallet);
       setSigner(newSigner);
     }
@@ -113,6 +118,7 @@ const useMatchIdContextState = () => {
     web3Ready: web3Ready.current,
     connect,
     disconnect,
+    nativeBalanceOf,
     switchChainAndThen
   };
 };

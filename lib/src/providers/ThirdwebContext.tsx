@@ -2,11 +2,11 @@ import { ChainName } from "@0xfutbol/constants";
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { AutoConnect, useActiveWallet, useActiveWalletConnectionStatus, useConnectModal } from "thirdweb/react";
-import { Wallet } from "thirdweb/wallets";
+import { getWalletBalance, Wallet } from "thirdweb/wallets";
 
 import { chains, thirdwebClient } from "@/config";
 import { getChainName } from "@/utils";
-import { Signer } from "ethers";
+import { BigNumber, Signer } from "ethers";
 
 type ThirdwebContextProviderProps = {
   children: ReactNode;
@@ -36,6 +36,16 @@ const useThirdwebContextState = () => {
   const disconnect = useCallback(async () => {
     await activeWallet?.disconnect();
   }, [activeWallet]);
+
+  const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
+    const balance = await getWalletBalance({
+      client: thirdwebClient,
+      chain: chains[getChainName(chainId) as ChainName]!.ref,
+      address
+    });
+
+    return BigNumber.from(balance.value);
+  }, []);
 
   const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<unknown>) => {
     if (!activeWallet) return;
@@ -85,6 +95,7 @@ const useThirdwebContextState = () => {
     web3Ready: status === "connected" || status === "disconnected",
     connect,
     disconnect,
+    nativeBalanceOf,
     switchChainAndThen
   };
 };
