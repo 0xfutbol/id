@@ -17,6 +17,7 @@ export const chains = {
       id: networkConfig.boba.chainId,
       name: "Boba Network",
       nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+      rpc: networkConfig.boba.rpcEndpoint
     })
   },
   ethereumSepolia: {
@@ -31,6 +32,7 @@ export const chains = {
       id: networkConfig.matchain.chainId,
       name: "Matchain",
       nativeCurrency: { name: "BNB", symbol: "BNB", decimals: 18 },
+      rpc: networkConfig.matchain.rpcEndpoint
     })
   },
   polygon: {
@@ -43,15 +45,16 @@ export const chains = {
     icon: "https://res.coinpaper.com/coinpaper/SKL_q1dnei.png",
     ref: defineChain({
       id: networkConfig.skaleNebula.chainId,
-      name: "Skale Nebula Hub",
-      nativeCurrency: { name: "SKL", symbol: "SKL", decimals: 18 },
       blockExplorers: [
         {
           name: "Skale Nebula Hub Explorer",
           url: "https://green-giddy-denebola.explorer.mainnet.skalenodes.com",
           apiUrl: "https://green-giddy-denebola.explorer.mainnet.skalenodes.com/api",
         },
-      ]
+      ],
+      name: "Skale Nebula Hub",
+      nativeCurrency: { name: "SKL", symbol: "SKL", decimals: 18 },
+      rpc: networkConfig.skaleNebula.rpcEndpoint
     })
   },
   xdc: {
@@ -59,15 +62,16 @@ export const chains = {
     icon: "https://s2.coinmarketcap.com/static/img/coins/64x64/2634.png",
     ref: defineChain({
       id: networkConfig.xdc.chainId,
-      name: "XDC Network",
-      nativeCurrency: { name: "XDC", symbol: "XDC", decimals: 18 },
       blockExplorers: [
         {
           name: "XDC Network Explorer",
           url: "https://xdcscan.com",
           apiUrl: "https://xdcscan.com/api",
         },
-      ]
+      ],
+      name: "XDC Network",
+      nativeCurrency: { name: "XDC", symbol: "XDC", decimals: 18 },
+      rpc: networkConfig.xdc.rpcEndpoint
     })
   }
 }

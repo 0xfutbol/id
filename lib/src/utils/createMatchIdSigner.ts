@@ -1,17 +1,51 @@
+import { chains } from '@/config';
 import { BlockTag, FeeData, Provider, TransactionRequest, TransactionResponse } from '@ethersproject/abstract-provider';
 import { Hooks } from '@matchain/matchid-sdk-react';
 import { BigNumber, ethers, Signer, TypedDataDomain, TypedDataField } from 'ethers';
 import { Deferrable } from 'ethers/lib/utils';
 import { TypedDataDefinition } from 'viem';
 
+function getChainConfig(chainId: number) {
+  const chain = Object.entries(chains).find(([, config]) => config.ref.id === chainId);
+
+  if (!chain) {
+    throw new Error(`Chain not found for chainId: ${chainId}`);
+  }
+
+  const [key, chainDef] = chain;
+
+  const config = {
+    id: chainDef.ref.id,
+    name: chainDef.ref.name ?? key.toUpperCase(),
+    nativeCurrency: {
+      name: chainDef.ref.nativeCurrency?.name ?? 'UNKNOWN',
+      symbol: chainDef.ref.nativeCurrency?.symbol ?? 'UNKNOWN',
+      decimals: chainDef.ref.nativeCurrency?.decimals ?? 18,
+    },
+    rpcUrls: {
+      default: {
+        http: [chainDef.ref.rpc],
+      },
+    },
+  };
+
+  const provider = new ethers.providers.JsonRpcProvider(chainDef.ref.rpc);
+
+  return {
+    config,
+    provider,
+  };
+}
+
 export class MatchIdSigner implements Signer {
   _isSigner: boolean = true;
+  chain: ReturnType<typeof getChainConfig>["config"];
   provider?: Provider;
 
-  constructor(private chain: ReturnType<typeof Hooks.useMatchChain>, private wallet: ReturnType<typeof Hooks.useWallet>) {
-    this.provider = chain.chain?.rpcUrls.default.http[0]
-      ? new ethers.providers.JsonRpcProvider(chain.chain.rpcUrls.default.http[0])
-      : undefined;
+  constructor(private chainId: number, private wallet: ReturnType<typeof Hooks.useWallet>) {
+    const { config, provider } = getChainConfig(chainId);
+    this.chain = config;
+    this.provider = provider;
     console.log(`[MatchIdSigner] Initialized with provider:`, this.provider ? 'connected' : 'undefined');
   }
 
@@ -41,9 +75,10 @@ export class MatchIdSigner implements Signer {
     }
 
     console.log({
-      chain: this.chain.chain!,
+      chain: this.chain,
       transaction: {
-        chainId: tx.chainId,
+        type: "eip2930",
+        chainId: this.chain.id,
         nonce: parseInt(tx.nonce?.toString() ?? '0'),
         gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
         gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
@@ -54,10 +89,10 @@ export class MatchIdSigner implements Signer {
     });
   
     const signedTx = await this.wallet?.signTransaction?.({
-      chain: this.chain.chain!,
+      chain: this.chain,
       transaction: {
         type: "eip2930",
-        chainId: this.chain.chain!.id,
+        chainId: this.chain.id,
         nonce: parseInt(tx.nonce?.toString() ?? '0'),
         gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
         gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
@@ -71,10 +106,25 @@ export class MatchIdSigner implements Signer {
   }
 
   connect(provider: Provider): Signer {
-    console.log(`[MatchIdSigner] Connecting to new provider`);
-    const newSigner = new MatchIdSigner(this.chain, this.wallet);
-    newSigner.provider = provider;
-    return newSigner;
+    // @ts-ignore
+    const chainId = provider._network?.chainId;
+
+    if (chainId) {
+      console.log(`[MatchIdSigner] Connected to existing provider on chain:`, chainId);
+      const { config, provider } = getChainConfig(chainId);
+      this.chain = config;
+      this.provider = provider;
+      return new MatchIdSigner(chainId, this.wallet);
+    } else {
+      console.log(`[MatchIdSigner] Connecting to new provider`);
+      provider.getNetwork().then((network) => {
+        console.log(`[MatchIdSigner] Connected to new provider:`, network.chainId);
+        const { config, provider } = getChainConfig(network.chainId);
+        this.chain = config;
+        this.provider = provider;
+      });
+      return this;
+    }
   }
 
   async getBalance(blockTag?: BlockTag): Promise<BigNumber> {
@@ -107,9 +157,15 @@ export class MatchIdSigner implements Signer {
     if (!this.provider) throw new Error('No provider connected');
     console.log(`[MatchIdSigner] Calling transaction`, transaction, blockTag);
     const tx = await this.populateTransaction(transaction);
+    delete tx.nonce;
+    delete tx.gasPrice;
+    delete tx.gasLimit;
     console.log(`[MatchIdSigner] Populated transaction for call`, tx);
     const result = await this.provider.call(tx, blockTag);
     console.log(`[MatchIdSigner] Call successful`, result);
+    if (result === '0x') {
+      throw new Error('Contract call reverted with no data');
+    }
     return result;
   }
 
@@ -167,7 +223,7 @@ export class MatchIdSigner implements Signer {
     return address ?? Promise.reject(`Could not resolve name: ${name}`);
   }
 
-  checkTransaction(transaction: Deferrable<TransactionRequest>): Deferrable< TransactionRequest> {
+  checkTransaction(transaction: Deferrable<TransactionRequest>): Deferrable<TransactionRequest> {
     console.log(`[MatchIdSigner] Checking transaction:`, transaction);
     return transaction;
   }

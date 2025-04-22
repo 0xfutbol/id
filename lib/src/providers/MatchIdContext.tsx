@@ -1,5 +1,5 @@
 import { ChainName } from "@0xfutbol/constants";
-import { Hooks } from "@matchain/matchid-sdk-react";
+import { Chains, Hooks } from "@matchain/matchid-sdk-react";
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { MatchainConnect } from "@/components";
@@ -11,15 +11,13 @@ type MatchIdContextProviderProps = {
 }
 
 const useMatchIdContextState = () => {
-  const chain = Hooks.useMatchChain();
   const userInfo = Hooks.useUserInfo();
   const wallet = Hooks.useWallet();
 
   console.log("[MatchIdContext] userInfo", userInfo);
   console.log("[MatchIdContext] wallet", wallet);
-  console.log("[MatchIdContext] chain", chain);
 
-  const chainId = useRef<number | undefined>(undefined);
+  const chainId = useRef<number>(Chains.MatchMain.id);
   const currentAddress = useRef<string | undefined>(undefined);
   const status = useRef<"connected" | "disconnected" | "unknown">("unknown");
   const walletReady = useRef(false);
@@ -52,16 +50,16 @@ const useMatchIdContextState = () => {
     return BigNumber.from(0);
   }, []);
 
-  const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<unknown>) => {
+  const switchChainAndThen = useCallback(async (newChainId: number, action: () => Promise<unknown>) => {
     setSwitchingChain(true);
-    chain.setChainId(chainId);
-    setChainName(getChainName(chainId));
+    chainId.current = newChainId;
+    setChainName(getChainName(newChainId));
     await action();
     setSwitchingChain(false);
-  }, [chain]);
+  }, []);
 
   useEffect(() => {
-    const matchainChainId = chain.chainId ?? undefined;
+    const matchainChainId = chainId.current ?? undefined;
     const matchainAddress = wallet.address ?? undefined;
     const matchainWalletReady = wallet.walletReady ?? false;
 
@@ -104,10 +102,10 @@ const useMatchIdContextState = () => {
     web3Ready.current = isConnected ? walletReady.current : true;
 
     if (currentAddress.current && walletReady.current) {
-      const newSigner = new MatchIdSigner(chain, wallet);
+      const newSigner = new MatchIdSigner(chainId.current, wallet);
       setSigner(newSigner);
     }
-  }, [chain, wallet]);
+  }, [wallet]);
 
   return {
     address: currentAddress.current,
