@@ -86,13 +86,10 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     web3Ready.current = isConnected ? walletReady.current : true;
 
     if (currentAddress.current && walletReady.current) {
-      // @ts-ignore
-      const signers: Record<ChainName, Signer> = {};
-        
-      for (const chainName of Object.keys(chains) as ChainName[]) {
-        const newSigner = new MatchIdSigner(chainId.current, wallet);
-        signers[chainName] = newSigner;
-      }
+      const signers = chains.reduce((acc, chainName) => {
+        acc[chainName] = new MatchIdSigner(chainId.current, wallet);
+        return acc;
+      }, {} as Record<ChainName, Signer>);
 
       setSigner(signers);
     }

@@ -95,6 +95,7 @@ type Web3ContextProviderProps = {
 
 type Web3ContextState = {
   address?: string;
+  defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
   status: string;
   web3Ready: boolean;
@@ -103,7 +104,7 @@ type Web3ContextState = {
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
 }
 
-const useWeb3ContextState = (chains: Array<ChainName>): Web3ContextState => {
+const useWeb3ContextState = (): Web3ContextState => {
   const matchIdContext = useMatchIdContext();
   const thirdwebContext = useThirdwebContext();
 
@@ -154,6 +155,11 @@ const useWeb3ContextState = (chains: Array<ChainName>): Web3ContextState => {
       thirdweb: thirdwebContext.address,
       unknown: undefined
     }[walletProvider!],
+    defaultChain: {
+      matchain_id: "matchain" as ChainName,
+      thirdweb: "xdc" as ChainName,
+      unknown: undefined
+    }[walletProvider!],
     signer: {
       matchain_id: matchIdContext.signer,
       thirdweb: thirdwebContext.signer,
@@ -173,8 +179,8 @@ const useWeb3ContextState = (chains: Array<ChainName>): Web3ContextState => {
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);
 
-function Web3ContextInnerProvider({ chains, children }: Web3ContextProviderProps) {
-  const state = useWeb3ContextState(chains);
+function Web3ContextInnerProvider({ children }: Omit<Web3ContextProviderProps, "chains">) {
+  const state = useWeb3ContextState();
 
   return (
     <Web3Context.Provider value={state}>
@@ -187,7 +193,7 @@ export function Web3ContextProvider({ chains, children }: Web3ContextProviderPro
   return (
     <ThirdwebContextProvider chains={chains}>
       <MatchIdContextProvider chains={chains}>
-        <Web3ContextInnerProvider chains={chains}>
+        <Web3ContextInnerProvider>
           {children}
         </Web3ContextInnerProvider>
       </MatchIdContextProvider>

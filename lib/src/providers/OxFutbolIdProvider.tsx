@@ -18,6 +18,7 @@ type OxFutbolIdProviderProps = {
 type OxFutbolIdState = {
   // web3
   address?: string;
+  defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
   status: string;
   web3Ready: boolean;
@@ -74,7 +75,7 @@ export function OxFutbolIdProvider({ backendUrl, chains, children }: OxFutbolIdP
       <ThirdwebProvider>
         <MatchIDProvider>
           <Web3ContextProvider chains={chains}>
-            <AuthContextProvider backendUrl={backendUrl}>
+            <AuthContextProvider backendUrl={backendUrl} chainToSign="polygon">
               <OxFutbolIdInnerProvider>
                 {children}
               </OxFutbolIdInnerProvider>

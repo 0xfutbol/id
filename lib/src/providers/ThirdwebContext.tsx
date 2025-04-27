@@ -50,22 +50,22 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
       const account = activeWallet?.getAccount();
 
       if (activeWallet && account) {
-        // @ts-ignore
-        const signers: Record<ChainName, Signer> = {};
-        
-        for (const chainName of Object.keys(chains) as ChainName[]) {
+        const signers = await chains.reduce(async (accPromise, chainName) => {
+          const acc = await accPromise;
           const chainRef = chainsConfig[chainName]?.ref;
-          if (chainRef) {
-            const ethersSigner = await ethers5Adapter.signer.toEthers({
-              account: account,
-              client: thirdwebClient,
-              chain: chainRef
-            });
-            signers[chainName] = ethersSigner;
-          } else {
-            console.warn(`Chain ${chainName} not found in chainsConfig`);
+          
+          if (!chainRef) {
+            throw new Error(`Chain ${chainName} not found in chainsConfig`);
           }
-        }
+          
+          const ethersSigner = await ethers5Adapter.signer.toEthers({
+            account: account,
+            client: thirdwebClient,
+            chain: chainRef
+          });
+          
+          return { ...acc, [chainName]: ethersSigner };
+        }, Promise.resolve({} as Record<ChainName, Signer>));
         
         setSigner(signers);
       } else {
