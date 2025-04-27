@@ -25,6 +25,7 @@ type OxFutbolIdState = {
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
+  switchChain: (chain: ChainName) => Promise<void>;
   // auth
   isAuthenticated: boolean;
   isClaimPending: boolean;

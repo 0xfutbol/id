@@ -49,6 +49,10 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     return BigNumber.from(0);
   }, []);
 
+  const switchChain = useCallback(async (chain: ChainName) => {
+    // DO NOTHING
+  }, []);
+
   useEffect(() => {
     const matchainChainId = chainId.current ?? undefined;
     const matchainAddress = wallet.address ?? undefined;
@@ -102,7 +106,8 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     web3Ready: web3Ready.current,
     connect,
     disconnect,
-    nativeBalanceOf
+    nativeBalanceOf,
+    switchChain
   };
 };
 

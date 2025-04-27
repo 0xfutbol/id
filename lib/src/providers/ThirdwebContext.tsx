@@ -45,6 +45,10 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
     return BigNumber.from(balance.value);
   }, []);
 
+  const switchChain = useCallback(async (chain: ChainName) => {
+    await activeWallet?.switchChain(chainsConfig[chain]!.ref);
+  }, [activeWallet]);
+
   useEffect(() => {
     const buildSigners = async () => {
       const account = activeWallet?.getAccount();
@@ -83,7 +87,8 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
     web3Ready: status === "connected" || status === "disconnected",
     connect,
     disconnect,
-    nativeBalanceOf
+    nativeBalanceOf,
+    switchChain
   };
 };
 

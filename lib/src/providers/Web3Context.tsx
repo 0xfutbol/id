@@ -102,6 +102,7 @@ type Web3ContextState = {
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
+  switchChain: (chain: ChainName) => Promise<void>;
 }
 
 const useWeb3ContextState = (): Web3ContextState => {
@@ -126,7 +127,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     }
 
     setWalletProvider(option.provider);
-  }, [thirdwebContext.connect]);
+  }, [thirdwebContext, matchIdContext]);
 
   const disconnect = useCallback(async () => {
     if (walletProvider === "thirdweb") {
@@ -146,6 +147,14 @@ const useWeb3ContextState = (): Web3ContextState => {
     } else {
       console.warn("No provider found for native balance of", address, chainId);
       return BigNumber.from(0);
+    }
+  }, [thirdwebContext, walletProvider]);
+
+  const switchChain = useCallback(async (chain: ChainName) => {
+    if (walletProvider === "thirdweb") {
+      await thirdwebContext.switchChain(chain);
+    } else if (walletProvider === "matchain_id") {
+      await matchIdContext.switchChain(chain);
     }
   }, [thirdwebContext, walletProvider]);
 
@@ -173,7 +182,8 @@ const useWeb3ContextState = (): Web3ContextState => {
     web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
     connect,
     disconnect,
-    nativeBalanceOf
+    nativeBalanceOf,
+    switchChain
   };
 };
 
