@@ -3,14 +3,15 @@ import { Chains, Hooks } from "@matchain/matchid-sdk-react";
 import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
 
 import { MatchainConnect } from "@/components";
-import { getChainName, MatchIdSigner } from "@/utils";
+import { MatchIdSigner } from "@/utils";
 import { BigNumber, Signer } from "ethers";
 
 type MatchIdContextProviderProps = {
+  chains: Array<ChainName>;
   children: ReactNode;
 }
 
-const useMatchIdContextState = () => {
+const useMatchIdContextState = (chains: Array<ChainName>) => {
   const userInfo = Hooks.useUserInfo();
   const wallet = Hooks.useWallet();
 
@@ -23,9 +24,7 @@ const useMatchIdContextState = () => {
   const walletReady = useRef(false);
   const web3Ready = useRef(false);
   
-  const [chainName, setChainName] = useState<ChainName | undefined>("matchain");
-  const [signer, setSigner] = useState<Signer | undefined>(undefined);
-  const [switchingChain, setSwitchingChain] = useState(false);
+  const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
 
   const connect = useCallback(async () => {
     if (!web3Ready.current) {
@@ -48,14 +47,6 @@ const useMatchIdContextState = () => {
   const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
     console.warn("[MatchIdContext] nativeBalanceOf not implemented");
     return BigNumber.from(0);
-  }, []);
-
-  const switchChainAndThen = useCallback(async (newChainId: number, action: () => Promise<unknown>) => {
-    setSwitchingChain(true);
-    chainId.current = newChainId;
-    setChainName(getChainName(newChainId));
-    await action();
-    setSwitchingChain(false);
   }, []);
 
   useEffect(() => {
@@ -89,42 +80,39 @@ const useMatchIdContextState = () => {
     currentAddress.current = matchainAddress;
     walletReady.current = matchainWalletReady;
 
-    if (chainId.current !== undefined) {
-      const newChainName = getChainName(chainId.current);
-      setChainName(newChainName);
-    } else {
-      setChainName(undefined);
-    }
-
     const isConnected = Boolean(currentAddress.current);
 
     status.current = isConnected ? "connected" : "disconnected";
     web3Ready.current = isConnected ? walletReady.current : true;
 
     if (currentAddress.current && walletReady.current) {
-      const newSigner = new MatchIdSigner(chainId.current, wallet);
-      setSigner(newSigner);
+      // @ts-ignore
+      const signers: Record<ChainName, Signer> = {};
+        
+      for (const chainName of Object.keys(chains) as ChainName[]) {
+        const newSigner = new MatchIdSigner(chainId.current, wallet);
+        signers[chainName] = newSigner;
+      }
+
+      setSigner(signers);
     }
-  }, [wallet]);
+  }, [chains, wallet]);
 
   return {
     address: currentAddress.current,
-    chainName,
     signer,
     status: status.current,
-    switchingChain,
     web3Ready: web3Ready.current,
     connect,
     disconnect,
-    nativeBalanceOf,
-    switchChainAndThen
+    nativeBalanceOf
   };
 };
 
 export const MatchIdContext = createContext<ReturnType<typeof useMatchIdContextState> | undefined>(undefined);
 
-export function MatchIdContextProvider({ children }: MatchIdContextProviderProps) {
-  const state = useMatchIdContextState();
+export function MatchIdContextProvider({ chains, children }: MatchIdContextProviderProps) {
+  const state = useMatchIdContextState(chains);
 
   return (
     <MatchIdContext.Provider value={state}>

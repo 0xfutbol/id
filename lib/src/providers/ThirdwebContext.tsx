@@ -1,26 +1,24 @@
 import { ChainName } from "@0xfutbol/constants";
-import React, { createContext, ReactNode, useCallback, useEffect, useRef, useState } from "react";
+import React, { createContext, ReactNode, useCallback, useEffect, useState } from "react";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
 import { AutoConnect, useActiveWallet, useActiveWalletConnectionStatus, useConnectModal } from "thirdweb/react";
 import { getWalletBalance, Wallet } from "thirdweb/wallets";
 
-import { chains, thirdwebClient } from "@/config";
+import { chains as chainsConfig, thirdwebClient } from "@/config";
 import { getChainName } from "@/utils";
 import { BigNumber, Signer } from "ethers";
 
 type ThirdwebContextProviderProps = {
+  chains: Array<ChainName>;
   children: ReactNode;
 }
 
-const useThirdwebContextState = () => {
+const useThirdwebContextState = (chains: Array<ChainName>) => {
   const activeWallet = useActiveWallet();
   const status = useActiveWalletConnectionStatus();
   const { connect: openModal } = useConnectModal();
 
-  const switchingChain = useRef(false);
-
-  const [chainName, setChainName] = useState<ChainName | undefined>("polygon");
-  const [signer, setSigner] = useState<Signer | undefined>(undefined);
+  const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
 
   const connect = useCallback(async (wallet: Wallet) => {
     await openModal({
@@ -40,70 +38,59 @@ const useThirdwebContextState = () => {
   const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
     const balance = await getWalletBalance({
       client: thirdwebClient,
-      chain: chains[getChainName(chainId) as ChainName]!.ref,
+      chain: chainsConfig[getChainName(chainId) as ChainName]!.ref,
       address
     });
 
     return BigNumber.from(balance.value);
   }, []);
 
-  const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<unknown>) => {
-    if (!activeWallet) return;
-    if (switchingChain.current) return;
-
-    if (activeWallet.getChain()?.id !== chainId) {
-      console.log("Switching chain", chainId);
-      switchingChain.current = true;
-      const activeChain = Object.values(chains).find((c) => c.ref.id === chainId)!.ref;
-      await activeWallet.switchChain(activeChain);
-      console.log("Switched chain", activeChain);
-      setChainName(getChainName(chainId));
-      switchingChain.current = false;
-      await action();
-    } else {
-      console.log("Executing action on chain", chainId);
-      await action();
-    }
-  }, [activeWallet]);
-
   useEffect(() => {
-    const fetchSigner = async () => {
+    const buildSigners = async () => {
       const account = activeWallet?.getAccount();
-      const chain = chains[chainName as ChainName]?.ref;
 
-      if (activeWallet && account && chain) {
-        const ethersSigner = await ethers5Adapter.signer.toEthers({
-          account: account,
-          client: thirdwebClient,
-          chain: chain
-        });
-        setSigner(ethersSigner);
+      if (activeWallet && account) {
+        // @ts-ignore
+        const signers: Record<ChainName, Signer> = {};
+        
+        for (const chainName of Object.keys(chains) as ChainName[]) {
+          const chainRef = chainsConfig[chainName]?.ref;
+          if (chainRef) {
+            const ethersSigner = await ethers5Adapter.signer.toEthers({
+              account: account,
+              client: thirdwebClient,
+              chain: chainRef
+            });
+            signers[chainName] = ethersSigner;
+          } else {
+            console.warn(`Chain ${chainName} not found in chainsConfig`);
+          }
+        }
+        
+        setSigner(signers);
       } else {
         setSigner(undefined);
       }
     };
 
-    fetchSigner();
-  }, [activeWallet, chainName]);
+    buildSigners();
+  }, [activeWallet, chains]);
 
   return {
     address: activeWallet?.getAccount()?.address,
-    chainName,
     signer,
     status,
-    switchingChain: switchingChain.current,
     web3Ready: status === "connected" || status === "disconnected",
     connect,
     disconnect,
-    nativeBalanceOf,
-    switchChainAndThen
+    nativeBalanceOf
   };
 };
 
 export const ThirdwebContext = createContext<ReturnType<typeof useThirdwebContextState> | undefined>(undefined);
 
-export function ThirdwebContextProvider({ children }: ThirdwebContextProviderProps) {
-  const state = useThirdwebContextState();
+export function ThirdwebContextProvider({ chains, children }: ThirdwebContextProviderProps) {
+  const state = useThirdwebContextState(chains);
 
   return (
     <ThirdwebContext.Provider value={state}>

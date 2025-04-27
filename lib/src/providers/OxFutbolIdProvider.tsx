@@ -11,21 +11,19 @@ import { useWeb3Context, Web3ContextProvider } from "./Web3Context";
 
 type OxFutbolIdProviderProps = {
   backendUrl: string;
+  chains: Array<ChainName>;
   children: React.ReactNode;
 }
 
 type OxFutbolIdState = {
   // web3
   address?: string;
-  chainName?: ChainName;
-  signer?: Signer;
+  signer?: Record<ChainName, Signer>;
   status: string;
-  switchingChain: boolean;
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
-  switchChainAndThen: <T extends void>(chainId: number, action: () => Promise<T>) => Promise<void>;
   // auth
   isAuthenticated: boolean;
   isClaimPending: boolean;
@@ -58,7 +56,7 @@ const MatchIDProvider = ({ children }: { children: React.ReactNode }) => {
   );
 };
 
-function OxFutbolIdInnerProvider({ children }: Omit<OxFutbolIdProviderProps, "backendUrl">) {
+function OxFutbolIdInnerProvider({ children }: Omit<OxFutbolIdProviderProps, "backendUrl" | "chains">) {
   const state = useOxFutbolIdState();
 
   return (
@@ -68,14 +66,14 @@ function OxFutbolIdInnerProvider({ children }: Omit<OxFutbolIdProviderProps, "ba
   );
 }
 
-export function OxFutbolIdProvider({ backendUrl, children }: OxFutbolIdProviderProps) {
+export function OxFutbolIdProvider({ backendUrl, chains, children }: OxFutbolIdProviderProps) {
   const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThirdwebProvider>
         <MatchIDProvider>
-          <Web3ContextProvider>
+          <Web3ContextProvider chains={chains}>
             <AuthContextProvider backendUrl={backendUrl}>
               <OxFutbolIdInnerProvider>
                 {children}

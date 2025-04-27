@@ -89,23 +89,21 @@ export const WALLET_OPTIONS = [
 ];
 
 type Web3ContextProviderProps = {
+  chains: Array<ChainName>;
   children: React.ReactNode;
 }
 
 type Web3ContextState = {
   address?: string;
-  chainName?: ChainName;
-  signer?: Signer;
+  signer?: Record<ChainName, Signer>;
   status: string;
-  switchingChain: boolean;
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
-  switchChainAndThen: <T extends void>(chainId: number, action: () => Promise<T>) => Promise<void>;
 }
 
-const useWeb3ContextState = (): Web3ContextState => {
+const useWeb3ContextState = (chains: Array<ChainName>): Web3ContextState => {
   const matchIdContext = useMatchIdContext();
   const thirdwebContext = useThirdwebContext();
 
@@ -150,27 +148,10 @@ const useWeb3ContextState = (): Web3ContextState => {
     }
   }, [thirdwebContext, walletProvider]);
 
-  const switchChainAndThen = useCallback(async (chainId: number, action: () => Promise<void>) => {
-    if (walletProvider === "thirdweb") {
-      thirdwebContext.switchChainAndThen(chainId, action);
-    } else if (walletProvider === "matchain_id") {
-      matchIdContext.switchChainAndThen(chainId, action);
-    } else {
-      throw new Error(`Invalid provider: ${walletProvider}`);
-    }
-
-    return await action();
-  }, [thirdwebContext, walletProvider]);
-
   return {
     address: {
       matchain_id: matchIdContext.address,
       thirdweb: thirdwebContext.address,
-      unknown: undefined
-    }[walletProvider!],
-    chainName: {
-      matchain_id: matchIdContext.chainName,
-      thirdweb: thirdwebContext.chainName,
       unknown: undefined
     }[walletProvider!],
     signer: {
@@ -183,23 +164,17 @@ const useWeb3ContextState = (): Web3ContextState => {
       thirdweb: thirdwebContext.status,
       unknown: "unknown"
     }[walletProvider!],
-    switchingChain: {
-      matchain_id: matchIdContext.switchingChain,
-      thirdweb: thirdwebContext.switchingChain,
-      unknown: false
-    }[walletProvider!],
     web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
     connect,
     disconnect,
-    nativeBalanceOf,
-    switchChainAndThen
+    nativeBalanceOf
   };
 };
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);
 
-function Web3ContextInnerProvider({ children }: Web3ContextProviderProps) {
-  const state = useWeb3ContextState();
+function Web3ContextInnerProvider({ chains, children }: Web3ContextProviderProps) {
+  const state = useWeb3ContextState(chains);
 
   return (
     <Web3Context.Provider value={state}>
@@ -208,11 +183,11 @@ function Web3ContextInnerProvider({ children }: Web3ContextProviderProps) {
   );
 }
 
-export function Web3ContextProvider({ children }: Web3ContextProviderProps) {
+export function Web3ContextProvider({ chains, children }: Web3ContextProviderProps) {
   return (
-    <ThirdwebContextProvider>
-      <MatchIdContextProvider>
-        <Web3ContextInnerProvider>
+    <ThirdwebContextProvider chains={chains}>
+      <MatchIdContextProvider chains={chains}>
+        <Web3ContextInnerProvider chains={chains}>
           {children}
         </Web3ContextInnerProvider>
       </MatchIdContextProvider>
