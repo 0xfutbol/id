@@ -9,8 +9,8 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
-		"@0xfutbol/constants": "^1.0.30",
-		"@0xfutbol/id": "^2.0.52",
+		"@0xfutbol/constants": "^2.0.12",
+		"@0xfutbol/id": "^2.0.145",
 		"@nextui-org/react": "^2.4.6",
 		"@react-aria/ssr": "3.9.4",
 		"@react-aria/visually-hidden": "3.8.12",
@@ -27,8 +27,7 @@
 		"react": "^18.1.0",
 		"react-dom": "^18.1.0",
 		"react-icons": "^5.3.0",
-		"react-use": "^17.5.1",
-    "thirdweb": "^5.93.15"
+		"react-use": "^17.5.1"
 	},
 	"devDependencies": {
 		"@types/node": "20.5.7",

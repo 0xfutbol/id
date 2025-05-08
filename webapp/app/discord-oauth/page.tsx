@@ -1,7 +1,8 @@
 /* eslint-disable no-console */
 "use client";
 
-import { accountService, useOxFutbolIdContext } from "@0xfutbol/id";
+import { accountService } from "@/services/accountService";
+import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { CircularProgress } from "@nextui-org/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";

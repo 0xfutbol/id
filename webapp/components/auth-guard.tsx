@@ -1,30 +1,59 @@
 "use client";
 
 import { useOxFutbolIdContext } from "@0xfutbol/id";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
 import LoadingScreen from "./loading-screen";
 
-const PUBLIC_ROUTES = ["/", "/logout"];
+const LOGIN_PATH = "/login";
+const PUBLIC_PATHS = [LOGIN_PATH];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
 
-  const { isAuthenticated, status } = useOxFutbolIdContext();
+  const { isAuthenticated, isAuthenticating, web3Ready } = useOxFutbolIdContext();
+  const currentPath = window.location.pathname;
+  const isPublicPath = PUBLIC_PATHS.some((path) => currentPath.startsWith(path));
 
   useEffect(() => {
-    if (!PUBLIC_ROUTES.includes(pathname)) {
-      const timer = setTimeout(() => {
-        if (status === "disconnected") {
-          router.push("/");
-        }
-      }, 3000);
+    console.log("[AuthGuard] State:", { 
+      isAuthenticated, 
+      web3Ready, 
+      currentPath, 
+      isPublicPath 
+    });
 
-      return () => clearTimeout(timer);
+    if (isAuthenticating) {
+      console.log("[AuthGuard] Authenticating...");
+      return;
     }
-  }, [pathname, status, router]);
 
-  return PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? children : <LoadingScreen />;
+    if (!web3Ready) {
+      console.log("[AuthGuard] Web3 not ready yet, waiting...");
+      return;
+    }
+
+    if (isAuthenticated && currentPath === LOGIN_PATH) {
+      console.log("[AuthGuard] User is authenticated and on login page, redirecting to /me");
+      router.push("/me");
+    }
+
+    if (!isAuthenticated && !isPublicPath) {
+      console.log("[AuthGuard] User is not authenticated and not on public path, redirecting to login");
+      router.push(LOGIN_PATH);
+    }
+  }, [currentPath, isAuthenticated, isAuthenticating, web3Ready, router, isPublicPath]);
+
+  console.log("[AuthGuard] Rendering decision:", { 
+    isPublicPath, 
+    isAuthenticated, 
+    renderingChildren: isPublicPath || isAuthenticated 
+  });
+
+  if (isPublicPath) {
+    return children;
+  } else {
+    return isAuthenticated ? children : <LoadingScreen />;
+  }
 }

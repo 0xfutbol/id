@@ -1,29 +1,19 @@
 "use client";
 
 import { AuthUIOrchestrator } from "@0xfutbol/id";
-import { Listbox, ListboxItem } from "@nextui-org/react";
-import Image from "next/image";
-import React, { FormEvent, useCallback, useEffect, useState } from "react";
+import { Image, Listbox, ListboxItem } from "@nextui-org/react";
+import React, { FormEvent, useCallback, useState } from "react";
 
 import { getImgUrl } from "@/utils/getImgUrl";
 
 const AuthForm: React.FC = () => {
   const [username, setUsername] = useState("");
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value.replace(/\s+/g, "-");
 
     setUsername(newUsername);
   }, []);
-
-  if (!isMounted) {
-    return null; // Prevent hydration mismatch by not rendering anything on server
-  }
 
   return (
     <div className="flex flex-col gap-10 max-w-[386px]">
@@ -80,7 +70,7 @@ const AuthForm: React.FC = () => {
                 <button
                   className="w-full px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   type="button"
-                  onClick={onDisconnectClick}
+                  onClick={() => onDisconnectClick("")}
                 >
                   Go Back
                 </button>
@@ -102,7 +92,7 @@ const AuthForm: React.FC = () => {
               instantly.
             </p>
             <Listbox aria-label="Wallet Options" className="p-0 gap-1 my-2">
-              {WALLET_OPTIONS.map((option) => (
+              {WALLET_OPTIONS.map((option: any) => (
                 <ListboxItem
                   key={option.key}
                   className="flex items-center gap-2 w-full p-2 rounded-lg hover:bg-gray-50"

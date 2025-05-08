@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import Main from "./main";
 
 import { fontSans } from "@/config/fonts";
+import { QueryClient } from "@tanstack/react-query";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -20,20 +21,21 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const queryClient = new QueryClient();
   const router = useRouter();
 
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body className={clsx("min-h-screen bg-background font-sans antialiased", fontSans.variable)}>
-        <Main>
-          <NextUIProvider navigate={router.push}>
-            {/* @ts-ignore */}
-            <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+      <body className={clsx("antialiased bg-background font-sans min-h-screen overflow-hidden", fontSans.variable)}>
+        <NextUIProvider navigate={router.push}>
+          {/* @ts-ignore */}
+          <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+            <Main>
               {children}
-            </NextThemesProvider>
-          </NextUIProvider>
-        </Main>
+            </Main>
+          </NextThemesProvider>
+        </NextUIProvider>
       </body>
     </html>
   );

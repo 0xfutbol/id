@@ -1,7 +1,7 @@
 import { ChainName } from "@0xfutbol/constants";
 import { MatchProvider } from "@matchain/matchid-sdk-react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BigNumber, Signer } from "ethers";
+import { BigNumber, Contract, Signer } from "ethers";
 import * as React from "react";
 import { createContext } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
@@ -25,9 +25,11 @@ type OxFutbolIdState = {
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
+  newContract: (chain: ChainName, contractAddress: string, contractAbi: any) => Contract;
   switchChain: (chain: ChainName) => Promise<void>;
   // auth
   isAuthenticated: boolean;
+  isAuthenticating: boolean;
   isClaimPending: boolean;
   isWaitingForSignature: boolean;
   username?: string;

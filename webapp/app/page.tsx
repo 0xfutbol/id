@@ -4,13 +4,12 @@ import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-import { useAppParam } from "@/context/AppContext";
 
 export default function Home() {
   const { isAuthenticated } = useOxFutbolIdContext();
-
-  const app = useAppParam();
   const router = useRouter();
+
+  console.log("isAuthenticated", isAuthenticated);
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -18,7 +17,7 @@ export default function Home() {
     } else {
       router.push("/login");
     }
-  }, [app, router, isAuthenticated]);
+  }, [router, isAuthenticated]);
 
   return null;
 }

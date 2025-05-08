@@ -1,5 +1,5 @@
 import { ChainName } from "@0xfutbol/constants";
-import { BigNumber, Signer } from "ethers";
+import { BigNumber, Contract, Signer } from "ethers";
 import * as React from "react";
 import { createContext, useCallback } from "react";
 import { AutoConnect } from "thirdweb/react";
@@ -102,6 +102,7 @@ type Web3ContextState = {
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
   nativeBalanceOf: (address: string, chainId: number) => Promise<BigNumber>;
+  newContract: (chain: ChainName, contractAddress: string, contractAbi: any) => Contract;
   switchChain: (chain: ChainName) => Promise<void>;
 }
 
@@ -127,7 +128,29 @@ const useWeb3ContextState = (): Web3ContextState => {
     }
 
     setWalletProvider(option.provider);
-  }, [thirdwebContext, matchIdContext]);
+  }, [matchIdContext, thirdwebContext]);
+
+  const newContract = useCallback((chain: ChainName, contractAddress: string, contractAbi: any) => {
+    const signer = (() => {
+      console.debug(`[0xFútbol ID] Creating contract with provider: ${walletProvider}`);
+      switch (walletProvider) {
+        case "matchain_id":
+          console.debug(`[0xFútbol ID] Using matchIdContext signer for chain: ${chain}`);
+          return matchIdContext.signer;
+        case "thirdweb":
+          console.debug(`[0xFútbol ID] Using thirdwebContext signer for chain: ${chain}`);
+          return thirdwebContext.signer;
+        default:
+          console.error(`[0xFútbol ID] Invalid provider: ${walletProvider}`);
+          throw new Error(`Invalid provider: ${walletProvider}`);
+      }
+    })();
+
+    console.debug(`[0xFútbol ID] Creating contract at address: ${contractAddress} on chain: ${chain}`);
+    const contract = new Contract(contractAddress, contractAbi, signer?.[chain]);
+    console.debug(`[0xFútbol ID] Contract created successfully`);
+    return contract;
+  }, [matchIdContext, thirdwebContext, walletProvider]);
 
   const disconnect = useCallback(async () => {
     if (walletProvider === "thirdweb") {
@@ -137,7 +160,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     } else {
       throw new Error(`Invalid provider: ${walletProvider}`);
     }
-  }, [thirdwebContext, walletProvider]);
+  }, [matchIdContext, thirdwebContext, walletProvider]);
 
   const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
     if (walletProvider === "thirdweb") {
@@ -148,7 +171,7 @@ const useWeb3ContextState = (): Web3ContextState => {
       console.warn("No provider found for native balance of", address, chainId);
       return BigNumber.from(0);
     }
-  }, [thirdwebContext, walletProvider]);
+  }, [matchIdContext, thirdwebContext, walletProvider]);
 
   const switchChain = useCallback(async (chain: ChainName) => {
     if (walletProvider === "thirdweb") {
@@ -156,7 +179,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     } else if (walletProvider === "matchain_id") {
       await matchIdContext.switchChain(chain);
     }
-  }, [thirdwebContext, walletProvider]);
+  }, [matchIdContext, thirdwebContext, walletProvider]);
 
   return {
     address: {
@@ -183,6 +206,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     connect,
     disconnect,
     nativeBalanceOf,
+    newContract,
     switchChain
   };
 };
