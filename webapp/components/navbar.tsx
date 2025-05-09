@@ -17,13 +17,25 @@ export const Navbar = () => {
 
   const copyToClipboard = useCallback(async () => {
     if (address) {
-      await navigator.clipboard.writeText(address);
+      try {
+        await navigator.clipboard.writeText(address);
 
-      addToast({
-        title: "Address copied",
-        description: "Address has been copied to clipboard",
-        color: "success",
-      });
+        addToast({
+          title: "Address copied",
+          description: "Address has been copied to clipboard",
+          color: "success",
+          position: "bottom-center",
+          autoClose: true,
+        });
+      } catch (error) {
+        addToast({
+          title: "Copy failed",
+          description: error.message ?? "Failed to copy address to clipboard",
+          color: "danger",
+          position: "bottom-center",
+          autoClose: true,
+        });
+      }
     }
   }, [address]);
 

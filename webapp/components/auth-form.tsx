@@ -18,10 +18,10 @@ const AuthForm: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col align-center gap-10 max-w-[386px]">
+    <div className="flex flex-col justify-center gap-10 max-w-[386px]">
       <Image
-        alt="MetaSoccer"
-        className="h-10 w-auto invert"
+        alt="0xFútbol ID"
+        className="h-10 w-auto"
         src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png?v=2")}
         radius="none"
       />
