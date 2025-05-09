@@ -1,4 +1,4 @@
-import { Avatar, Button, Card, CardBody } from "@heroui/react";
+import { Avatar, Card, CardBody } from "@heroui/react";
 import { SiDiscord } from "react-icons/si";
 
 interface ProfileHeaderProps {
@@ -33,19 +33,11 @@ export function ProfileHeader({
             </div>
           </div>
           <div className="flex items-center">
-            {discordAccount ? (
+            {discordAccount && (
               <div className="flex items-center gap-2">
                 <SiDiscord size={24} />
                 <p>{discordAccount}</p>
               </div>
-            ) : (
-              <Button 
-                color="primary" 
-                startContent={<SiDiscord size={24} />} 
-                onClick={onConnectDiscord}
-              >
-                Connect Discord
-              </Button>
             )}
           </div>
         </div>
