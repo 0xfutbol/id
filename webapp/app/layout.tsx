@@ -31,7 +31,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <link rel="shortcut icon" href="/favicon.ico" />
         <link rel="apple-touch-icon" href="/favicon.ico" />
       </head>
-      <body className={clsx("antialiased bg-background dark font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
+      <body className={clsx("antialiased bg-background dark font-sans min-h-screen overflow-hidden text-foreground w-screen", fontSans.variable)}>
         <HeroUIProvider navigate={router.push}>
           <Main>
             {children}
