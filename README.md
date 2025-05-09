@@ -1,6 +1,6 @@
-# MetaSoccer ID
+# 0xFútbol ID
 
-A full-stack application for MetaSoccer user authentication and identity management.
+A full-stack application for 0xFútbol user authentication and identity management.
 
 ## Project Structure
 
@@ -41,7 +41,7 @@ The backend API service built with Node.js.
 
 ### 3. lib/
 
-A shared React component library for MetaSoccer ID integration.
+A shared React component library for 0xFútbol ID integration.
 
 - **src/**: Source code
   - **components/**: Reusable React components
