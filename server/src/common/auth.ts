@@ -8,7 +8,7 @@ export const authenticateJWT = (req: express.Request, res: express.Response, nex
   if (authHeader) {
     const token = authHeader.split(' ')[1];
 
-    oxFutboId.verifyJWT(token, (err: Error, user: any) => {
+    oxFutboId.verifyJWT(token, (err: Error | null, user: any) => {
       if (err) {
         return res.sendStatus(403);
       }

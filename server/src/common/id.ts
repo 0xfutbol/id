@@ -1,10 +1,11 @@
 import { OxFutbolID } from "@0xfutbol/id-sign";
-import { verifyMessage, Wallet } from "ethers";
-import { verifyTypedData } from "ethers/lib.commonjs/ethers";
+import { verifyMessage, verifyTypedData, Wallet } from "ethers";
 import jwt from "jsonwebtoken";
 
 const AUTH_MESSAGE = 'Authenticate with MetaSoccerID\n\nID: {username}\n\nExpiration: {expiration}';
 const MAX_SIGNATURE_EXPIRATION = 7 * 24 * 60 * 60 * 1000; // 7 days in milliseconds
+
+// uninstall jsonwebtoken adn ethers
 
 class LegacyOxFutbolID {
   // Instance Variables
@@ -87,7 +88,7 @@ class LegacyOxFutbolID {
   }
 
   public verifyJWT(token: string, callback: any) {
-    jwt.verify(token, this.jwtSecret, (err: any, decoded: any) => {
+    jwt.verify(token, this.jwtSecret, (err: Error | null, decoded: any) => {
       if (err) {
         callback(err, undefined);
       } else {
