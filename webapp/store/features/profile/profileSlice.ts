@@ -134,12 +134,51 @@ export const fetchTokenBalances = createAsyncThunk(
       const futbolXdcContract = newContract("xdc", "0x1a0D723F5B077d02C12A0348d410C1704FBBE211", erc20Abi);
       // vestingContract is undefined
 
-      // Fetch balances sequentially
-      const msuBal = await msuContract.balanceOf(address);
-      const msaBal = await msaContract.balanceOf(address);
-      const futbolBal = await futbolContract.balanceOf(address);
-      const futbolXdcBal = await futbolXdcContract.balanceOf(address);
-      const vestingBal = "0"; // No need for Promise.resolve
+      // Fetch balances with error handling for each contract call
+      const getMsuBalance = async () => {
+        try {
+          return await msuContract.balanceOf(address);
+        } catch (error) {
+          console.error("Failed to fetch MSU balance:", error);
+          return "0";
+        }
+      };
+
+      const getMsaBalance = async () => {
+        try {
+          return await msaContract.balanceOf(address);
+        } catch (error) {
+          console.error("Failed to fetch MSA balance:", error);
+          return "0";
+        }
+      };
+
+      const getFutbolBalance = async () => {
+        try {
+          return await futbolContract.balanceOf(address);
+        } catch (error) {
+          console.error("Failed to fetch FUTBOL (Base) balance:", error);
+          return "0";
+        }
+      };
+
+      const getFutbolXdcBalance = async () => {
+        try {
+          return await futbolXdcContract.balanceOf(address);
+        } catch (error) {
+          console.error("Failed to fetch FUTBOL (XDC) balance:", error);
+          return "0";
+        }
+      };
+
+      const [msuBal, msaBal, futbolBal, futbolXdcBal] = await Promise.all([
+        getMsuBalance(),
+        getMsaBalance(),
+        getFutbolBalance(),
+        getFutbolXdcBalance()
+      ]);
+      
+      const vestingBal = "0";
 
       const formatBalance = (balance: string) => {
         // Convert from wei to ether (divide by 10^18)
