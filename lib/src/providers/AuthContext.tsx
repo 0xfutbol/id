@@ -17,7 +17,7 @@ type AuthContextProviderProps = {
 const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const { address, status, signer } = useWeb3Context();
 
-  const isAuthenticatingRef = useRef(true);
+  const isConnecting = useRef(false);
 
   useReferrerParam();
 
@@ -121,12 +121,14 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
   useEffect(() => {
     if (!signer) return;
-    if (isAuthenticatingRef.current) return;
+    if (isConnecting.current) return;
 
     (async () => {
+      isConnecting.current = true;
+
       if (status === "connected") {
         const currentAddress = address!;
-
+  
         const checkExistingToken = async () => {
           console.debug("[0xFútbol ID] Checking existing token for account:", currentAddress);
           const existingJWT = getSavedJWT();
@@ -157,24 +159,22 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
           accountService.ping(currentAddress, localStorage.getItem(OxFUTBOL_ID_REFERRER) ?? undefined);
         };
     
-        isAuthenticatingRef.current = true;
-
         await checkExistingToken();
         await pingAccount();
-
-        isAuthenticatingRef.current = false;
       }
   
       if (status === "disconnected") {
         console.debug("[0xFútbol ID] Status is disconnected, logging out");
         logout();
       }
+
+      isConnecting.current = false;
     })();
   }, [signer, status, login, logout, signForJWT]);
 
   return {
     isAuthenticated,
-    isAuthenticating: isAuthenticatingRef.current,
+    isAuthenticating: false, // TODO: implement this
     isClaimPending,
     isWaitingForSignature,
     username: username.current,

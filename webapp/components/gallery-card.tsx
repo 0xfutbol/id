@@ -1,4 +1,4 @@
-import { Card, CardFooter, CardHeader, Image } from "@nextui-org/react";
+import { Card, CardFooter, CardHeader, Image } from "@heroui/react";
 import React, { ReactElement } from "react";
 
 type GalleryCardProps = {
@@ -21,7 +21,7 @@ export const GalleryCard: React.FC<GalleryCardProps> = ({ alt, src, title, heade
       <div className="h-full object-cover w-full z-0">{src}</div>
     )}
     <CardFooter className="absolute before:bg-white/10 before:rounded-xl border-1 border-white/20 bottom-2 justify-center ml-2 overflow-hidden py-1 rounded-large shadow-small w-[calc(100%_-_16px)] z-10">
-      <p className="text-tiny text-white/80">{title}</p>
+      <span className="text-tiny text-white/80">{title}</span>
     </CardFooter>
   </Card>
 );

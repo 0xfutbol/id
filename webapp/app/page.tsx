@@ -9,8 +9,6 @@ export default function Home() {
   const { isAuthenticated } = useOxFutbolIdContext();
   const router = useRouter();
 
-  console.log("isAuthenticated", isAuthenticated);
-
   useEffect(() => {
     if (isAuthenticated) {
       router.push("/me");

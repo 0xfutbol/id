@@ -1,26 +1,29 @@
 "use client";
 
 import { AuthUIOrchestrator } from "@0xfutbol/id";
-import { Image, Listbox, ListboxItem } from "@nextui-org/react";
-import React, { FormEvent, useCallback, useState } from "react";
+import { Image, Listbox, ListboxItem } from "@heroui/react";
+import React, { FormEvent, useCallback } from "react";
 
+import { selectUsername, setUsername } from "@/store/features/auth";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getImgUrl } from "@/utils/getImgUrl";
 
 const AuthForm: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const dispatch = useAppDispatch();
+  const username = useAppSelector(selectUsername);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const newUsername = e.target.value.replace(/\s+/g, "-");
-
-    setUsername(newUsername);
-  }, []);
+    dispatch(setUsername(newUsername));
+  }, [dispatch]);
 
   return (
-    <div className="flex flex-col gap-10 max-w-[386px]">
+    <div className="flex flex-col align-center gap-10 max-w-[386px]">
       <Image
         alt="MetaSoccer"
         className="h-10 w-auto invert"
-        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/metasoccer-logo.svg")}
+        src={getImgUrl("https://assets.metasoccer.com/0xfutbol/msid/0xfutbol-logo.png?v=2")}
+        radius="none"
       />
       <AuthUIOrchestrator
         claimComponent={({ error, isLoading, isTakingLong, onClaimClick, onDisconnectClick }) => (

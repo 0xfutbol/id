@@ -132,13 +132,10 @@ const useWeb3ContextState = (): Web3ContextState => {
 
   const newContract = useCallback((chain: ChainName, contractAddress: string, contractAbi: any) => {
     const signer = (() => {
-      console.debug(`[0xFútbol ID] Creating contract with provider: ${walletProvider}`);
       switch (walletProvider) {
         case "matchain_id":
-          console.debug(`[0xFútbol ID] Using matchIdContext signer for chain: ${chain}`);
           return matchIdContext.signer;
         case "thirdweb":
-          console.debug(`[0xFútbol ID] Using thirdwebContext signer for chain: ${chain}`);
           return thirdwebContext.signer;
         default:
           console.error(`[0xFútbol ID] Invalid provider: ${walletProvider}`);
@@ -146,10 +143,7 @@ const useWeb3ContextState = (): Web3ContextState => {
       }
     })();
 
-    console.debug(`[0xFútbol ID] Creating contract at address: ${contractAddress} on chain: ${chain}`);
-    const contract = new Contract(contractAddress, contractAbi, signer?.[chain]);
-    console.debug(`[0xFútbol ID] Contract created successfully`);
-    return contract;
+    return new Contract(contractAddress, contractAbi, signer?.[chain]);
   }, [matchIdContext, thirdwebContext, walletProvider]);
 
   const disconnect = useCallback(async () => {

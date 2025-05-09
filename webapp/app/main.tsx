@@ -4,11 +4,16 @@ import { OxFutbolIdProvider } from "@0xfutbol/id";
 import flagsmith from "flagsmith";
 import { FlagsmithProvider } from "flagsmith/react";
 import { ThemeProviderProps } from "next-themes/dist/types";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { Provider as ReduxProvider } from "react-redux";
+import { PersistGate } from "redux-persist/integration/react";
 
 import { AuthGuard } from "@/components/auth-guard";
+import LoadingScreen from "@/components/loading-screen";
 import { API_CONFIG } from "@/config/api";
-import { CircularProgress } from "@nextui-org/react";
+import { persistor, store } from "@/store";
+import { selectIsMounted, setMounted } from "@/store/features/app";
+import { useAppDispatch, useAppSelector } from "@/store/hooks";
 
 const FLAGSMITH_OPTIONS = {
   environmentID: process.env.NEXT_PUBLIC_FLAG_ENVIRONMENT_ID ?? "LC7s8jPGYB5aK5smocTyQq",
@@ -20,26 +25,33 @@ export interface ProvidersProps {
   themeProps?: ThemeProviderProps;
 }
 
-export default function Main({ children }: { children: React.ReactNode }) {
-  const [isMounted, setIsMounted] = useState(false);
+function MainContent({ children }: { children: React.ReactNode }) {
+  const dispatch = useAppDispatch();
+  const isMounted = useAppSelector(selectIsMounted);
 
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    dispatch(setMounted(true));
+  }, [dispatch]);
 
   if (!isMounted) {
-    return (
-      <div className="flex items-center h-screen justify-center w-screen">
-        <CircularProgress />
-      </div>
-    );
+    return (<LoadingScreen />);
   }
 
   return (
-    <OxFutbolIdProvider backendUrl={API_CONFIG.backendUrl} chains={["boba", "matchain", "polygon", "xdc"]}>
+    <OxFutbolIdProvider backendUrl={API_CONFIG.backendUrl} chains={["base", "boba", "matchain", "polygon", "xdc"]}>
       <FlagsmithProvider flagsmith={flagsmith} options={FLAGSMITH_OPTIONS}>
         <AuthGuard>{children}</AuthGuard>
       </FlagsmithProvider>
     </OxFutbolIdProvider>
+  );
+}
+
+export default function Main({ children }: { children: React.ReactNode }) {
+  return (
+    <ReduxProvider store={store}>
+      <PersistGate loading={<LoadingScreen />} persistor={persistor}>
+        <MainContent>{children}</MainContent>
+      </PersistGate>
+    </ReduxProvider>
   );
 }

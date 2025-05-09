@@ -34,6 +34,10 @@ const nextConfig = {
         protocol: "https",
       },
       {
+        hostname: "bafybeie7f6qjnkallaf5rbhld552c2yytkxucr3n3bubz65e2jskn5m7hm.ipfs.w3s.link",
+        protocol: "https",
+      },
+      {
         hostname: "encrypted-tbn0.gstatic.com",
         protocol: "https",
       },
