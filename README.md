@@ -224,7 +224,3 @@ The shared library provides:
 3. Develop the frontend and backend in parallel
 4. Test integration locally
 5. Deploy the frontend and backend to their respective environments
-
-## License
-
-[License information] 
