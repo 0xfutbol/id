@@ -1,7 +1,7 @@
 import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
-import { getImgUrl } from "@/utils/getImgUrl";
 import { chainIcons } from "@/config/chains";
+import { getImgUrl } from "@/utils/getImgUrl";
 import { chains } from "@0xfutbol/id";
 import { Image, Skeleton, Tab, Tabs, Tooltip } from "@heroui/react";
 import { useCallback } from "react";
@@ -69,7 +69,7 @@ export function ProfileTabs({
       headerComponent={
         <div className="flex w-full justify-end">
           <Tooltip content={chains[item.chain].name}>
-            <Image alt={chains[item.chain].name} className="rounded-[9px]" height={18} src={chainIcons[item.chain]} width={18} />
+            <Image alt={chains[item.chain].name} height={18} src={chainIcons[item.chain]} width={18} />
           </Tooltip>
         </div>
       }
@@ -85,7 +85,7 @@ export function ProfileTabs({
       headerComponent={
         <div className="flex w-full justify-end">
           <Tooltip content={chains[item.chain].name}>
-            <Image alt={chains[item.chain].name} className="rounded-[9px]" height={18} src={chainIcons[item.chain]} width={18} />
+            <Image alt={chains[item.chain].name} height={18} src={chainIcons[item.chain]} width={18} />
           </Tooltip>
         </div>
       }
