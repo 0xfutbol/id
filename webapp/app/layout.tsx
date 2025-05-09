@@ -6,7 +6,6 @@ import { HeroUIProvider } from "@heroui/react";
 import { ToastProvider } from "@heroui/toast";
 import clsx from "clsx";
 import { Viewport } from "next";
-import { ThemeProvider as NextThemesProvider } from "next-themes";
 import { useRouter } from "next/navigation";
 
 import Main from "./main";
@@ -26,15 +25,12 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body className={clsx("antialiased bg-background font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
+      <body className={clsx("antialiased bg-background dark font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
         <HeroUIProvider navigate={router.push}>
-          {/* @ts-ignore */}
-          <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-            <Main>
-              {children}
-            </Main>
-            <ToastProvider placement="bottom-center" />
-          </NextThemesProvider>
+          <Main>
+            {children}
+          </Main>
+          <ToastProvider placement="bottom-center" />
         </HeroUIProvider>
       </body>
     </html>
