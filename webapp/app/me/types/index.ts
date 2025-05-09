@@ -1,5 +1,4 @@
 import { ChainName } from "@0xfutbol/constants";
-import { chains } from "@0xfutbol/id";
 
 export interface NFTData {
   id: bigint;
@@ -17,7 +16,7 @@ export interface Achievement {
 }
 
 export interface AssetItem {
-  chain: keyof typeof chains;
+  chain: ChainName;
   image: string;
   name: string;
   tokenId: bigint;
