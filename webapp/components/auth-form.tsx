@@ -18,7 +18,7 @@ const AuthForm: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col justify-center gap-10 max-w-[386px]">
+    <div className="flex flex-col items-center gap-10 max-w-[386px]">
       <Image
         alt="0xFútbol ID"
         className="h-10 w-auto"

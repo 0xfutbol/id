@@ -26,14 +26,14 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body className={clsx("antialiased bg-background font-sans min-h-screen overflow-hidden", fontSans.variable)}>
+      <body className={clsx("antialiased bg-background font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
         <HeroUIProvider navigate={router.push}>
           {/* @ts-ignore */}
           <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
             <Main>
               {children}
             </Main>
-            <ToastProvider placement="top-right" />
+            <ToastProvider placement="bottom-center" />
           </NextThemesProvider>
         </HeroUIProvider>
       </body>

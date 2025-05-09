@@ -5,7 +5,7 @@ import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image, N
 import { addToast } from "@heroui/toast";
 import NextLink from "next/link";
 import { useCallback } from "react";
-import { FiCopy } from "react-icons/fi";
+import { FiCopy, FiMenu } from "react-icons/fi";
 
 export const Navbar = () => {
   const { address, disconnect } = useOxFutbolIdContext();
@@ -24,16 +24,16 @@ export const Navbar = () => {
           title: "Address copied",
           description: "Address has been copied to clipboard",
           color: "success",
-          position: "bottom-center",
-          autoClose: true,
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
         });
-      } catch (error) {
+      } catch (error: any) {
         addToast({
           title: "Copy failed",
           description: error.message ?? "Failed to copy address to clipboard",
           color: "danger",
-          position: "bottom-center",
-          autoClose: true,
+          timeout: 3000,
+          shouldShowTimeoutProgress: true,
         });
       }
     }
@@ -56,13 +56,10 @@ export const Navbar = () => {
       {address && (
         <NavbarContent className="basis-1/5" justify="end">
           <NavbarItem>
-            <Dropdown>
+            <Dropdown placement="bottom-end">
               <DropdownTrigger>
-                <Button
-                  variant="light"
-                  className="px-3 py-2"
-                >
-                  {shortenAddress(address)}
+                <Button isIconOnly variant="light">
+                  <FiMenu className="h-6 w-6 cursor-pointer" />
                 </Button>
               </DropdownTrigger>
               <DropdownMenu aria-label="User menu">
