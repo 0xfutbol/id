@@ -98,7 +98,7 @@ const AuthForm: React.FC = () => {
               {WALLET_OPTIONS.map((option: any) => (
                 <ListboxItem
                   key={option.key}
-                  className="flex items-center gap-2 w-full p-2 rounded-lg hover:bg-gray-50"
+                  className="flex items-center gap-2 w-full p-2 rounded-lg"
                   onClick={() => onConnectClick(option.key)}
                 >
                   <div className="flex items-center gap-2 w-full">
