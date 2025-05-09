@@ -1,19 +1,18 @@
 /* eslint-disable no-console */
 "use client";
 
-import { CircularProgress } from "@nextui-org/react";
+import { accountService } from "@/services/account-service";
+import { useOxFutbolIdContext } from "@0xfutbol/id";
+import { CircularProgress } from "@heroui/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect } from "react";
-
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-import { accountService } from "@/modules/msid/services/AccountService";
 
 export default function DiscordOAuthPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const code = searchParams.get("code");
 
-  const { isAuthenticated } = useMsIdContext();
+  const { isAuthenticated } = useOxFutbolIdContext();
 
   useEffect(() => {
     if (!code) return;

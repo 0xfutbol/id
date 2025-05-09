@@ -1,15 +1,17 @@
+"use client";
+
 import "@/styles/globals.css";
 
+import { HeroUIProvider } from "@heroui/react";
+import { ToastProvider } from "@heroui/toast";
 import clsx from "clsx";
 import { Viewport } from "next";
+import { ThemeProvider as NextThemesProvider } from "next-themes";
+import { useRouter } from "next/navigation";
 
-import { Providers } from "./providers";
+import Main from "./main";
 
-import { AuthGuard } from "@/components/auth-guard";
-import BaseRouter from "@/components/base-router";
-import DynamicHead from "@/components/head";
 import { fontSans } from "@/config/fonts";
-import { AppProvider } from "@/context/AppContext";
 
 export const viewport: Viewport = {
   themeColor: [
@@ -18,29 +20,22 @@ export const viewport: Viewport = {
   ],
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
   return (
     <html suppressHydrationWarning lang="en">
       <head />
-      <body
-        className={clsx(
-          "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable,
-        )}
-      >
-        {/* @ts-ignore */}
-        <Providers themeProps={{ attribute: "class", defaultTheme: "dark" }}>
-          <AppProvider>
-            <DynamicHead />
-            <BaseRouter>
-              <AuthGuard>{children}</AuthGuard>
-            </BaseRouter>
-          </AppProvider>
-        </Providers>
+      <body className={clsx("antialiased bg-background font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
+        <HeroUIProvider navigate={router.push}>
+          {/* @ts-ignore */}
+          <NextThemesProvider themeProps={{ attribute: "class", defaultTheme: "dark" }}>
+            <Main>
+              {children}
+            </Main>
+            <ToastProvider placement="bottom-center" />
+          </NextThemesProvider>
+        </HeroUIProvider>
       </body>
     </html>
   );

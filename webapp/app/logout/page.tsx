@@ -1,18 +1,15 @@
 "use client";
 
-import { CircularProgress } from "@nextui-org/react";
+import { useOxFutbolIdContext } from "@0xfutbol/id";
+import { CircularProgress } from "@heroui/react";
 import { useEffect } from "react";
-import { useActiveWallet, useDisconnect } from "thirdweb/react";
 
 export default function LogoutPage() {
-  const activeWallet = useActiveWallet();
-  const { disconnect } = useDisconnect();
+  const { disconnect } = useOxFutbolIdContext();
 
   useEffect(() => {
-    if (activeWallet) {
-      disconnect(activeWallet);
-    }
-  }, [activeWallet]);
+    disconnect();
+  }, [disconnect]);
 
   return <CircularProgress />;
 }

@@ -51,3 +51,53 @@ After modifying the `.npmrc` file, you need to run `pnpm install` again to ensur
 ## License
 
 Licensed under the [MIT license](https://github.com/nextui-org/metasoccer-id/blob/main/LICENSE).
+
+## Redux State Management
+
+This project uses Redux Toolkit for state management with the following structure:
+
+### Store Organization
+
+- `/store`: Main Redux store setup
+  - `index.ts`: Store configuration and exports
+  - `hooks.ts`: Typed Redux hooks
+  - `/features`: Feature-based slices
+    - `/user`: User-related state
+      - `index.ts`: Feature exports
+      - `userSlice.ts`: User slice with actions, reducers, and selectors
+
+### Usage in Components
+
+```tsx
+import { useAppDispatch, useAppSelector } from '@/store/hooks';
+import { 
+  fetchUserProfile, 
+  selectUser 
+} from '@/store/features/user';
+
+function MyComponent() {
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(selectUser);
+  
+  // Use dispatch with actions
+  useEffect(() => {
+    dispatch(fetchUserProfile());
+  }, [dispatch]);
+  
+  // Use selectors to access state
+  if (user) {
+    return <div>Hello, {user.username}!</div>;
+  }
+  
+  return <div>Loading...</div>;
+}
+```
+
+### Adding New Features
+
+To add a new feature:
+
+1. Create a new directory in `/store/features`
+2. Create a slice file with actions, reducers, and selectors
+3. Create an index.ts file to export the slice
+4. Add the reducer to the root reducer in `/store/index.ts`

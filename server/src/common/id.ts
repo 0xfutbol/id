@@ -1,4 +1,4 @@
-import { OxFutbolID } from "@0xfutbol/id";
+import { OxFutbolID } from "@0xfutbol/id-sign";
 
 export const oxFutboId = new OxFutbolID({
   chainId: parseInt(process.env.ONCHAIN_CHAIN_ID as string),

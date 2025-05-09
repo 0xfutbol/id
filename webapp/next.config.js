@@ -20,7 +20,6 @@ const nextConfig = {
       },
     ];
   },
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH !== undefined ? process.env.NEXT_PUBLIC_BASE_PATH : "/id",
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -32,6 +31,10 @@ const nextConfig = {
       },
       {
         hostname: "assets2.metasoccer.com",
+        protocol: "https",
+      },
+      {
+        hostname: "bafybeie7f6qjnkallaf5rbhld552c2yytkxucr3n3bubz65e2jskn5m7hm.ipfs.w3s.link",
         protocol: "https",
       },
       {

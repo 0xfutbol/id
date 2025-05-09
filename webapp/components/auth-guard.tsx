@@ -1,51 +1,38 @@
 "use client";
 
-import { usePathname, useRouter } from "next/navigation";
+import { useOxFutbolIdContext } from "@0xfutbol/id";
+import { useRouter } from "next/navigation";
 import { useEffect } from "react";
-import { AutoConnect } from "thirdweb/react";
 
 import LoadingScreen from "./loading-screen";
 
-import { APP_CONFIG } from "@/config/apps";
-import { siteConfig } from "@/config/site";
-import { useAppParam } from "@/context/AppContext";
-import { useMsIdContext } from "@/modules/msid/context/useMsIdContext";
-
-const PUBLIC_ROUTES = ["/", "/logout"];
+const LOGIN_PATH = "/login";
+const PUBLIC_PATHS = [LOGIN_PATH];
 
 export function AuthGuard({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const pathname = usePathname();
 
-  const { isAuthenticated, status } = useMsIdContext();
-
-  const app = useAppParam();
+  const { isAuthenticated, web3Ready } = useOxFutbolIdContext();
+  const currentPath = window.location.pathname;
+  const isPublicPath = PUBLIC_PATHS.some((path) => currentPath.startsWith(path));
 
   useEffect(() => {
-    if (!PUBLIC_ROUTES.includes(pathname)) {
-      const timer = setTimeout(() => {
-        if (status === "disconnected") {
-          if (APP_CONFIG[app].redirectUri) {
-            console.debug("[0xFútbol ID] Redirecting to:", APP_CONFIG[app].redirectUri);
-            window.location.href = APP_CONFIG[app].redirectUri;
-          } else {
-            router.push("/");
-          }
-        }
-      }, 3000);
-
-      return () => clearTimeout(timer);
+    if (!web3Ready) {
+      return;
     }
-  }, [pathname, status, router]);
 
-  return (
-    <>
-      <AutoConnect client={siteConfig.thirdwebClient} />
-      {PUBLIC_ROUTES.includes(pathname) || isAuthenticated ? (
-        children
-      ) : (
-        <LoadingScreen />
-      )}
-    </>
-  );
+    if (isAuthenticated && currentPath === LOGIN_PATH) {
+      router.push("/me");
+    }
+
+    if (!isAuthenticated && !isPublicPath) {
+      router.push(LOGIN_PATH);
+    }
+  }, [currentPath, isAuthenticated, web3Ready, router, isPublicPath]);
+
+  if (isPublicPath) {
+    return children;
+  } else {
+    return isAuthenticated ? children : <LoadingScreen />;
+  }
 }
