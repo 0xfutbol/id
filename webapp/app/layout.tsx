@@ -24,7 +24,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
   return (
     <html suppressHydrationWarning lang="en">
-      <head />
+      <head>
+        <title>0xFútbol ID</title>
+        <meta name="description" content="0xFútbol Identity Platform" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="shortcut icon" href="/favicon.ico" />
+        <link rel="apple-touch-icon" href="/favicon.ico" />
+      </head>
       <body className={clsx("antialiased bg-background dark font-sans min-h-screen overflow-hidden w-screen", fontSans.variable)}>
         <HeroUIProvider navigate={router.push}>
           <Main>
