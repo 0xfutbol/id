@@ -34,7 +34,7 @@ export const GAME_CARDS = [
     title: "Ultras", 
     description: "The official NFT Collection of the 0xFútbol community.", 
     image: "https://assets.metasoccer.com/banner/ultras.png?v=4", 
-    url: "https://magiceden.io/collections/base/0x84eb2086352ec0c08c1f7217caa49e11b16f34e8", 
+    url: "https://opensea.io/collection/ultras-by-0xfutbol", 
     buttonText: "Explore" 
   },
 ]; 
