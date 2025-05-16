@@ -1,12 +1,7 @@
-"use client";
-
 import "@/styles/globals.css";
 
-import { HeroUIProvider } from "@heroui/react";
-import { ToastProvider } from "@heroui/toast";
 import clsx from "clsx";
 import { Metadata, Viewport } from "next";
-import { useRouter } from "next/navigation";
 
 import Main from "./main";
 
@@ -30,17 +25,12 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const router = useRouter();
-
   return (
     <html suppressHydrationWarning lang="en">
       <body className={clsx("antialiased bg-background dark font-sans min-h-screen overflow-hidden text-foreground w-screen", fontSans.variable)}>
-        <HeroUIProvider navigate={router.push}>
-          <Main>
-            {children}
-          </Main>
-          <ToastProvider placement="bottom-center" />
-        </HeroUIProvider>
+        <Main>
+          {children}
+        </Main>
       </body>
     </html>
   );

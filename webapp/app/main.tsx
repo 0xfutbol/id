@@ -14,6 +14,8 @@ import { API_CONFIG } from "@/config/api";
 import { persistor, store } from "@/store";
 import { selectIsMounted, setMounted } from "@/store/features/app";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
+import { ToastProvider, HeroUIProvider as UIProvider } from "@heroui/react";
+import { useRouter } from "next/navigation";
 
 const FLAGSMITH_OPTIONS = {
   environmentID: process.env.NEXT_PUBLIC_FLAG_ENVIRONMENT_ID ?? "LC7s8jPGYB5aK5smocTyQq",
@@ -47,11 +49,16 @@ function MainContent({ children }: { children: React.ReactNode }) {
 }
 
 export default function Main({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+
   return (
-    <ReduxProvider store={store}>
-      <PersistGate loading={<LoadingScreen />} persistor={persistor}>
-        <MainContent>{children}</MainContent>
-      </PersistGate>
-    </ReduxProvider>
+    <UIProvider navigate={router.push}>
+      <ReduxProvider store={store}>
+        <PersistGate loading={<LoadingScreen />} persistor={persistor}>
+          <MainContent>{children}</MainContent>
+          <ToastProvider placement="bottom-center" />
+        </PersistGate>
+      </ReduxProvider>
+    </UIProvider>
   );
 }
