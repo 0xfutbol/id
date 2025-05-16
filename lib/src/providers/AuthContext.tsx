@@ -1,12 +1,12 @@
+import { ChainName } from "@0xfutbol/constants";
 import { AUTH_MESSAGE, MAX_SIGNATURE_EXPIRATION } from "@0xfutbol/id-sign";
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 import { OxFUTBOL_ID_REFERRER, useReferrerParam } from "@/hooks";
-import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
-
+import { useWeb3Context } from "@/providers/Web3Context";
+import { AuthStatus } from "@/providers/types";
 import { AccountService, AuthService } from "@/services";
-import { ChainName } from "@0xfutbol/constants";
-import { useWeb3Context } from "./Web3Context";
+import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 
 type AuthContextProviderProps = {
   backendUrl: string;
@@ -27,7 +27,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const username = useRef<string | undefined>(undefined);
   const validJWT = useRef<string | undefined>(undefined);
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [authStatus, setAuthStatus] = useState<AuthStatus>("unknown");
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
 
@@ -83,7 +83,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");
 
-    setIsAuthenticated(true);
+    setAuthStatus("authenticated");
     setSavedJWT(jwt);
 
     username.current = decodeJWT(jwt).payload.username;
@@ -93,7 +93,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const logout = useCallback(() => {
     console.debug("[0xFútbol ID] Logging out");
 
-    setIsAuthenticated(false);
+    setAuthStatus("unauthenticated");
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
     setSavedJWT(undefined);
@@ -150,6 +150,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
             } else {
               console.debug("[0xFútbol ID] No username found, claim pending");
               setIsClaimPending(true);
+              setAuthStatus("unauthenticated");
             }
           }
         };
@@ -173,8 +174,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   }, [signer, status, login, logout, signForJWT]);
 
   return {
-    isAuthenticated,
-    isAuthenticating: false, // TODO: implement this
+    authStatus,
     isClaimPending,
     isWaitingForSignature,
     username: username.current,

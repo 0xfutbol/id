@@ -6,8 +6,9 @@ import * as React from "react";
 import { createContext } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 
-import { AuthContextProvider, useAuthContext } from "./AuthContext";
-import { useWeb3Context, Web3ContextProvider } from "./Web3Context";
+import { AuthContextProvider, useAuthContext } from "@/providers/AuthContext";
+import { useWeb3Context, Web3ContextProvider } from "@/providers/Web3Context";
+import { AuthStatus } from "@/providers/types";
 
 type OxFutbolIdProviderProps = {
   backendUrl: string;
@@ -28,8 +29,7 @@ type OxFutbolIdState = {
   newContract: (chain: ChainName, contractAddress: string, contractAbi: any) => Contract;
   switchChain: (chain: ChainName) => Promise<void>;
   // auth
-  isAuthenticated: boolean;
-  isAuthenticating: boolean;
+  authStatus: AuthStatus;
   isClaimPending: boolean;
   isWaitingForSignature: boolean;
   username?: string;
