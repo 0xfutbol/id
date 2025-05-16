@@ -15,10 +15,10 @@
     ethers "^6.13.2"
     jsonwebtoken "^9.0.2"
 
-"@0xfutbol/id@^2.0.148":
-  version "2.0.148"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.148.tgz#77459d0efe4c9856b57960d6f1a529c906a75e8e"
-  integrity sha512-2bmxOeYTy8TAgOEAyU23Bzc1MevOvncYpkq4GndzoPuf8o0gJJS+F7Ihk0PJGg8y0PINx5VdBVG3taQIDvvDPA==
+"@0xfutbol/id@^2.0.149":
+  version "2.0.149"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.149.tgz#ce024461006e71213290477ee0a66ee2037ede14"
+  integrity sha512-6crDU4A0vubcClr/I31/ge794tD6XzYgKW5hAoeL7V5+MijF18+gwGJoAVR+CwOSMMSrBOgCB1r3GDo+B8tBtw==
   dependencies:
     "@0xfutbol/constants" "^2.0.12"
     "@0xfutbol/id-sign" "^1.0.2"

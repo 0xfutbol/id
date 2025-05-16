@@ -6,16 +6,16 @@ import { useEffect } from "react";
 
 
 export default function Home() {
-  const { isAuthenticated } = useOxFutbolIdContext();
+  const { authStatus } = useOxFutbolIdContext();
   const router = useRouter();
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (authStatus === "authenticated") {
       router.push("/me");
     } else {
       router.push("/login");
     }
-  }, [router, isAuthenticated]);
+  }, [authStatus, router]);
 
   return null;
 }

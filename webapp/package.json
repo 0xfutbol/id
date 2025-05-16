@@ -10,7 +10,7 @@
  },
  "dependencies": {
   "@0xfutbol/constants": "^2.0.12",
-  "@0xfutbol/id": "^2.0.148",
+  "@0xfutbol/id": "^2.0.149",
   "@ankr.com/ankr.js": "^0.6.0",
   "@heroui/react": "2.7.8",
   "@react-aria/ssr": "3.9.4",
