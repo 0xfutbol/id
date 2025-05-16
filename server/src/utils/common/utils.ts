@@ -1,4 +1,4 @@
-import { getUserByUsername, getUsername, saveUsernameIfItDoesntExists } from '../repo/db';
+import { getUserByUsername, getUsername, saveUsernameIfItDoesntExists } from "../../models/db";
 import { validateUsernameWithAI } from './openai';
 
 const offensiveWords: string[] = [

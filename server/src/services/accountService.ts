@@ -1,0 +1,180 @@
+import axios from 'axios';
+import {
+    getDiscordAccountByAddress,
+    getDiscordAccountByDiscordId,
+    getReferralCount,
+    getTonAccountByAddress,
+    getTonAccountByTonAddress,
+    getUserByAddress,
+    saveDiscordAccount,
+    saveTonAccount
+} from '../models/db';
+
+/**
+ * Service for handling account-related business logic
+ */
+const accountService = {
+  /**
+   * Connect a TON address to a user
+   */
+  connectTonAccount: async (tonAddress: string, userAddress: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      const userAlreadyConnected = await getTonAccountByAddress(userAddress);
+      const tonAlreadyConnected = await getTonAccountByTonAddress(tonAddress);
+
+      if (!userAlreadyConnected && !tonAlreadyConnected) {
+        await saveTonAccount(tonAddress, userAddress);
+        return { success: true, message: "TON account connected successfully" };
+      } 
+      
+      if (userAlreadyConnected && !tonAlreadyConnected) {
+        console.warn(`User ${userAddress} already connected to a TON account other than ${tonAddress}`);
+        return { success: false, message: "TON account already connected" };
+      } 
+      
+      return { success: false, message: "TON account already connected" };
+    } catch (error) {
+      console.error('Error connecting TON account:', error);
+      throw new Error('Failed to connect TON account');
+    }
+  },
+
+  /**
+   * Get account info for a user
+   */
+  getAccountInfo: async (userAddress: string): Promise<{
+    discord: any;
+    ton: any;
+    referralCount: number;
+  }> => {
+    try {
+      const discordAccount = await getDiscordAccountByAddress(userAddress);
+      const tonAccount = await getTonAccountByAddress(userAddress);
+      const referralCount = await getReferralCount(userAddress);
+
+      return {
+        discord: discordAccount,
+        ton: tonAccount,
+        referralCount
+      };
+    } catch (error) {
+      console.error('Error fetching account info:', error);
+      throw new Error('Failed to fetch account info');
+    }
+  },
+
+  /**
+   * Get public account info for a user by address
+   */
+  getPublicAccountInfo: async (address: string): Promise<{
+    username: string;
+    discord: string | null;
+  }> => {
+    const user = await getUserByAddress(address);
+    
+    if (!user) {
+      throw new Error('User not found');
+    }
+    
+    const discordAccount = await getDiscordAccountByAddress(address);
+
+    return {
+      username: user.username,
+      discord: discordAccount?.discord_id || null
+    };
+  },
+
+  /**
+   * Connect a Discord account to a user
+   */
+  connectDiscordAccount: async (code: string, redirectUri: string, userAddress: string): Promise<{
+    success: boolean;
+    message: string;
+    data?: any;
+  }> => {
+    try {
+      const discordAuth = await authenticate(code, redirectUri);
+      const { access_token } = discordAuth.data;
+      const discordUser = await fetchUser(access_token);
+
+      const discordAlreadyConnected = await getDiscordAccountByDiscordId(discordUser.data.id);
+
+      if (!discordAlreadyConnected) {
+        await saveDiscordAccount(discordUser.data.id, userAddress, discordUser.data);
+        // Optionally add role assignment here if needed
+        // await giveRole(discordUser.data.id);
+
+        return { 
+          success: true, 
+          message: "Discord account connected successfully", 
+          data: discordUser.data 
+        };
+      } else {
+        return { success: false, message: "Discord account already connected" };
+      }
+    } catch (error) {
+      console.error('Error connecting Discord account:', error);
+      throw new Error('Failed to connect Discord account');
+    }
+  }
+};
+
+/**
+ * Authenticate with Discord OAuth
+ */
+async function authenticate(code: string, redirectUri: string) {
+  const clientId = process.env.DISCORD_CLIENT_ID!;
+  const clientSecret = process.env.DISCORD_CLIENT_SECRET!;
+  
+  return await axios.post(
+    "https://discord.com/api/oauth2/token",
+    new URLSearchParams({
+      client_id: clientId,
+      client_secret: clientSecret,
+      code,
+      grant_type: "authorization_code",
+      redirect_uri: redirectUri
+    }),
+    {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded"
+      }
+    }
+  );
+}
+
+/**
+ * Fetch Discord user data
+ */
+async function fetchUser(accessToken: string) {
+  return await axios.get("https://discord.com/api/v10/users/@me", {
+    headers: {
+      Authorization: `Bearer ${accessToken}`
+    }
+  });
+}
+
+/**
+ * Assign a role to a Discord user (if needed)
+ */
+async function giveRole(userId: string) {
+  const botToken = process.env.DISCORD_BOT_TOKEN!;
+  const roleId = "1229234774254686350";
+  const guildId = "953005818394050570";
+  
+  try {
+    await axios.put(
+      `https://discord.com/api/v10/guilds/${guildId}/members/${userId}/roles/${roleId}`,
+      {},
+      {
+        headers: {
+          Authorization: `Bot ${botToken}`
+        }
+      }
+    );
+  } catch (err) {
+    console.log(err);
+  }
+}
+
+export default accountService; 

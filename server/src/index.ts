@@ -1,52 +1,31 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
-import './instrument';
+import './config/sentry';
 
 import * as Sentry from "@sentry/node";
 import cors from 'cors';
 import express from 'express';
-import adminRoute from './routes/adminRoute';
-import claimRouter from './routes/claimRoute';
-import discordRouter from './routes/discordRoute';
-import infoRouter from './routes/infoRoute';
-import jwtRouter from './routes/jwtRoute';
-import jwtTgRouter from './routes/jwtTgRoute';
-import pingRouter from './routes/pingRoute';
-import preRouter from './routes/preRoute';
-import signRouter from './routes/signRoute';
-import tonRouter from './routes/tonRoute';
-import validateRoute from './routes/validateRoute';
+
+// Import route modules
+import { accountRoutes, adminRoutes, authRoutes } from './routes';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(cors({
-  origin: '*'
-}));
+// Middleware
+app.use(cors({ origin: '*' }));
+app.use(express.json());
 
-const authRouter = express.Router();
-authRouter.use(claimRouter);
-authRouter.use(jwtRouter);
-authRouter.use(jwtTgRouter);
-authRouter.use(preRouter);
-authRouter.use(signRouter);
-authRouter.use(validateRoute);
-app.use('/auth', authRouter);
+// Routes
+app.use('/auth', authRoutes);
+app.use('/admin', adminRoutes);
+app.use('/account', accountRoutes);
 
-const adminRouter = express.Router();
-adminRouter.use(adminRoute);
-app.use('/admin', adminRouter);
-
-const accountRouter = express.Router();
-accountRouter.use(discordRouter);
-accountRouter.use(infoRouter);
-accountRouter.use(pingRouter);
-accountRouter.use(tonRouter);
-app.use('/account', accountRouter);
-
+// Error handling
 Sentry.setupExpressErrorHandler(app);
 
+// Start server
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
