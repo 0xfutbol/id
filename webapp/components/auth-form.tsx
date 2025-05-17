@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthUIOrchestrator } from "@0xfutbol/id";
-import { Image, Listbox, ListboxItem } from "@heroui/react";
+import { Button, Image, Listbox, ListboxItem } from "@heroui/react";
 import React, { FormEvent, useCallback } from "react";
 
 import { selectUsername, setUsername } from "@/store/features/auth";
@@ -63,20 +63,21 @@ const AuthForm: React.FC = () => {
                     tight—we&apos;ll be ready soon!
                   </p>
                 )}
-                <button
-                  className="w-full px-4 py-2 bg-primary text-white rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  disabled={isLoading}
+                <Button
+                  className="w-full px-4 py-2 bg-primary text-black rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                  isDisabled={isLoading}
+                  isLoading={isLoading}
                   type="submit"
                 >
                   {isLoading ? "Claiming..." : "Claim 0xFútbol ID"}
-                </button>
-                <button
+                </Button>
+                <Button
                   className="w-full px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
                   type="button"
                   onClick={() => onDisconnectClick("")}
                 >
                   Go Back
-                </button>
+                </Button>
               </div>
             </form>
           </div>
