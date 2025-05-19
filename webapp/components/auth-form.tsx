@@ -18,7 +18,7 @@ const AuthForm: React.FC = () => {
   }, [dispatch]);
 
   return (
-    <div className="flex flex-col items-center gap-10 max-w-[386px]">
+    <div className="flex flex-col items-center gap-8 max-w-[386px] py-8">
       <Image
         alt="0xFútbol ID"
         className="h-10 w-auto"
@@ -27,7 +27,7 @@ const AuthForm: React.FC = () => {
       />
       <AuthUIOrchestrator
         claimComponent={({ error, isLoading, isTakingLong, onClaimClick, onDisconnectClick }) => (
-          <div className="flex flex-col gap-4 w-full">
+          <div className="flex flex-col gap-4 p-4">
             <div className="flex items-start gap-2">
               <p className="text-sm">
                 0xFútbol ID is your unique identifier in the 0xFútbol Hub—think of it like your username for any
@@ -83,7 +83,7 @@ const AuthForm: React.FC = () => {
           </div>
         )}
         connectComponent={({ WALLET_OPTIONS, isWaitingForSignature, onConnectClick }) => (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 p-4">
             <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
             <div className="flex items-start gap-2">
               <p className="text-sm text-gray-500">
