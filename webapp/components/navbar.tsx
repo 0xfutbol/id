@@ -6,9 +6,10 @@ import { addToast } from "@heroui/toast";
 import NextLink from "next/link";
 import { useCallback } from "react";
 import { FiCopy, FiMenu } from "react-icons/fi";
+import { ClaimGift } from "../modules/pack/components";
 
 export const Navbar = () => {
-  const { address, disconnect } = useOxFutbolIdContext();
+  const { address, disconnect, walletProvider } = useOxFutbolIdContext();
 
   const shortenAddress = useCallback((addr: string) => {
     if (!addr) return "";
@@ -55,6 +56,11 @@ export const Navbar = () => {
 
       {address && (
         <NavbarContent className="basis-1/5" justify="end">
+          {walletProvider === "matchain_id" && (
+            <NavbarItem>
+              <ClaimGift />
+            </NavbarItem>
+          )}
           <NavbarItem>
             <Dropdown placement="bottom-end">
               <DropdownTrigger>

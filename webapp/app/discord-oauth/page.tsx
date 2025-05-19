@@ -1,7 +1,7 @@
 /* eslint-disable no-console */
 "use client";
 
-import { accountService } from "@/services/account-service";
+import { accountService } from "@/modules/account/account-service";
 import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { CircularProgress } from "@heroui/react";
 import { useRouter, useSearchParams } from "next/navigation";

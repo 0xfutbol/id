@@ -1,6 +1,8 @@
-import { accountService } from "@/services/account-service";
-import { assetService } from "@/services/asset-service";
-import { NFTItem } from "@/services/blockchain";
+import { accountService } from "@/modules/account/account-service";
+import { assetService } from "@/modules/asset/asset-service";
+import { NFTItem } from "@/modules/blockchain";
+import { Pack } from "@/modules/squid/types";
+import { getSquidByChain } from "@/modules/squid/utils";
 import { RootState } from '@/store';
 import { erc20Abi } from "@/utils/erc20Abi";
 import { ChainName } from '@0xfutbol/constants';
@@ -46,6 +48,9 @@ interface ProfileState {
   ultrasLoading: boolean;
   ultrasNFTs: NFTData[];
   ultras: Record<string, any>;
+  packsError: string | null;
+  packsLoading: boolean;
+  packs: Pack[];
 }
 
 // Initial state
@@ -69,6 +74,9 @@ const initialState: ProfileState = {
   ultrasLoading: false,
   ultrasNFTs: [],
   ultras: {},
+  packsError: null,
+  packsLoading: false,
+  packs: [],
 };
 
 // Helper to convert NFTItem from service to AssetItem for the store
@@ -234,6 +242,43 @@ export const fetchUltrasNFTs = createAsyncThunk(
   }
 );
 
+// Fetch packs thunk
+export const fetchPacks = createAsyncThunk(
+  'profile/fetchPacks',
+  async (address: string | undefined, { rejectWithValue }) => {
+    if (!address) return rejectWithValue('No address provided');
+
+    try {
+      console.log("fetching packs");
+      const chains: ChainName[] = ["polygon", "boba", "matchain", "xdc"];
+      const promises = chains.map(chain => {
+        try {
+          const service = getSquidByChain(chain as ChainName);
+          console.log(service);
+          return service.queryPacks(address)
+            .then(packs => {
+              console.log(packs);
+              return { chain, packs };
+            })
+            .catch(error => {
+              console.log(error);
+              console.error(`Error fetching packs for chain ${chain}:`, error instanceof Error ? error.message : String(error));
+              return { chain, packs: [] };
+            });
+        } catch (error) {
+          console.error(`Error initializing service for chain ${chain}:`, error instanceof Error ? error.message : String(error));
+          return Promise.resolve({ chain, packs: [] });
+        }
+      });
+
+      const results = await Promise.all(promises);
+      return results.flatMap(({ packs }) => packs);
+    } catch (error: any) {
+      return rejectWithValue(error.message ?? 'Failed to fetch packs');
+    }
+  }
+);
+
 // Create the slice
 const profileSlice = createSlice({
   name: 'profile',
@@ -304,6 +349,22 @@ const profileSlice = createSlice({
         state.ultrasError = action.payload as string;
         state.ultrasLoading = false;
       });
+
+    // Packs
+    builder
+      .addCase(fetchPacks.pending, (state) => {
+        state.packsLoading = true;
+        state.packsError = null;
+      })
+      .addCase(fetchPacks.fulfilled, (state, action) => {
+        state.packsLoading = false;
+        console.log(action);
+        state.packs = action.payload;
+      })
+      .addCase(fetchPacks.rejected, (state, action) => {
+        state.packsLoading = false;
+        state.packsError = action.payload as string;
+      });
   },
 });
 
@@ -326,6 +387,9 @@ export const selectUltras = (state: RootState) => state.profile.ultras;
 export const selectUltrasNFTs = (state: RootState) => state.profile.ultrasNFTs;
 export const selectUltrasError = (state: RootState) => state.profile.ultrasError;
 export const selectUltrasLoading = (state: RootState) => state.profile.ultrasLoading;
+export const selectPacks = (state: RootState) => state.profile.packs;
+export const selectPacksError = (state: RootState) => state.profile.packsError;
+export const selectPacksLoading = (state: RootState) => state.profile.packsLoading;
 
 // Export reducer
 export default profileSlice.reducer; 

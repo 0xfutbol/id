@@ -1,8 +1,9 @@
+import { Pack } from "@/modules/squid/types";
 import axios from "axios";
 
-class PolygonService {
+class BobaService {
 	constructor(
-		private readonly httpClient = axios.create({ baseURL: "https://squid-polygon.metasoccer.com/api" })
+		private readonly httpClient = axios.create({ baseURL: "https://squid-boba.metasoccer.com/api" })
 	) {}
 
 	async queryLands(owner: string): Promise<any> {
@@ -18,6 +19,28 @@ class PolygonService {
 				variables: { owner }
 			});
 			return data.data.lands;
+		} catch (err) {
+			throw err;
+		}
+	}
+
+	async queryPacks(owner: string): Promise<Pack[]> {
+		try {
+			const { data } = await this.httpClient.post("/graphql", {
+				query: `
+					query($owner: String!) {
+						packs(where: {owner_containsInsensitive: $owner}) {
+							id
+							rarity
+						}
+					}
+				`,
+				variables: { owner }
+			});
+			return data.data.packs.map((pack: any) => ({
+				...pack,
+				chain: "matchain"
+			}));
 		} catch (err) {
 			throw err;
 		}
@@ -60,4 +83,4 @@ class PolygonService {
 	}
 }
 
-export const polygonService = new PolygonService();
+export const bobaService = new BobaService();

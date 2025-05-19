@@ -1,3 +1,4 @@
+import { Pack } from "@/modules/squid/types";
 import axios from "axios";
 
 class MatchainService {
@@ -18,6 +19,28 @@ class MatchainService {
 				variables: { owner }
 			});
 			return data.data.lands;
+		} catch (err) {
+			throw err;
+		}
+	}
+
+	async queryPacks(owner: string): Promise<Pack[]> {
+		try {
+			const { data } = await this.httpClient.post("/graphql", {
+				query: `
+					query($owner: String!) {
+						packs(where: {owner_containsInsensitive: $owner}) {
+							id
+							rarity
+						}
+					}
+				`,
+				variables: { owner }
+			});
+			return data.data.packs.map((pack: any) => ({
+				...pack,
+				chain: "matchain"
+			}));
 		} catch (err) {
 			throw err;
 		}

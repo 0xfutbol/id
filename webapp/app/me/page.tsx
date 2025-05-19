@@ -8,6 +8,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   fetchAccountInfo,
   fetchAssets,
+  fetchPacks,
   fetchTokenBalances,
   fetchUltrasNFTs,
   selectAssets,
@@ -15,6 +16,9 @@ import {
   selectAssetsLoading,
   selectDiscordAccount,
   selectMsuBalance,
+  selectPacks,
+  selectPacksError,
+  selectPacksLoading,
   selectReferralCount,
   selectSelectedTab,
   selectTokenVestingBalance,
@@ -62,6 +66,10 @@ export default function ProfilePage() {
   const ultrasNFTs = useAppSelector(selectUltrasNFTs);
   const ultrasError = useAppSelector(selectUltrasError);
   const ultrasLoading = useAppSelector(selectUltrasLoading);
+
+  const packs = useAppSelector(selectPacks);
+  const packsError = useAppSelector(selectPacksError);
+  const packsLoading = useAppSelector(selectPacksLoading);
   
   // External hooks
   const searchParams = useSearchParams();
@@ -91,6 +99,7 @@ export default function ProfilePage() {
     if (address) {
       dispatch(fetchAssets(address));
       dispatch(fetchUltrasNFTs(address));
+      dispatch(fetchPacks(address));
       
       // Only dispatch token balance fetch if newContract is available and callable
       if (typeof newContract === 'function') {
@@ -114,7 +123,7 @@ export default function ProfilePage() {
   }, [assets]);
 
   // Memoized values
-  const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "tokens", "ultras"], [assets]);
+  const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "packs", "tokens", "ultras"], [assets]);
   const avatarSrc = ultrasNFTs.length > 0 && ultrasNFTs[0].metadata.image ? ultrasNFTs[0].metadata.image : "";
 
   // Effects
@@ -163,14 +172,17 @@ export default function ProfilePage() {
         assets={convertedAssets}
         tokens={tokens}
         ultras={ultrasForTabs}
+        packs={packs}
         achievements={ACHIEVEMENTS}
         assetsError={assetsError}
         tokensError={tokensError}
         ultrasError={ultrasError}
+        packsError={packsError}
         referralCount={referralCount}
         assetsLoading={assetsLoading}
         tokensLoading={tokensLoading}
         ultrasLoading={ultrasLoading}
+        packsLoading={packsLoading}
         achievementsLoading={achievementsLoading}
         onTabChange={handleTabChange}
       />
