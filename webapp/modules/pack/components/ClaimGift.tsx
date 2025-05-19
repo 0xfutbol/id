@@ -6,30 +6,33 @@ import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { FiGift } from "react-icons/fi";
 
-const MAX_REDEEMABLE_PACKS = 1;
-
 export const ClaimGift = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [redeemedPacks, setRedeemedPacks] = useState<number>(0);
+  const [maxRedeemablePacks, setMaxRedeemablePacks] = useState<number>(0);
 
-  const { claimGift, getRedeemedPacks } = usePacks();
+  const { claimGift, getRedeemedPacks, getMaxRedeemablePacks } = usePacks();
 
   useEffect(() => {
-    const fetchRedeemedPacks = async () => {
+    const fetchInitialData = async () => {
       try {
-        const count = await getRedeemedPacks();
+        const [count, maxPacks] = await Promise.all([
+          getRedeemedPacks(),
+          getMaxRedeemablePacks()
+        ]);
         setRedeemedPacks(count);
+        setMaxRedeemablePacks(maxPacks);
       } catch (error) {
-        console.error("Failed to fetch redeemed packs:", error);
+        console.error("Failed to fetch initial data:", error);
       } finally {
         setIsInitialLoading(false);
       }
     };
 
-    fetchRedeemedPacks();
-  }, [getRedeemedPacks]);
+    fetchInitialData();
+  }, [getRedeemedPacks, getMaxRedeemablePacks]);
 
   const handleClaim = async () => {
     try {
@@ -64,7 +67,7 @@ export const ClaimGift = () => {
   }, [isModalOpen]);
 
   // Only show button if no packs have been redeemed and initial loading is complete
-  if (isInitialLoading || redeemedPacks >= MAX_REDEEMABLE_PACKS) {
+  if (isInitialLoading || redeemedPacks >= maxRedeemablePacks) {
     return null;
   }
 
