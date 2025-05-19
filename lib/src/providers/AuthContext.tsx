@@ -15,7 +15,7 @@ type AuthContextProviderProps = {
 };
 
 const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
-  const { address, status, signer } = useWeb3Context();
+  const { address, status, signer, web3Ready } = useWeb3Context();
 
   const isConnecting = useRef(false);
 
@@ -120,7 +120,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   }, [chainToSign, signer]);
 
   useEffect(() => {
-    if (!signer) return;
+    if (!web3Ready) return;
     if (isConnecting.current) return;
 
     (async () => {
@@ -175,7 +175,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
       isConnecting.current = false;
     })();
-  }, [signer, status, login, logout, signForJWT]);
+  }, [status, web3Ready, login, logout, signForJWT]);
 
   return {
     authStatus,
