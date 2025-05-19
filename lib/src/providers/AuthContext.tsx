@@ -79,7 +79,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     } else {
       return handleUnclaimedUsername(username);
     }
-  }, [address, signer]);
+  }, [address, chainToSign, signer]);
 
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");

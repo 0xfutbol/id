@@ -80,7 +80,7 @@ export class MatchIdSigner implements Signer {
         type: "eip2930",
         chainId: this.chain.id,
         nonce: parseInt(tx.nonce?.toString() ?? '0'),
-        gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
+        gas: BigInt(tx.gasLimit.toString()),
         gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
         to: tx.to as `0x${string}`,
         data: tx.data as `0x${string}`,
@@ -94,7 +94,7 @@ export class MatchIdSigner implements Signer {
         type: "eip2930",
         chainId: this.chain.id,
         nonce: parseInt(tx.nonce?.toString() ?? '0'),
-        gas: BigInt(tx.gasLimit.toString()), // Use populated gasLimit
+        gas: BigInt(tx.gasLimit.toString()),
         gasPrice: BigInt(tx.gasPrice?.toString() ?? '0'),
         to: tx.to as `0x${string}`,
         data: tx.data as `0x${string}`,
@@ -155,18 +155,23 @@ export class MatchIdSigner implements Signer {
 
   async call(transaction: Deferrable<TransactionRequest>, blockTag?: BlockTag): Promise<string> {
     if (!this.provider) throw new Error('No provider connected');
-    console.log(`[MatchIdSigner] Calling transaction`, transaction, blockTag);
-    const tx = await this.populateTransaction(transaction);
-    delete tx.nonce;
-    delete tx.gasPrice;
-    delete tx.gasLimit;
-    console.log(`[MatchIdSigner] Populated transaction for call`, tx);
-    const result = await this.provider.call(tx, blockTag);
-    console.log(`[MatchIdSigner] Call successful`, result);
-    if (result === '0x') {
-      throw new Error('Contract call reverted with no data');
+    console.log(`[MatchIdSigner] Calling transaction`, transaction);
+    const tx = { ...transaction } as TransactionRequest;
+    if (!tx.from) {
+      tx.from = await this.getAddress();
     }
-    return result;
+    if (!tx.chainId) {
+      tx.chainId = await this.getChainId();
+    }
+    console.log(`[MatchIdSigner] Transaction for call`, tx);
+    try {
+      const result = await this.provider.call(tx, blockTag);
+      console.log(`[MatchIdSigner] Call successful`, result);
+      return result;
+    } catch (error) {
+      console.error(`[MatchIdSigner] Call failed`, error);
+      throw error;
+    }
   }
 
   async sendTransaction(transaction: Deferrable<TransactionRequest>): Promise<TransactionResponse> {
@@ -199,7 +204,7 @@ export class MatchIdSigner implements Signer {
     console.log(`[MatchIdSigner] Getting gas price`);
     const gasPrice = await this.provider.getGasPrice();
     console.log(`[MatchIdSigner] Gas price:`, gasPrice?.toString() || '0');
-    return gasPrice ?? BigNumber.from(0); // Fallback to 0 if null
+    return gasPrice ?? BigNumber.from(0);
   }
 
   async getFeeData(): Promise<FeeData> {
@@ -239,18 +244,15 @@ export class MatchIdSigner implements Signer {
       tx.from = await this.getAddress();
     }
   
-    // Set nonce for state-changing transactions
     if (!tx.nonce) {
       tx.nonce = await this.getTransactionCount();
     }
   
-    // Set gas price for state-changing transactions
     if (!tx.gasPrice) {
       const feeData = await this.getFeeData();
       tx.gasPrice = feeData.gasPrice ?? undefined;
     }
   
-    // Estimate gas limit for state-changing transactions
     if (!tx.gasLimit && tx.to && tx.data) {
       const gasEstimate = await this.provider.estimateGas({
         from: tx.from,
@@ -259,7 +261,7 @@ export class MatchIdSigner implements Signer {
         value: tx.value || 0,
         gasPrice: tx.gasPrice,
       });
-      tx.gasLimit = gasEstimate.mul(12).div(10); // Add 20% buffer to gas estimate
+      tx.gasLimit = gasEstimate.mul(12).div(10);
       console.log(`[MatchIdSigner] Estimated gas limit: ${tx.gasLimit.toString()}`);
     }
   
