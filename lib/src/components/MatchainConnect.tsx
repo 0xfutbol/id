@@ -8,12 +8,12 @@ export const MatchainConnect: React.FC = () => {
     <div style={{ position: "absolute", left: "100%", top: "100%" }}>
       <Components.LoginButton
         className={`connect-button-matchain_id`}
-        methods={['telegram', 'twitter']}
+        methods={['discord', 'email', 'google', 'telegram', 'twitter']}
         popoverPosition="center"
         popoverType="click"
         popoverGap={10}
         recommendMethods={['email', 'google']}
-        walletMethods={[]}
+        walletMethods={['btc', 'evm', 'sol']}
       />
     </div>
   );

@@ -20,14 +20,14 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
 
   const chainId = useRef<number>(Chains.MatchMain.id);
   const currentAddress = useRef<string | undefined>(undefined);
-  const status = useRef<"connected" | "disconnected" | "unknown">("unknown");
   const walletReady = useRef(false);
   
   const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
-  const [web3Ready, setWeb3Ready] = useState(false);
+  const [status, setStatus] = useState<"connected" | "disconnected" | "unknown">("unknown");
 
   const connect = useCallback(async () => {
-    if (!web3Ready) {
+    if (status === "connected") {
+      console.debug("[MatchIdContext] Already connected, skipping");
       return;
     }
 
@@ -61,8 +61,7 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     console.debug("[MatchIdContext] Current values:", {
       chainId: chainId.current,
       address: currentAddress.current,
-      walletReady: walletReady.current,
-      status: status.current
+      walletReady: walletReady.current
     });
     console.debug("[MatchIdContext] New values:", {
       chainId: matchainChainId,
@@ -85,11 +84,9 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     walletReady.current = matchainWalletReady;
 
     const isConnected = Boolean(currentAddress.current);
+    const isWalletReady = Boolean(walletReady.current);
 
-    status.current = isConnected ? "connected" : "disconnected";
-    setWeb3Ready(isConnected ? walletReady.current : true);
-
-    if (currentAddress.current && walletReady.current) {
+    if (isConnected && isWalletReady) {
       const signers = chains.reduce((acc, chainName) => {
         acc[chainName] = new MatchIdSigner(chainId.current, wallet);
         return acc;
@@ -97,13 +94,15 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
 
       setSigner(signers);
     }
-  }, [chains, wallet, web3Ready]);
+
+    setStatus(isConnected ? "connected" : "disconnected");
+  }, [chains, wallet]);
 
   return {
     address: currentAddress.current,
     signer,
-    status: status.current,
-    web3Ready,
+    status,
+    web3Ready: (status === "connected" && signer !== undefined) || status === "disconnected",
     connect,
     disconnect,
     nativeBalanceOf,

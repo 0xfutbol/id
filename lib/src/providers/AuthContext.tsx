@@ -7,6 +7,7 @@ import { useWeb3Context } from "@/providers/Web3Context";
 import { AuthStatus } from "@/providers/types";
 import { AccountService, AuthService } from "@/services";
 import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
+import { Signer } from "ethers";
 
 type AuthContextProviderProps = {
   backendUrl: string;
@@ -102,7 +103,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     validJWT.current = undefined;
   }, []);
 
-  const signForJWT = useCallback(async (username: string) => {
+  const signForJWT = useCallback(async (username: string, signer: Signer) => {
     if (!signer) throw new Error("No signer found");
 
     console.debug("[0xFútbol ID] Signing for JWT with username:", username);
@@ -111,22 +112,21 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
     setIsWaitingForSignature(true);
     try {
-      const signedMessage = await signer[chainToSign].signMessage(message);
+      const signedMessage = await signer.signMessage(message);
       console.debug("[0xFútbol ID] Signed message for JWT:", signedMessage);
       return await authService.getJWT(username, signedMessage, expiration);
     } finally {
       setIsWaitingForSignature(false);
     }
-  }, [chainToSign, signer]);
+  }, []);
 
   useEffect(() => {
-    if (!web3Ready) return;
     if (isConnecting.current) return;
 
     (async () => {
       isConnecting.current = true;
 
-      if (status === "connected" && signer) {
+      if (status === "connected") {
         const currentAddress = address!;
   
         const checkExistingToken = async () => {
@@ -145,7 +145,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
             const { username } = await authService.pre(currentAddress);
             if (username) {
               console.debug("[0xFútbol ID] Username found for account:", username);
-              const jwt = await signForJWT(username);
+              const jwt = await signForJWT(username, signer![chainToSign]);
               login(jwt)
             } else {
               console.debug("[0xFútbol ID] No username found, claim pending");
@@ -163,7 +163,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
         await checkExistingToken();
         await pingAccount();
       }
-  
+
       else if (status === "disconnected") {
         console.debug("[0xFútbol ID] Status is disconnected, logging out");
         logout();
@@ -175,7 +175,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
       isConnecting.current = false;
     })();
-  }, [signer, status, web3Ready, login, logout, signForJWT]);
+  }, [chainToSign, signer, status]);
 
   return {
     authStatus,

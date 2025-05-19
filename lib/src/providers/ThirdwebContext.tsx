@@ -84,7 +84,7 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
     address: activeWallet?.getAccount()?.address,
     signer,
     status,
-    web3Ready: status === "connected" || status === "disconnected",
+    web3Ready: (status === "connected" && signer !== undefined) || status === "disconnected",
     connect,
     disconnect,
     nativeBalanceOf,
