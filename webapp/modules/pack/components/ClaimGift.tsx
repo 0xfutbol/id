@@ -76,14 +76,18 @@ export const ClaimGift = () => {
 
       <Modal 
         isOpen={isModalOpen} 
-        onClose={() => setIsModalOpen(false)}
-        backdrop="blur"
+        isDismissable={false}
+        isKeyboardDismissDisabled={true}
         classNames={{
           backdrop: "bg-background/80 backdrop-blur-sm",
           base: "bg-background/80 backdrop-blur-sm",
         }}
+        backdrop="blur"
+        hideCloseButton
+        shouldCloseOnInteractOutside={() => false}
+        onClose={() => setIsModalOpen(false)}
       >
-        <ModalContent>
+        <ModalContent className="bg-transparent shadow-none">
           <ModalBody className="flex flex-col items-center justify-center py-8">
             {isLoading ? (
               <>

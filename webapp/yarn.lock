@@ -7,6 +7,11 @@
   resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.12.tgz#34dbaf858c2013a517d3906c24b84b1b035ecba6"
   integrity sha512-cUSQTWx2zvLkeCbx4bZa6JgxpKFlcsrxLC4Ny7DC5od0514mzlRHNjFDbSFDotudHKNZ+BEDchOY99PMQZZvkg==
 
+"@0xfutbol/constants@^2.0.16":
+  version "2.0.16"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.16.tgz#affc3391124e519dceb545b05e9a56d589be8c64"
+  integrity sha512-oMuBzakFIaibavswXl5Wod3+PiZQEzcSfwsCaNNGedcxArH9eQQJQbdobfjdscG1qo+l+lNiFeNqBUiAkIMjCA==
+
 "@0xfutbol/id-sign@^1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@0xfutbol/id-sign/-/id-sign-1.0.2.tgz#d829ff44d108d0b55a556a3d6d9f1cec079d88f3"
@@ -15,10 +20,10 @@
     ethers "^6.13.2"
     jsonwebtoken "^9.0.2"
 
-"@0xfutbol/id@^2.0.150":
-  version "2.0.150"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.150.tgz#2f679370a74fadafb682abc3cde2429635028ae3"
-  integrity sha512-YS8ARs6dwj24RS5IxETXqgTtwGvUMzHANuBu0xvQiDR6/7R/6XiXj8zrA4ib8r260WLsbjfCIWVrIOiqrA0y8g==
+"@0xfutbol/id@^2.0.152":
+  version "2.0.152"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.152.tgz#57ce8ce472b2080d44ac03bd67a3eb8244095094"
+  integrity sha512-NSbddXPsCDSKvPtedO0f5CuWfIbrFiBxj14Qsi0bgTROIb2AKPXVyfANEC1sVK3LSy1DlAiYIwSSfQSn+HcrAQ==
   dependencies:
     "@0xfutbol/constants" "^2.0.12"
     "@0xfutbol/id-sign" "^1.0.2"
