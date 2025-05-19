@@ -7,10 +7,10 @@
   resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.12.tgz#34dbaf858c2013a517d3906c24b84b1b035ecba6"
   integrity sha512-cUSQTWx2zvLkeCbx4bZa6JgxpKFlcsrxLC4Ny7DC5od0514mzlRHNjFDbSFDotudHKNZ+BEDchOY99PMQZZvkg==
 
-"@0xfutbol/constants@^2.0.16":
-  version "2.0.16"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.16.tgz#affc3391124e519dceb545b05e9a56d589be8c64"
-  integrity sha512-oMuBzakFIaibavswXl5Wod3+PiZQEzcSfwsCaNNGedcxArH9eQQJQbdobfjdscG1qo+l+lNiFeNqBUiAkIMjCA==
+"@0xfutbol/constants@^2.0.17":
+  version "2.0.17"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.17.tgz#f9af0fbba2e0ec95a6403e0e543df72ba5c2363c"
+  integrity sha512-MrN9+icXMWeL+8P6wLegiKOHGH+UkD/VlYRjURcWPJyQxL+Ewh/dhH2xnVJrOaKctExuS0Z7pgaasPXxJPhaLA==
 
 "@0xfutbol/id-sign@^1.0.2":
   version "1.0.2"

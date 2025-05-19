@@ -9,7 +9,7 @@
   "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
  },
  "dependencies": {
-  "@0xfutbol/constants": "^2.0.16",
+  "@0xfutbol/constants": "^2.0.17",
   "@0xfutbol/id": "^2.0.152",
   "@ankr.com/ankr.js": "^0.6.0",
   "@heroui/react": "2.7.8",
