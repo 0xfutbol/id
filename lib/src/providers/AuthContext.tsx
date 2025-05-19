@@ -164,9 +164,13 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
         await pingAccount();
       }
   
-      if (status === "disconnected") {
+      else if (status === "disconnected") {
         console.debug("[0xFútbol ID] Status is disconnected, logging out");
         logout();
+      }
+
+      else {
+        console.debug("[0xFútbol ID] Status is ", status);
       }
 
       isConnecting.current = false;

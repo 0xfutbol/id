@@ -22,6 +22,7 @@ type OxFutbolIdState = {
   defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
   status: string;
+  walletProvider: "matchain_id" | "thirdweb" | "unknown";
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
