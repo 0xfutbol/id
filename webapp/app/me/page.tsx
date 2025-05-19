@@ -143,7 +143,7 @@ export default function ProfilePage() {
 
   // Render
   return (
-    <div className="flex flex-col gap-8 max-w-[1280px] py-4 w-full mx-auto">
+    <div className="flex flex-col gap-8 max-w-[1280px] p-4 w-full mx-auto">
       <ProfileHeader
         username={username}
         address={address!}
