@@ -126,7 +126,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     (async () => {
       isConnecting.current = true;
 
-      if (status === "connected") {
+      if (status === "connected" && signer) {
         const currentAddress = address!;
   
         const checkExistingToken = async () => {
@@ -170,12 +170,12 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
       }
 
       else {
-        console.debug("[0xFútbol ID] Status is ", status);
+        console.debug("[0xFútbol ID] Status is ", status, "and signer is ", signer);
       }
 
       isConnecting.current = false;
     })();
-  }, [status, web3Ready, login, logout, signForJWT]);
+  }, [signer, status, web3Ready, login, logout, signForJWT]);
 
   return {
     authStatus,

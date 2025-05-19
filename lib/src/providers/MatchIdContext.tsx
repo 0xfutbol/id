@@ -22,12 +22,12 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
   const currentAddress = useRef<string | undefined>(undefined);
   const status = useRef<"connected" | "disconnected" | "unknown">("unknown");
   const walletReady = useRef(false);
-  const web3Ready = useRef(false);
   
   const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
+  const [web3Ready, setWeb3Ready] = useState(false);
 
   const connect = useCallback(async () => {
-    if (!web3Ready.current) {
+    if (!web3Ready) {
       return;
     }
 
@@ -87,7 +87,7 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
     const isConnected = Boolean(currentAddress.current);
 
     status.current = isConnected ? "connected" : "disconnected";
-    web3Ready.current = isConnected ? walletReady.current : true;
+    setWeb3Ready(isConnected ? walletReady.current : true);
 
     if (currentAddress.current && walletReady.current) {
       const signers = chains.reduce((acc, chainName) => {
@@ -97,13 +97,13 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
 
       setSigner(signers);
     }
-  }, [chains, wallet]);
+  }, [chains, wallet, web3Ready]);
 
   return {
     address: currentAddress.current,
     signer,
     status: status.current,
-    web3Ready: web3Ready.current,
+    web3Ready,
     connect,
     disconnect,
     nativeBalanceOf,
