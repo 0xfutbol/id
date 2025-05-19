@@ -6,9 +6,12 @@ import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { FiGift } from "react-icons/fi";
 
+const MAX_REDEEMABLE_PACKS = 1;
+
 export const ClaimGift = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isInitialLoading, setIsInitialLoading] = useState(true);
   const [redeemedPacks, setRedeemedPacks] = useState<number>(0);
 
   const { claimGift, getRedeemedPacks } = usePacks();
@@ -20,6 +23,8 @@ export const ClaimGift = () => {
         setRedeemedPacks(count);
       } catch (error) {
         console.error("Failed to fetch redeemed packs:", error);
+      } finally {
+        setIsInitialLoading(false);
       }
     };
 
@@ -58,8 +63,8 @@ export const ClaimGift = () => {
     }
   }, [isModalOpen]);
 
-  // Only show button if no packs have been redeemed
-  if (redeemedPacks > 0) {
+  // Only show button if no packs have been redeemed and initial loading is complete
+  if (isInitialLoading || redeemedPacks >= MAX_REDEEMABLE_PACKS) {
     return null;
   }
 
