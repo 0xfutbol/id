@@ -1,15 +1,13 @@
-import { siteConfig } from "@/config/site";
+import { NFTItem } from "@/app/me/types";
 import { ChainName } from "@0xfutbol/constants";
-import { fetchNFTsFromMultipleChains, NFTItem } from "../blockchain";
+import { API_CONFIG } from "../../config/api";
 
 // Asset types configuration
 const ASSET_TYPES = [
-  { type: "lands" as const, name: "Land" },
-  { type: "players" as const, name: "Player" },
-  { type: "scouts" as const, name: "Scout" },
+  { type: "lands" as const, name: "Land", endpoint: "/onchain/lands" },
+  { type: "players" as const, name: "Player", endpoint: "/onchain/players" },
+  { type: "scouts" as const, name: "Scout", endpoint: "/onchain/scouts" },
 ];
-
-type SupportedChain = "boba" | "matchain" | "polygon" | "xdc";
 
 /**
  * Service for fetching and managing user assets from different chains
@@ -27,7 +25,6 @@ export const assetService = {
       };
     }
     
-    const chains: SupportedChain[] = ["boba", "matchain", "polygon", "xdc"];
     const results: Record<string, NFTItem[]> = {
       lands: [],
       players: [],
@@ -35,25 +32,18 @@ export const assetService = {
     };
     
     // Process each asset type
-    for (const { type, name } of ASSET_TYPES) {
-      // Create a contract map for this asset type
-      const contractMap: Partial<Record<ChainName, string>> = {};
-      
-      for (const chain of chains) {
-        // Get contract address for the current chain and asset type
-        const contractAddress = (siteConfig.contracts as any)[chain][type].address;
-        contractMap[chain as ChainName] = contractAddress;
+    for (const { type, endpoint } of ASSET_TYPES) {
+      try {
+        const response = await fetch(`${API_CONFIG.backendUrl}${endpoint}/${walletAddress}`);
+        if (!response.ok) {
+          console.error(`Error fetching ${type}:`, await response.text());
+          continue;
+        }
+        const nfts = await response.json() as Record<ChainName, NFTItem[]>;
+        results[type] = Object.values(nfts).flat();
+      } catch (error) {
+        console.error(`Error fetching ${type}:`, error);
       }
-      
-      // Fetch NFTs for this asset type across all chains
-      const nftsMap = await fetchNFTsFromMultipleChains({
-        walletAddress,
-        contractMap: contractMap as Record<ChainName, string>,
-      });
-      
-      // Flatten the results for this asset type
-      const nfts = Object.values(nftsMap).flat();
-      results[type] = nfts;
     }
     
     return results;
@@ -67,20 +57,81 @@ export const assetService = {
       return [];
     }
     
-    const contractAddress = siteConfig.contracts.base.ultras.address;
+    try {
+      const response = await fetch(`${API_CONFIG.backendUrl}/onchain/ultras/${walletAddress}`);
+      if (!response.ok) {
+        console.error('Error fetching ultras:', await response.text());
+        return [];
+      }
+      const nfts = await response.json() as Record<ChainName, NFTItem[]>;
+      return Object.values(nfts).flat();
+    } catch (error) {
+      console.error('Error fetching ultras:', error);
+      return [];
+    }
+  },
+
+  /**
+   * Fetch token balances for a user
+   */
+  async getTokenBalances(walletAddress: string): Promise<{
+    tokens: Array<{
+      address: string;
+      symbol: string;
+      balance: string;
+      chain: ChainName;
+    }>;
+    msuBalance: string;
+    tokenVestingBalance: string;
+  }> {
+    if (!walletAddress) {
+      return {
+        tokens: [],
+        msuBalance: "0",
+        tokenVestingBalance: "0"
+      };
+    }
     
-    // Create a contract map for ultras NFTs (only on Base chain)
-    const contractMap: Partial<Record<ChainName, string>> = {
-      base: contractAddress
-    };
-    
-    // Fetch NFTs
-    const nftsMap = await fetchNFTsFromMultipleChains({
-      walletAddress,
-      contractMap: contractMap as Record<ChainName, string>,
-    });
-    
-    // Return flattened results
-    return Object.values(nftsMap).flat();
+    try {
+      const response = await fetch(`${API_CONFIG.backendUrl}/onchain/token-balances/${walletAddress}`);
+      if (!response.ok) {
+        console.error('Error fetching token balances:', await response.text());
+        return {
+          tokens: [],
+          msuBalance: "0",
+          tokenVestingBalance: "0"
+        };
+      }
+      return await response.json();
+    } catch (error) {
+      console.error('Error fetching token balances:', error);
+      return {
+        tokens: [],
+        msuBalance: "0",
+        tokenVestingBalance: "0"
+      };
+    }
+  },
+
+  /**
+   * Fetch packs for a user across all supported chains
+   */
+  async getPacks(walletAddress: string): Promise<NFTItem[]> {
+    if (!walletAddress) {
+      return [];
+    }
+
+    try {
+      const response = await fetch(`${API_CONFIG.backendUrl}/onchain/packs/${walletAddress}`);
+      if (!response.ok) {
+        console.error('Error fetching packs:', await response.text());
+        return [];
+      }
+      const packsByChain = await response.json() as Record<ChainName, NFTItem[]>;
+      return Object.values(packsByChain).flat();
+    } catch (error) {
+      console.error('Error fetching packs:', error);
+      return [];
+    }
   }
 }; 

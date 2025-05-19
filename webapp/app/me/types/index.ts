@@ -15,11 +15,12 @@ export interface Achievement {
   isAchieved: (params: { referralCount: number }) => boolean;
 }
 
-export interface AssetItem {
-  chain: ChainName;
-  image: string;
+export interface NFTItem {
+  tokenId: string;
   name: string;
-  tokenId: bigint;
+  image: string;
+  chain: ChainName;
+  type: 'land' | 'player' | 'scout' | 'pack' | 'ultra';
 }
 
 export interface TokenItem {

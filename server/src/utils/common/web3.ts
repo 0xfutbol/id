@@ -1,4 +1,3 @@
+import { providers } from "ethers";
 
-import { ethers } from 'ethers';
-
-export const provider = new ethers.JsonRpcProvider(process.env.ONCHAIN_RPC_URL);
+export const provider = new providers.JsonRpcProvider(process.env.ONCHAIN_RPC_URL);

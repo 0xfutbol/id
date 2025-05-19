@@ -1,5 +1,6 @@
 import { validate } from '@telegram-apps/init-data-node';
-import { keccak256, toUtf8Bytes, Wallet } from 'ethers';
+import { Wallet } from 'ethers';
+import { keccak256, toUtf8Bytes } from 'ethers/lib/utils';
 import jwt from 'jsonwebtoken';
 import { provider } from '../utils/common/web3';
 

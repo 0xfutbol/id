@@ -1,5 +1,6 @@
 import { OxFutbolID } from "@0xfutbol/id-sign";
-import { verifyMessage, verifyTypedData, Wallet } from "ethers";
+import { Wallet } from "ethers";
+import { verifyMessage, verifyTypedData } from "ethers/lib/utils";
 import jwt from "jsonwebtoken";
 
 const AUTH_MESSAGE = 'Authenticate with MetaSoccerID\n\nID: {username}\n\nExpiration: {expiration}';
@@ -49,7 +50,7 @@ class LegacyOxFutbolID {
       const signatureExpiration = Math.floor(Date.now() / 1000) + Math.floor(MAX_SIGNATURE_EXPIRATION / 1000); // 7 days expiration
       const message = { username: username.trim(), owner, signatureExpiration };
 
-      const signature = await this.wallet.signTypedData(domain, types, message);
+      const signature = await this.wallet._signTypedData(domain, types, message);
 
       return { signature, signatureExpiration };
     } catch (error) {

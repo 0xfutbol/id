@@ -16,7 +16,14 @@ export const ACHIEVEMENTS: Achievement[] = [
 ];
 
 export const GAME_CARDS = [
-  { 
+  {
+    title: "Discord",
+    description: "Join our Discord server to connect with other users and get the latest news.",
+    image: "https://assets.metasoccer.com/banner/discord.png?v=1",
+    url: "https://0xfutbol.com/discord",
+    buttonText: "Join"
+  },
+  {
     title: "MetaSoccer", 
     description: "Multi-player soccer manager game offering rewards for competitions.", 
     image: "https://assets.metasoccer.com/banner/metasoccer.png?v=1", 

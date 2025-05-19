@@ -1,19 +1,18 @@
 import { Gallery } from "@/components/gallery";
 import { GalleryCard } from "@/components/gallery-card";
 import { chainIcons } from "@/config/chains";
-import { Pack } from "@/modules/squid/types";
 import { getImgUrl } from "@/utils/getImgUrl";
 import { chains, useOxFutbolIdContext } from "@0xfutbol/id";
 import { Image, Skeleton, Tab, Tabs, Tooltip } from "@heroui/react";
 import { useCallback } from "react";
-import { Achievement, AssetItem, TokenItem } from "../types";
+import { Achievement, NFTItem, TokenItem } from "../types";
 
 interface ProfileTabsProps {
   achievements: Achievement[];
-  assets: { [key: string]: AssetItem[] };
-  packs: Pack[];
+  assets: { [key: string]: NFTItem[] };
+  packs: NFTItem[];
   tokens: TokenItem[];
-  ultras: AssetItem[];
+  ultras: NFTItem[];
 
   assetsError: string | null;
   packsError: string | null;
@@ -72,7 +71,7 @@ export function ProfileTabs({
     />
   ), []);
 
-  const renderAssetItem = useCallback((item: AssetItem) => (
+  const renderAssetItem = useCallback((item: NFTItem) => (
     <GalleryCard
       alt={item.name}
       headerComponent={
@@ -103,10 +102,10 @@ export function ProfileTabs({
     />
   ), []);
 
-  const renderPackItem = useCallback((item: Pack) => (
+  const renderPackItem = useCallback((item: NFTItem) => (
     <GalleryCard
-      key={item.id}
-      alt={`Pack ${item.id}`}
+      key={item.tokenId.toString()}
+      alt={item.name}
       headerComponent={
         <div className="flex w-full justify-end">
           <Tooltip content={chains[item.chain as keyof typeof chains].name}>
@@ -119,8 +118,8 @@ export function ProfileTabs({
           </Tooltip>
         </div>
       }
-      src={getImgUrl(`https://assets.metasoccer.com/packs/${item.rarity.toLowerCase()}.png`)}
-      title={`${item.rarity} Pack`}
+      src={item.image}
+      title={item.name}
     />
   ), []);
 
@@ -168,17 +167,17 @@ export function ProfileTabs({
             renderLoadingSkeleton()
           ) : packsError ? (
             <p className="text-red-500">{packsError}</p>
-          ) : Boolean(packs?.length) ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <p className="text-lg text-default-500">You don't have any packs yet</p>
+          ) : Boolean(packs && packs.length > 0) ? (
+            <Gallery items={packs} renderItem={renderPackItem} />
+          ) : (
+            <div className="flex flex-col items-center justify-center h-64 text-gray-500">
+              <p>You don't have any packs yet</p>
               {walletProvider === "matchain_id" && (
                 <p className="mt-2 text-sm text-default-400">
-                  Connect with Matchain ID to claim your gift pack!
+                  Claim your gift!
                 </p>
               )}
             </div>
-          ) : (
-            <Gallery items={packs} renderItem={renderPackItem} />
           )}
         </Tab>
 

@@ -1,20 +1,9 @@
+import { NFTItem } from "@/app/me/types";
 import { accountService } from "@/modules/account/account-service";
 import { assetService } from "@/modules/asset/asset-service";
-import { NFTItem } from "@/modules/blockchain";
-import { Pack } from "@/modules/squid/types";
-import { getSquidByChain } from "@/modules/squid/utils";
 import { RootState } from '@/store';
-import { erc20Abi } from "@/utils/erc20Abi";
 import { ChainName } from '@0xfutbol/constants';
 import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit';
-
-// Define profile related types
-export interface AssetItem {
-  chain: ChainName;
-  image: string;
-  name: string;
-  tokenId: string;
-}
 
 export interface TokenItem {
   symbol: string;
@@ -33,24 +22,24 @@ export interface NFTData {
 
 // Define the state structure for this slice
 interface ProfileState {
+  assets: Record<string, NFTItem[]>;
   assetsError: string | null;
   assetsLoading: boolean;
-  assets: Record<string, AssetItem[]>;
   discordAccount: string | null;
   msuBalance: string;
+  packs: NFTItem[];
+  packsError: string | null;
+  packsLoading: boolean;
   referralCount: number;
   selectedTab: string;
-  tokenVestingBalance: string;
+  tokens: TokenItem[];
   tokensError: string | null;
   tokensLoading: boolean;
-  tokens: TokenItem[];
+  tokenVestingBalance: string;
+  ultras: Record<string, any>;
   ultrasError: string | null;
   ultrasLoading: boolean;
   ultrasNFTs: NFTData[];
-  ultras: Record<string, any>;
-  packsError: string | null;
-  packsLoading: boolean;
-  packs: Pack[];
 }
 
 // Initial state
@@ -79,16 +68,6 @@ const initialState: ProfileState = {
   packs: [],
 };
 
-// Helper to convert NFTItem from service to AssetItem for the store
-function convertNFTItemToAssetItem(nft: NFTItem): AssetItem {
-  return {
-    chain: nft.chain,
-    name: nft.name,
-    image: nft.image,
-    tokenId: nft.tokenId,
-  };
-}
-
 // Fetch account info thunk
 export const fetchAccountInfo = createAsyncThunk(
   'profile/fetchAccountInfo',
@@ -116,10 +95,10 @@ export const fetchAssets = createAsyncThunk(
       const assets = await assetService.getAllAssets(address);
       
       // Convert service NFTItems to store AssetItems
-      const result: Record<string, AssetItem[]> = {};
+      const result: Record<string, NFTItem[]> = {};
       
       Object.entries(assets).forEach(([key, items]) => {
-        result[key] = items.map(convertNFTItemToAssetItem);
+        result[key] = items;
       });
       
       return result;
@@ -132,78 +111,11 @@ export const fetchAssets = createAsyncThunk(
 // Fetch token balances thunk
 export const fetchTokenBalances = createAsyncThunk(
   'profile/fetchTokenBalances',
-  async ({ address, newContract }: { address: string | undefined, newContract: any }, { rejectWithValue }) => {
-    if (!address || !newContract) return rejectWithValue('No address or contract provided');
+  async (address: string | undefined, { rejectWithValue }) => {
+    if (!address) return rejectWithValue('No address provided');
     
     try {
-      const msuContract = newContract("polygon", "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1", erc20Abi);
-      const msaContract = newContract("polygon", "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B", erc20Abi);
-      const futbolContract = newContract("base", "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c", erc20Abi);
-      const futbolXdcContract = newContract("xdc", "0x1a0D723F5B077d02C12A0348d410C1704FBBE211", erc20Abi);
-      // vestingContract is undefined
-
-      // Fetch balances with error handling for each contract call
-      const getMsuBalance = async () => {
-        try {
-          return await msuContract.balanceOf(address);
-        } catch (error) {
-          console.error("Failed to fetch MSU balance:", error);
-          return "0";
-        }
-      };
-
-      const getMsaBalance = async () => {
-        try {
-          return await msaContract.balanceOf(address);
-        } catch (error) {
-          console.error("Failed to fetch MSA balance:", error);
-          return "0";
-        }
-      };
-
-      const getFutbolBalance = async () => {
-        try {
-          return await futbolContract.balanceOf(address);
-        } catch (error) {
-          console.error("Failed to fetch FUTBOL (Base) balance:", error);
-          return "0";
-        }
-      };
-
-      const getFutbolXdcBalance = async () => {
-        try {
-          return await futbolXdcContract.balanceOf(address);
-        } catch (error) {
-          console.error("Failed to fetch FUTBOL (XDC) balance:", error);
-          return "0";
-        }
-      };
-
-      const [msuBal, msaBal, futbolBal, futbolXdcBal] = await Promise.all([
-        getMsuBalance(),
-        getMsaBalance(),
-        getFutbolBalance(),
-        getFutbolXdcBalance()
-      ]);
-      
-      const vestingBal = "0";
-
-      const formatBalance = (balance: string) => {
-        // Convert from wei to ether (divide by 10^18)
-        const etherValue = Number(balance || "0") / 1e18;
-        return etherValue.toFixed(etherValue % 1 === 0 ? 0 : 2);
-      };
-
-      return {
-        tokens: [
-          { address: "0xe8377A076adAbb3F9838afB77Bee96Eac101ffB1", symbol: "MSU", balance: formatBalance(msuBal.toString()), chain: "polygon" as ChainName },
-          { address: "0x02aea6F7742Fb098b4EEF3B4C4C1FeB1d3426f1B", symbol: "MSA", balance: formatBalance(msaBal.toString()), chain: "polygon" as ChainName },
-          { address: "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c", symbol: "FUTBOL (Base)", balance: formatBalance(futbolBal.toString()), chain: "base" as ChainName },
-          { address: "0x2C8b1699170135E486C4dB52F46f439B4967b4c9", symbol: "FUTBOL (XDC)", balance: formatBalance(futbolXdcBal.toString()), chain: "xdc" as ChainName },
-        ],
-        msuBalance: (Number(msuBal.toString()) / 1e18).toString(),
-        tokenVestingBalance: (Number(vestingBal.toString()) / 1e18).toString()
-      };
+      return await assetService.getTokenBalances(address);
     } catch (error: any) {
       return rejectWithValue(error.message ?? 'Failed to fetch token balances');
     }
@@ -229,12 +141,9 @@ export const fetchUltrasNFTs = createAsyncThunk(
         }
       }));
 
-      // Process NFTs into asset items
-      const ultrasTokens: AssetItem[] = nfts.map(convertNFTItemToAssetItem);
-
       return {
         ultrasNFTs: transformedNFTs,
-        ultras: ultrasTokens
+        ultras: nfts
       };
     } catch (error: any) {
       return rejectWithValue(error.message ?? 'Failed to fetch Ultras NFTs');
@@ -249,30 +158,9 @@ export const fetchPacks = createAsyncThunk(
     if (!address) return rejectWithValue('No address provided');
 
     try {
-      console.log("fetching packs");
-      const chains: ChainName[] = ["polygon", "boba", "matchain", "xdc"];
-      const promises = chains.map(chain => {
-        try {
-          const service = getSquidByChain(chain as ChainName);
-          console.log(service);
-          return service.queryPacks(address)
-            .then(packs => {
-              console.log(packs);
-              return { chain, packs };
-            })
-            .catch(error => {
-              console.log(error);
-              console.error(`Error fetching packs for chain ${chain}:`, error instanceof Error ? error.message : String(error));
-              return { chain, packs: [] };
-            });
-        } catch (error) {
-          console.error(`Error initializing service for chain ${chain}:`, error instanceof Error ? error.message : String(error));
-          return Promise.resolve({ chain, packs: [] });
-        }
-      });
-
-      const results = await Promise.all(promises);
-      return results.flatMap(({ packs }) => packs);
+      return {
+        packs: await assetService.getPacks(address)
+      };
     } catch (error: any) {
       return rejectWithValue(error.message ?? 'Failed to fetch packs');
     }
@@ -358,8 +246,7 @@ const profileSlice = createSlice({
       })
       .addCase(fetchPacks.fulfilled, (state, action) => {
         state.packsLoading = false;
-        console.log(action);
-        state.packs = action.payload;
+        state.packs = action.payload.packs;
       })
       .addCase(fetchPacks.rejected, (state, action) => {
         state.packsLoading = false;

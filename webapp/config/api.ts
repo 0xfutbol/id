@@ -1,3 +1,5 @@
+"use client";
+
 export const API_CONFIG = {
-  backendUrl: "https://id.0xfutbol.com/api",
-} as const; 
+  backendUrl: process.env.NEXT_PUBLIC_BACKEND_URL ?? 'https://id.0xfutbol.com/api',
+} as const;

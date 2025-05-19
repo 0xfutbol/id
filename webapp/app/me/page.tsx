@@ -39,7 +39,7 @@ import {
   TokenVestingBanner
 } from "./components";
 import { ACHIEVEMENTS, GAME_CARDS } from "./constants";
-import { AssetItem } from "./types";
+import { NFTItem } from "./types";
 
 export default function ProfilePage() {
   // Local state
@@ -74,7 +74,7 @@ export default function ProfilePage() {
   // External hooks
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab");
-  const { address, username, newContract } = useOxFutbolIdContext();
+  const { address, username } = useOxFutbolIdContext();
 
   // Handle Discord connection
   const handleConnectDiscord = useCallback(() => {
@@ -100,23 +100,16 @@ export default function ProfilePage() {
       dispatch(fetchAssets(address));
       dispatch(fetchUltrasNFTs(address));
       dispatch(fetchPacks(address));
-      
-      // Only dispatch token balance fetch if newContract is available and callable
-      if (typeof newContract === 'function') {
-        dispatch(fetchTokenBalances({ address, newContract }));
-      }
+      dispatch(fetchTokenBalances(address));
     }
-  }, [address, dispatch, newContract]);
+  }, [address, dispatch]);
 
   // Convert string IDs to BigInt for the component props
   const convertedAssets = useMemo(() => {
-    const result: Record<string, AssetItem[]> = {};
+    const result: Record<string, NFTItem[]> = {};
     
     Object.entries(assets).forEach(([key, items]) => {
-      result[key] = items.map(item => ({
-        ...item,
-        tokenId: BigInt(item.tokenId), // Convert string to BigInt for component
-      }));
+      result[key] = items;
     });
     
     return result;

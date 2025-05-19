@@ -1,7 +1,5 @@
-import { getSquidByChain } from "@/modules/squid/utils";
 import { fetchPacks } from "@/store/features/profile";
 import { useAppDispatch } from "@/store/hooks";
-import { ChainName } from "@0xfutbol/constants";
 import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { addToast } from "@heroui/toast";
 import { ethers } from "ethers";
@@ -74,18 +72,6 @@ export const usePacks = () => {
     }
   };
 
-  const getPacks = async (chain: ChainName) => {
-    console.log("[usePacks] Getting packs for chain:", chain);
-    if (!address) {
-      console.error("[usePacks] No address available for getting packs");
-      throw new Error("No address available");
-    }
-
-    const service = getSquidByChain(chain);
-    console.log("[usePacks] Querying packs for address:", address);
-    return service.queryPacks(address);
-  };
-
   const getRedeemedPacks = async (): Promise<number> => {
     console.log("[usePacks] Getting redeemed packs count");
     if (!address) {
@@ -121,7 +107,6 @@ export const usePacks = () => {
 
   return {
     claimGift,
-    getPacks,
     getRedeemedPacks
   };
 };

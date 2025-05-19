@@ -1,4 +1,4 @@
-import { ethers } from 'ethers';
+import { isAddress } from 'ethers/lib/utils';
 import { Request, Response } from 'express';
 import { getAddress, saveAddress } from '../models/db';
 import accountService from '../services/accountService';
@@ -63,7 +63,7 @@ export const accountController = {
   pingAddress: async (req: Request, res: Response) => {
     const { address, referrer } = req.body;
 
-    if (!ethers.isAddress(address)) {
+    if (!isAddress(address)) {
       return res.status(400).json({ error: 'Invalid address' });
     }
 
