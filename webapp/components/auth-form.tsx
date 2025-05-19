@@ -87,7 +87,7 @@ const AuthForm: React.FC = () => {
             <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
             <div className="flex items-start gap-2">
               <p className="text-sm text-gray-500">
-                0xFútbol ID is your unique identifier in the 0xFútbol World—think of it like your username for any
+                0xFútbol ID is your unique identifier in the 0xFútbol Ecosystem—think of it like your username for any
                 0xFútbol product.
               </p>
             </div>
