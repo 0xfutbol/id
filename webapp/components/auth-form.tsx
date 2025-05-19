@@ -112,7 +112,7 @@ const AuthForm: React.FC = () => {
                 </ListboxItem>
               ))}
             </Listbox>
-            <p className="text-xs text-gray-500">
+            <p className="text-xs text-gray-500 text-center">
               By continuing, you agree to our{" "}
               <a className="text-primary hover:underline" href="https://0xfutbol.com/terms-of-service">
                 Terms of Service
