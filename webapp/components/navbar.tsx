@@ -41,10 +41,10 @@ export const Navbar = () => {
   }, [address]);
 
   return (
-    <NextUINavbar maxWidth="xl" position="sticky">
+    <NextUINavbar maxWidth="xl" position="sticky" className="px-4">
       <NavbarContent className="basis-1/5" justify="start">
-        <NavbarBrand as="li" className="gap-3 max-w-fit p-2">
-          <NextLink className="flex justify-start items-center gap-1" href="/">
+        <NavbarBrand as="li" className="gap-2 max-w-fit">
+          <NextLink className="flex justify-start items-center" href="/">
             <Image
               alt="0xFútbol ID"
               height={32}
