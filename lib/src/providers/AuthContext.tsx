@@ -121,7 +121,12 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   }, []);
 
   useEffect(() => {
-    if (isConnecting.current) return;
+    if (!web3Ready) return;
+
+    if (isConnecting.current) {
+      console.debug("[0xFútbol ID] Already connecting, skipping");
+      return;
+    }
 
     (async () => {
       isConnecting.current = true;
@@ -175,7 +180,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
       isConnecting.current = false;
     })();
-  }, [chainToSign, signer, status]);
+  }, [chainToSign, signer, status, web3Ready]);
 
   return {
     authStatus,
