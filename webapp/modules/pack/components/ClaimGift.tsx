@@ -89,7 +89,7 @@ export const ClaimGift = () => {
         isKeyboardDismissDisabled={true}
         classNames={{
           backdrop: "bg-background/80 backdrop-blur-sm",
-          base: "bg-background/80 backdrop-blur-sm",
+          base: "bg-background/80 backdrop-blur-sm w-full md:w-auto h-full md:h-auto",
         }}
         backdrop="blur"
         hideCloseButton
