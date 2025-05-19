@@ -5,6 +5,7 @@ import { Button, Modal, ModalBody, ModalContent, Spinner } from "@heroui/react";
 import confetti from "canvas-confetti";
 import { useEffect, useState } from "react";
 import { FiGift } from "react-icons/fi";
+import { useEffectOnce } from "react-use";
 
 export const ClaimGift = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -15,7 +16,7 @@ export const ClaimGift = () => {
 
   const { claimGift, getRedeemedPacks, getMaxRedeemablePacks } = usePacks();
 
-  useEffect(() => {
+  useEffectOnce(() => {
     const fetchInitialData = async () => {
       try {
         const [count, maxPacks] = await Promise.all([
@@ -32,7 +33,7 @@ export const ClaimGift = () => {
     };
 
     fetchInitialData();
-  }, [getRedeemedPacks, getMaxRedeemablePacks]);
+  });
 
   const handleClaim = async () => {
     try {
@@ -92,7 +93,6 @@ export const ClaimGift = () => {
         }}
         backdrop="blur"
         hideCloseButton
-        shouldCloseOnInteractOutside={() => false}
         onClose={() => setIsModalOpen(false)}
       >
         <ModalContent className="bg-transparent shadow-none">
