@@ -43,10 +43,10 @@ export const usePacks = () => {
         throw new Error("No signer available");
       }
 
-      // if (walletProvider !== "matchain_id") {
-      //   console.error("[usePacks] Invalid wallet provider for gift claim:", walletProvider);
-      //   throw new Error("Gift claiming is only available for Matchain ID users");
-      // }
+      if (walletProvider !== "matchain_id") {
+        console.error("[usePacks] Invalid wallet provider for gift claim:", walletProvider);
+        throw new Error("Gift claiming is only available for Matchain ID users");
+      }
 
       // Switch to Matchain network first
       await switchChain("matchain");
