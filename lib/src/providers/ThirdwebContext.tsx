@@ -32,6 +32,7 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
   }, [openModal]);
 
   const disconnect = useCallback(async () => {
+    localStorage.clear();
     await activeWallet?.disconnect();
   }, [activeWallet]);
 

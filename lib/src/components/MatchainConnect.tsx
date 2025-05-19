@@ -5,7 +5,7 @@ import "@matchain/matchid-sdk-react/index.css";
 
 export const MatchainConnect: React.FC = () => {
   return (
-    <div style={{ position: "absolute", left: "100%", top: "100%" }}>
+    <div style={{ position: "absolute", top: "-100%" }}>
       <Components.LoginButton
         className={`connect-button-matchain_id`}
         methods={['discord', 'email', 'google', 'telegram', 'twitter']}

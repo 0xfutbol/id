@@ -41,6 +41,7 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
   }, []);
   
   const disconnect = useCallback(async () => {
+    localStorage.clear();
     await userInfo.logout();
   }, [userInfo]);
 
