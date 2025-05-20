@@ -131,54 +131,56 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     (async () => {
       isConnecting.current = true;
 
-      if (status === "connected") {
-        const currentAddress = address!;
-  
-        const checkExistingToken = async () => {
-          console.debug("[0xFútbol ID] Checking existing token for account:", currentAddress);
-          const existingJWT = getSavedJWT();
-          const existingToken = existingJWT ? decodeJWT(existingJWT).payload : undefined;
-          const existingTokenExpiration = existingToken?.expiration;
-          const existingTokenOwner = existingToken?.owner;
+      try {
+        if (status === "connected") {
+          const currentAddress = address!;
     
-          if (existingJWT && existingTokenExpiration && existingTokenExpiration >= Date.now() && 
-              existingTokenOwner && existingTokenOwner.toLowerCase() === currentAddress.toLowerCase()) {
-            console.debug("[0xFútbol ID] Existing valid JWT found");
-            login(existingJWT);
-          } else {
-            console.debug("[0xFútbol ID] Checking account:", currentAddress);
-            const { username } = await authService.pre(currentAddress);
-            if (username) {
-              console.debug("[0xFútbol ID] Username found for account:", username);
-              const jwt = await signForJWT(username, signer![chainToSign]);
-              login(jwt)
+          const checkExistingToken = async () => {
+            console.debug("[0xFútbol ID] Checking existing token for account:", currentAddress);
+            const existingJWT = getSavedJWT();
+            const existingToken = existingJWT ? decodeJWT(existingJWT).payload : undefined;
+            const existingTokenExpiration = existingToken?.expiration;
+            const existingTokenOwner = existingToken?.owner;
+      
+            if (existingJWT && existingTokenExpiration && existingTokenExpiration >= Date.now() && 
+                existingTokenOwner && existingTokenOwner.toLowerCase() === currentAddress.toLowerCase()) {
+              console.debug("[0xFútbol ID] Existing valid JWT found");
+              login(existingJWT);
             } else {
-              console.debug("[0xFútbol ID] No username found, claim pending");
-              setIsClaimPending(true);
-              setAuthStatus("unauthenticated");
+              console.debug("[0xFútbol ID] Checking account:", currentAddress);
+              const { username } = await authService.pre(currentAddress);
+              if (username) {
+                console.debug("[0xFútbol ID] Username found for account:", username);
+                const jwt = await signForJWT(username, signer![chainToSign]);
+                login(jwt)
+              } else {
+                console.debug("[0xFútbol ID] No username found, claim pending");
+                setIsClaimPending(true);
+                setAuthStatus("unauthenticated");
+              }
             }
-          }
-        };
-    
-        const pingAccount = async () => {
-          console.debug("[0xFútbol ID] Pinging account service with address:", currentAddress);
-          accountService.ping(currentAddress, localStorage.getItem(OxFUTBOL_ID_REFERRER) ?? undefined);
-        };
-    
-        await checkExistingToken();
-        await pingAccount();
-      }
+          };
+      
+          const pingAccount = async () => {
+            console.debug("[0xFútbol ID] Pinging account service with address:", currentAddress);
+            accountService.ping(currentAddress, localStorage.getItem(OxFUTBOL_ID_REFERRER) ?? undefined);
+          };
+      
+          await checkExistingToken();
+          await pingAccount();
+        }
 
-      else if (status === "disconnected") {
-        console.debug("[0xFútbol ID] Status is disconnected, logging out");
-        logout();
-      }
+        else if (status === "disconnected") {
+          console.debug("[0xFútbol ID] Status is disconnected, logging out");
+          logout();
+        }
 
-      else {
-        console.debug("[0xFútbol ID] Status is ", status, "and signer is ", signer);
+        else {
+          console.debug("[0xFútbol ID] Status is ", status, "and signer is ", signer);
+        }
+      } finally {
+        isConnecting.current = false;
       }
-
-      isConnecting.current = false;
     })();
   }, [chainToSign, signer, status, web3Ready]);
 
