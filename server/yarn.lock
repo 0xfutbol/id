@@ -7,10 +7,10 @@
   resolved "https://registry.npmjs.org/@0xfutbol/constants/-/constants-2.0.17.tgz"
   integrity sha512-MrN9+icXMWeL+8P6wLegiKOHGH+UkD/VlYRjURcWPJyQxL+Ewh/dhH2xnVJrOaKctExuS0Z7pgaasPXxJPhaLA==
 
-"@0xfutbol/id-sign-legacy@npm:@0xfutbol/id-sign@^1.0.0":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/id-sign/-/id-sign-1.0.4.tgz#78c382614f0bb4b7670aac7560f66bcce2876d94"
-  integrity sha512-4TeF6wOiu2q5nJDzDAOF/8AaU/FrM946uBNjU3d+2V60m8AEHRA4pdsitPMbTJkBrGFa79fgly2IZPKKCkckJw==
+"@0xfutbol/id-sign-legacy@npm:@0xfutbol/id@^1.0.12":
+  version "1.0.12"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-1.0.12.tgz#04315a475582597163435225e138abe19da79091"
+  integrity sha512-7Zi/hzATdxyF2aYEVlH6wsoje2i1nwikB3IctxKY1JN7foFbbkugHFQ8cGRlbTra/7Nsqw+x5JqngdwjhN2qwg==
   dependencies:
     ethers "^6.13.2"
     jsonwebtoken "^9.0.2"
