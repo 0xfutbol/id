@@ -46,9 +46,8 @@ const AuthForm: React.FC = () => {
                     Enter your desired 0xFútbol ID
                   </label>
                   <input
-                    className={`w-full px-3 py-2 rounded-md border ${
-                      error ? "border-red-500" : "border-gray-300"
-                    } focus:outline-none focus:ring-2 focus:ring-primary`}
+                    className={`w-full px-3 py-2 rounded-md border ${error ? "border-red-500" : "border-gray-300"
+                      } focus:outline-none focus:ring-2 focus:ring-primary`}
                     id="username"
                     name="username"
                     type="text"
@@ -83,35 +82,37 @@ const AuthForm: React.FC = () => {
           </div>
         )}
         connectComponent={({ WALLET_OPTIONS, isWaitingForSignature, onConnectClick }) => (
-          <div className="flex flex-col gap-4 p-4">
-            <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
-            <div className="flex items-start gap-2">
-              <p className="text-sm text-gray-500">
-                0xFútbol ID is your unique identifier in the 0xFútbol Ecosystem—think of it like your username for any
-                0xFútbol product.
+          <div className="flex flex-col gap-8 p-4">
+            <div className="flex flex-col gap-4">
+              <p className="text-sm">Connect your 0xFútbol ID to start playing.</p>
+              <div className="flex items-start gap-2">
+                <p className="text-sm text-gray-500">
+                  0xFútbol ID is your unique identifier in the 0xFútbol Ecosystem—think of it like your username for any
+                  0xFútbol product.
+                </p>
+              </div>
+              <p className="text-sm">
+                Don&apos;t have one yet? No worries! Just connect your wallet, and you&apos;ll be able to claim yours
+                instantly.
               </p>
-            </div>
-            <p className="text-sm">
-              Don&apos;t have one yet? No worries! Just connect your wallet, and you&apos;ll be able to claim yours
-              instantly.
-            </p>
-            <Listbox aria-label="Wallet Options" className="p-0 gap-1 my-2">
-              {WALLET_OPTIONS.map((option: any) => (
-                <ListboxItem
-                  key={option.key}
-                  className="flex items-center gap-2 w-full p-2 rounded-lg"
-                  onClick={() => onConnectClick(option.key)}
-                >
-                  <div className="flex items-center gap-2 w-full">
-                    <div>{option.icon}</div>
-                    <div className="flex flex-col items-start justify-center gap-1">
-                      <p className="text-sm">{option.label}</p>
-                      <p className="text-xs text-gray-500">{option.description}</p>
+              <Listbox aria-label="Wallet Options" className="p-0 gap-1 my-2">
+                {WALLET_OPTIONS.map((option: any) => (
+                  <ListboxItem
+                    key={option.key}
+                    className="flex items-center gap-2 w-full p-2 rounded-lg"
+                    onClick={() => onConnectClick(option.key)}
+                  >
+                    <div className="flex items-center gap-2 w-full">
+                      <div>{option.icon}</div>
+                      <div className="flex flex-col items-start justify-center gap-1">
+                        <p className="text-sm">{option.label}</p>
+                        <p className="text-xs text-gray-500">{option.description}</p>
+                      </div>
                     </div>
-                  </div>
-                </ListboxItem>
-              ))}
-            </Listbox>
+                  </ListboxItem>
+                ))}
+              </Listbox>
+            </div>
             <p className="text-xs text-gray-500 text-center">
               By continuing, you agree to our{" "}
               <a className="text-primary hover:underline" href="https://0xfutbol.com/terms-of-service">
