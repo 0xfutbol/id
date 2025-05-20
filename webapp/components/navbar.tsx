@@ -4,12 +4,15 @@ import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { Button, Dropdown, DropdownItem, DropdownMenu, DropdownTrigger, Image, NavbarBrand, NavbarContent, NavbarItem, Navbar as NextUINavbar } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 import NextLink from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { FiCopy, FiMenu } from "react-icons/fi";
 import { ClaimGift } from "../modules/pack/components";
 
 export const Navbar = () => {
-  const { address, disconnect, walletProvider } = useOxFutbolIdContext();
+  const router = useRouter();
+
+  const { address, walletProvider } = useOxFutbolIdContext();
 
   const shortenAddress = useCallback((addr: string) => {
     if (!addr) return "";
@@ -83,7 +86,7 @@ export const Navbar = () => {
                   key="logout"
                   className="text-danger"
                   color="danger"
-                  onClick={disconnect}
+                  onClick={() => router.push("/logout")}
                 >
                   Logout
                 </DropdownItem>

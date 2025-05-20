@@ -10,17 +10,16 @@ const LOGIN_PATH = "/login";
 const ME_PATH = "/me";
 const PUBLIC_PATHS = [LOGIN_PATH];
 
-const WEB3_STATUS_TIMEOUT_MS = 10000; // 10 seconds timeout
-
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
 export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
   const router = useRouter();
-  const { authStatus, web3Ready } = useOxFutbolIdContext();
-  const currentPath = useMemo(() => window.location.pathname, []);
 
+  const { authStatus, web3Ready } = useOxFutbolIdContext();
+
+  const currentPath = useMemo(() => window.location.pathname, []);
   const isPublicPath = useMemo(
     () => PUBLIC_PATHS.some((path) => currentPath.startsWith(path)),
     [currentPath]
@@ -37,11 +36,11 @@ export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
   }, [authStatus, currentPath, isPublicPath, web3Ready]);
 
   const redirectToLogin = useCallback(() => {
-    if (!isPublicPath && authStatus !== "authenticated") {
+    if (!isPublicPath && authStatus === "unauthenticated") {
       console.info("Redirecting to login from:", currentPath);
       router.push(LOGIN_PATH);
     }
-  }, [authStatus, isPublicPath, router, currentPath]);
+  }, [authStatus, currentPath, isPublicPath, router]);
 
   const redirectToMe = useCallback(() => {
     if (authStatus === "authenticated" && currentPath === LOGIN_PATH) {
@@ -57,17 +56,6 @@ export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
     redirectToMe();
     redirectToLogin();
   }, [web3Ready, logAuthState, redirectToMe, redirectToLogin]);
-
-  useEffect(() => {
-    if (web3Ready && authStatus === "unknown" && !isPublicPath) {
-      const timeoutId = setTimeout(() => {
-        console.warn("Auth status timeout, redirecting to login");
-        redirectToLogin();
-      }, WEB3_STATUS_TIMEOUT_MS);
-
-      return () => clearTimeout(timeoutId);
-    }
-  }, [web3Ready, authStatus, isPublicPath, redirectToLogin]);
 
   if (!web3Ready) {
     return <LoadingScreen />;
