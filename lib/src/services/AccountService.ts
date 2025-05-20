@@ -11,7 +11,7 @@ export class AccountService {
 		this.httpClient = axios.create({ baseURL: `${backendUrl}/account` })
 	}
 
-	async getInfo(): Promise<{ discord: any, referralCount: number }> {
+	async getInfo(): Promise<{ discord: any, pip: string | null, referralCount: number }> {
 		try {
 			const response = await this.httpClient.get("/info", {
 				headers: {
