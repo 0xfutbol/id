@@ -44,4 +44,16 @@ export class AccountService {
 			throw err;
 		}
 	}
+
+	async updatePiP(tokenId: string): Promise<void> {
+		try {
+			await this.httpClient.post("/pip", { tokenId }, {
+				headers: {
+					Authorization: `Bearer ${getSavedJWT()}`
+				}
+			});
+		} catch (err) {
+			throw err;
+		}
+	}
 }
