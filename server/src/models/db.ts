@@ -39,11 +39,12 @@ export async function getReferralCount(referrer: string): Promise<number> {
 }
 
 // User-related methods
-export async function getUserByAddress(address: string): Promise<{ address: string; username: string; login_method?: string } | undefined> {
+export async function getUserByAddress(address: string): Promise<{ address: string; username: string; login_method?: string; pip?: string } | undefined> {
   const result = await db('users')
-    .select('address', 'username', 'login_method')
+    .select('address', 'username', 'login_method', 'pip')
     .where('address', address.toLowerCase())
     .first();
+
   return result;
 }
 
@@ -136,4 +137,11 @@ export async function saveTonAccount(tonAddress: string, address: string): Promi
     ton_address: tonAddress,
     address: address.toLowerCase(),
   }).onConflict('ton_address').merge();
+}
+
+// PiP-related methods
+export async function updateUserPiP(address: string, pip: string): Promise<void> {
+  await db('users')
+    .where('address', address.toLowerCase())
+    .update({ pip });
 }

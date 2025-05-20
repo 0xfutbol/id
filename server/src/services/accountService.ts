@@ -1,14 +1,16 @@
 import axios from 'axios';
 import {
-    getDiscordAccountByAddress,
-    getDiscordAccountByDiscordId,
-    getReferralCount,
-    getTonAccountByAddress,
-    getTonAccountByTonAddress,
-    getUserByAddress,
-    saveDiscordAccount,
-    saveTonAccount
+  getDiscordAccountByAddress,
+  getDiscordAccountByDiscordId,
+  getReferralCount,
+  getTonAccountByAddress,
+  getTonAccountByTonAddress,
+  getUserByAddress,
+  saveDiscordAccount,
+  saveTonAccount,
+  updateUserPiP
 } from '../models/db';
+import { BaseChainService } from './onchainService/baseService';
 
 /**
  * Service for handling account-related business logic
@@ -44,18 +46,25 @@ const accountService = {
    */
   getAccountInfo: async (userAddress: string): Promise<{
     discord: any;
-    ton: any;
+    pip: string | null;
     referralCount: number;
+    ton: any;
   }> => {
     try {
       const discordAccount = await getDiscordAccountByAddress(userAddress);
-      const tonAccount = await getTonAccountByAddress(userAddress);
       const referralCount = await getReferralCount(userAddress);
+      const tonAccount = await getTonAccountByAddress(userAddress);
+      const user = await getUserByAddress(userAddress);
+
+      if (!user) {
+        throw new Error('User not found');
+      }
 
       return {
         discord: discordAccount,
+        pip: user.pip || null,
+        referralCount,
         ton: tonAccount,
-        referralCount
       };
     } catch (error) {
       console.error('Error fetching account info:', error);
@@ -67,8 +76,9 @@ const accountService = {
    * Get public account info for a user by address
    */
   getPublicAccountInfo: async (address: string): Promise<{
-    username: string;
     discord: string | null;
+    pip: string | null;
+    username: string;
   }> => {
     const user = await getUserByAddress(address);
     
@@ -79,8 +89,9 @@ const accountService = {
     const discordAccount = await getDiscordAccountByAddress(address);
 
     return {
+      discord: discordAccount?.discord_id || null,
+      pip: user.pip || null,
       username: user.username,
-      discord: discordAccount?.discord_id || null
     };
   },
 
@@ -115,6 +126,30 @@ const accountService = {
     } catch (error) {
       console.error('Error connecting Discord account:', error);
       throw new Error('Failed to connect Discord account');
+    }
+  },
+
+  /**
+   * Update user's PiP (Profile Image Picture)
+   */
+  updatePiP: async (userAddress: string, tokenId: string): Promise<{ success: boolean; message: string; accountInfo?: any }> => {
+    try {
+      const baseService = new BaseChainService();
+      const ultras = await baseService.getUltras({ walletAddress: userAddress });
+      const selectedUltra = ultras.find(ultra => ultra.tokenId === tokenId);
+      
+      if (!selectedUltra) {
+        return { success: false, message: "Token ID not found or not owned by this address" };
+      }
+
+      await updateUserPiP(userAddress, selectedUltra.image);
+
+      // Reload account info after successful update
+      const accountInfo = await accountService.getAccountInfo(userAddress);
+      return { success: true, message: "PiP updated successfully", accountInfo };
+    } catch (error) {
+      console.error('Error updating PiP:', error);
+      throw new Error('Failed to update PiP');
     }
   }
 };

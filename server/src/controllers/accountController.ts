@@ -105,6 +105,30 @@ export const accountController = {
       console.error('Error connecting Discord', error);
       res.status(500).json({ message: "Error connecting Discord" });
     }
+  },
+
+  // Update Profile Image Picture (PiP)
+  updatePiP: async (req: Request & { user?: { owner: string } }, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const { tokenId } = req.body;
+    if (!tokenId) {
+      return res.status(400).json({ message: "Token ID is required" });
+    }
+
+    try {
+      const result = await accountService.updatePiP(req.user.owner, tokenId);
+      if (result.success) {
+        res.json({ message: result.message, accountInfo: result.accountInfo });
+      } else {
+        res.status(400).json({ message: result.message });
+      }
+    } catch (error) {
+      console.error('Error updating PiP:', error);
+      res.status(500).json({ message: "Error updating PiP" });
+    }
   }
 };
 
