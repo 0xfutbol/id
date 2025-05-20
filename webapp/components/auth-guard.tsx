@@ -17,7 +17,7 @@ interface AuthGuardProps {
 export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
   const router = useRouter();
 
-  const { authStatus, web3Ready } = useOxFutbolIdContext();
+  const { authStatus, status, web3Ready } = useOxFutbolIdContext();
 
   const currentPath = useMemo(() => window.location.pathname, []);
   const isPublicPath = useMemo(
@@ -30,6 +30,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
       authStatus,
       currentPath,
       isPublicPath,
+      status,
       web3Ready,
       timestamp: new Date().toISOString(),
     });

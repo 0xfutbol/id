@@ -3,14 +3,14 @@
  "version": "0.0.1",
  "private": true,
  "scripts": {
-  "dev": "NODE_ENV=development next dev",
+  "dev": "NODE_ENV=development next dev -p 3030",
   "build": "next build",
   "start": "next start",
   "lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
  },
  "dependencies": {
   "@0xfutbol/constants": "^2.0.17",
-  "@0xfutbol/id": "^2.0.159",
+  "@0xfutbol/id": "^2.0.162",
   "@ankr.com/ankr.js": "^0.6.0",
   "@heroui/react": "2.7.8",
   "@react-aria/ssr": "3.9.4",
