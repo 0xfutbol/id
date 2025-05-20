@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from 'express';
-import authService from '../services/authService';
+import { oxFutboId } from '../utils/common/id';
 
 // Extended Request type to include user information
 export interface AuthRequest extends Request {
@@ -17,31 +17,18 @@ export const authenticateJWT = (req: AuthRequest, res: Response, next: NextFunct
 
   if (authHeader) {
     const token = authHeader.split(' ')[1];
-    const user = authService.verifyToken(token);
-    
-    if (!user) {
-      return res.sendStatus(403);
-    }
 
-    req.user = user;
-    next();
+    oxFutboId.verifyJWT(token, (err: Error, user: any) => {
+      if (err) {
+        return res.sendStatus(403);
+      }
+
+      // @ts-ignore
+      req.user = user;
+      next();
+    });
   } else {
     res.sendStatus(401);
-  }
-};
-
-/**
- * Middleware to verify if user has admin role
- */
-export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
-  if (!req.user) {
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
-  if (authService.isAdmin(req.user.owner)) {
-    next();
-  } else {
-    res.status(403).json({ error: 'Forbidden' });
   }
 };
 
@@ -49,7 +36,19 @@ export const isAdmin = (req: AuthRequest, res: Response, next: NextFunction) => 
  * Middleware to authenticate and verify admin role in one step
  */
 export const authenticateAdmin = (req: AuthRequest, res: Response, next: NextFunction) => {
-  authenticateJWT(req, res, () => {
-    isAdmin(req, res, next);
-  });
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader || authHeader.indexOf('Basic ') === -1) {
+    return res.sendStatus(401);
+  }
+
+  const base64Credentials = authHeader.split(' ')[1];
+  const credentials = Buffer.from(base64Credentials, 'base64').toString('ascii');
+  const [username, password] = credentials.split(':');
+
+  if (username !== '0xfutbol' || password !== '1234567890') {
+    return res.sendStatus(401);
+  }
+
+  next();
 }; 
