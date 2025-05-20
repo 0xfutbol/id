@@ -7,7 +7,15 @@
   resolved "https://registry.npmjs.org/@0xfutbol/constants/-/constants-2.0.17.tgz"
   integrity sha512-MrN9+icXMWeL+8P6wLegiKOHGH+UkD/VlYRjURcWPJyQxL+Ewh/dhH2xnVJrOaKctExuS0Z7pgaasPXxJPhaLA==
 
-"@0xfutbol/id-sign-legacy@npm:@0xfutbol/id-sign@^1.0.2", "@0xfutbol/id-sign@^1.0.4":
+"@0xfutbol/id-sign-legacy@npm:@0xfutbol/id-sign@^1.0.0":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/id-sign/-/id-sign-1.0.4.tgz#78c382614f0bb4b7670aac7560f66bcce2876d94"
+  integrity sha512-4TeF6wOiu2q5nJDzDAOF/8AaU/FrM946uBNjU3d+2V60m8AEHRA4pdsitPMbTJkBrGFa79fgly2IZPKKCkckJw==
+  dependencies:
+    ethers "^6.13.2"
+    jsonwebtoken "^9.0.2"
+
+"@0xfutbol/id-sign@^1.0.4":
   version "1.0.4"
   resolved "https://registry.npmjs.org/@0xfutbol/id-sign/-/id-sign-1.0.4.tgz"
   integrity sha512-4TeF6wOiu2q5nJDzDAOF/8AaU/FrM946uBNjU3d+2V60m8AEHRA4pdsitPMbTJkBrGFa79fgly2IZPKKCkckJw==
