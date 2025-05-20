@@ -97,7 +97,7 @@ type Web3ContextState = {
   address?: string;
   defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
-  status: string;
+  status: "disconnected" | "connecting" | "connected" | "unknown";
   walletProvider: "matchain_id" | "thirdweb" | "unknown";
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
@@ -195,7 +195,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     status: {
       matchain_id: matchIdContext.status,
       thirdweb: thirdwebContext.status,
-      unknown: "unknown"
+      unknown: "disconnected" as const
     }[walletProvider!],
     walletProvider: walletProvider!,
     web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
