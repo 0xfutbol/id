@@ -5,6 +5,7 @@ import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
+import { accountService } from "@/modules/account/account-service";
 import {
   fetchAccountInfo,
   fetchAssets,
@@ -19,6 +20,7 @@ import {
   selectPacks,
   selectPacksError,
   selectPacksLoading,
+  selectPip,
   selectReferralCount,
   selectSelectedTab,
   selectTokenVestingBalance,
@@ -70,7 +72,9 @@ export default function ProfilePage() {
   const packs = useAppSelector(selectPacks);
   const packsError = useAppSelector(selectPacksError);
   const packsLoading = useAppSelector(selectPacksLoading);
-  
+
+  const pip = useAppSelector(selectPip);
+
   // External hooks
   const searchParams = useSearchParams();
   const initialTab = searchParams.get("tab");
@@ -104,6 +108,22 @@ export default function ProfilePage() {
     }
   }, [address, dispatch]);
 
+  // If user has no PiP but has ultras, set PiP to lowest tokenId ultra
+  useEffect(() => {
+    if (!pip && ultrasNFTs.length > 0 && address) {
+      // Find the lowest tokenId
+      const lowestUltra = ultrasNFTs.reduce((prev, curr) => {
+        return BigInt(prev.id) < BigInt(curr.id) ? prev : curr;
+      });
+      // Call backend to update PiP using the service
+      accountService.updatePiP(lowestUltra.id)
+        .then(() => {
+          dispatch(fetchAccountInfo());
+        })
+        .catch((err: any) => console.error("Failed to update PiP", err));
+    }
+  }, [pip, ultrasNFTs, address, dispatch]);
+
   // Convert string IDs to BigInt for the component props
   const convertedAssets = useMemo(() => {
     const result: Record<string, NFTItem[]> = {};
@@ -117,7 +137,7 @@ export default function ProfilePage() {
 
   // Memoized values
   const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "packs", "tokens", "ultras"], [assets]);
-  const avatarSrc = ultrasNFTs.length > 0 && ultrasNFTs[0].metadata.image ? ultrasNFTs[0].metadata.image : "";
+  const avatarSrc = pip || `https://api.dicebear.com/9.x/shapes/svg?seed=${address}`;
 
   // Effects
   useEffect(() => {

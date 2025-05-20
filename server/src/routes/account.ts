@@ -10,6 +10,6 @@ router.get('/info', authenticateJWT, accountController.getAccountInfo);
 router.get('/:address', accountController.getPublicAccountInfo);
 router.post('/ping', express.json(), accountController.pingAddress);
 router.post('/discord', express.json(), authenticateJWT, accountController.connectDiscord);
-router.put('/pip', express.json(), authenticateJWT, accountController.updatePiP);
+router.post('/pip', express.json(), authenticateJWT, accountController.updatePiP);
 
 export default router;

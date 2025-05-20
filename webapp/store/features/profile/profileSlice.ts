@@ -27,6 +27,7 @@ interface ProfileState {
   assetsLoading: boolean;
   discordAccount: string | null;
   msuBalance: string;
+  pip: string | null;
   packs: NFTItem[];
   packsError: string | null;
   packsLoading: boolean;
@@ -53,6 +54,7 @@ const initialState: ProfileState = {
   },
   discordAccount: null,
   msuBalance: '0',
+  pip: null,
   referralCount: 0,
   selectedTab: "achievements",
   tokenVestingBalance: '0',
@@ -76,6 +78,7 @@ export const fetchAccountInfo = createAsyncThunk(
       const info = await accountService.getInfo();
       return {
         discordAccount: info.discord?.info?.username ?? null,
+        pip: info.pip ?? null,
         referralCount: info.referralCount ?? 0
       };
     } catch (error: any) {
@@ -184,6 +187,7 @@ const profileSlice = createSlice({
       })
       .addCase(fetchAccountInfo.fulfilled, (state, action) => {
         state.discordAccount = action.payload.discordAccount;
+        state.pip = action.payload.pip;
         state.referralCount = action.payload.referralCount;
       })
       .addCase(fetchAccountInfo.rejected, (state, action) => {
@@ -267,6 +271,7 @@ export const selectAssetsError = (state: RootState) => state.profile.assetsError
 export const selectAssetsLoading = (state: RootState) => state.profile.assetsLoading;
 export const selectTokens = (state: RootState) => state.profile.tokens;
 export const selectMsuBalance = (state: RootState) => state.profile.msuBalance;
+export const selectPip = (state: RootState) => state.profile.pip;
 export const selectTokenVestingBalance = (state: RootState) => state.profile.tokenVestingBalance;
 export const selectTokensError = (state: RootState) => state.profile.tokensError;
 export const selectTokensLoading = (state: RootState) => state.profile.tokensLoading;
