@@ -9,6 +9,7 @@
   "dependencies": {
     "@0xfutbol/constants": "^2.0.17",
     "@0xfutbol/id-sign": "^1.0.4",
+    "@0xfutbol/id-sign-legacy": "npm:@0xfutbol/id-sign@^1.0.2",
     "@ankr.com/ankr.js": "^0.6.0",
     "@sentry/node": "^8.52.1",
     "@sentry/profiling-node": "^8.52.1",
