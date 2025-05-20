@@ -34,7 +34,7 @@ export const AuthGuard: React.FC<AuthGuardProps> = memo(({ children }) => {
       web3Ready,
       timestamp: new Date().toISOString(),
     });
-  }, [authStatus, currentPath, isPublicPath, web3Ready]);
+  }, [authStatus, currentPath, isPublicPath, status, web3Ready]);
 
   const redirectToLogin = useCallback(() => {
     if (!isPublicPath && authStatus === "unauthenticated") {
