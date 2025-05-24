@@ -6,7 +6,7 @@ import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 export class XdcService implements BlockchainService {
   private readonly chainName: ChainName = "xdc";
-  private readonly httpClient = axios.create({ baseURL: "https://squid-xdc.0xfutbol.com/api" });
+  private readonly httpClient = axios.create({ baseURL: networkConfig.xdc.blockchainSquidEndpoint });
   private readonly rpcUrl = networkConfig.xdc.rpcEndpoint;
 
   async getLands(params: GetAssetParams): Promise<NFTItem[]> {

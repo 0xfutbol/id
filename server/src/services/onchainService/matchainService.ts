@@ -6,7 +6,7 @@ import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 export class MatchainService implements BlockchainService {
   private readonly chainName: ChainName = "matchain";
-  private readonly httpClient = axios.create({ baseURL: "https://squid-matchain.metasoccer.com/api" });
+  private readonly httpClient = axios.create({ baseURL: networkConfig.matchain.blockchainSquidEndpoint });
   private readonly rpcUrl = networkConfig.matchain.rpcEndpoint;
 
   async getLands(params: GetAssetParams): Promise<NFTItem[]> {

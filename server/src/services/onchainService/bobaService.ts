@@ -6,7 +6,7 @@ import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 export class BobaService implements BlockchainService {
   private readonly chainName: ChainName = "boba";
-  private readonly httpClient = axios.create({ baseURL: "https://squid-boba.metasoccer.com/api" });
+  private readonly httpClient = axios.create({ baseURL: networkConfig.boba.blockchainSquidEndpoint });
   private readonly rpcUrl = networkConfig.boba.rpcEndpoint;
 
   async getLands(params: GetAssetParams): Promise<NFTItem[]> {

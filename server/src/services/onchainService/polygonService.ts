@@ -6,7 +6,7 @@ import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 export class PolygonService implements BlockchainService {
   private readonly chainName: ChainName = "polygon";
-  private readonly httpClient = axios.create({ baseURL: "https://squid-polygon.metasoccer.com/api" });
+  private readonly httpClient = axios.create({ baseURL: networkConfig.polygon.blockchainSquidEndpoint });
   private readonly rpcUrl = networkConfig.polygon.rpcEndpoint;
 
   async getLands(params: GetAssetParams): Promise<NFTItem[]> {
