@@ -59,7 +59,8 @@ export const authController = {
 
       await oxFutboId.validateSignature(message, owner, username, expiration);
 
-      const token = oxFutboId.createJWT(username, owner, message, expiration);
+      const pip = oxFutbolId.pip;
+      const token = oxFutboId.createJWT(username, owner, message, expiration, { pip });
       
       // Save the user in the database
       await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");

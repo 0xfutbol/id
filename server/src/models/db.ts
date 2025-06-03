@@ -48,9 +48,9 @@ export async function getUserByAddress(address: string): Promise<{ address: stri
   return result;
 }
 
-export async function getUserByUsername(username: string): Promise<{ address: string; username: string; login_method?: string } | undefined> {
+export async function getUserByUsername(username: string): Promise<{ address: string; username: string; login_method?: string, pip?: string } | undefined> {
   const result = await db('users')
-    .select('address', 'username', 'login_method')
+    .select('address', 'username', 'login_method', 'pip')
     .where('username', username)
     .first();
   return result;
