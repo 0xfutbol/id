@@ -34,7 +34,7 @@ type OxFutbolIdState = {
   isClaimPending: boolean;
   isWaitingForSignature: boolean;
   username?: string;
-  userClaims?: object;
+  userClaims?: Record<string, any>;
   claim: (username: string) => Promise<void>;
 }
 
