@@ -25,12 +25,12 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const authService = useMemo(() => new AuthService(backendUrl), [backendUrl]);
   const accountService = useMemo(() => new AccountService(backendUrl), [backendUrl]);
 
-  const username = useRef<string | undefined>(undefined);
   const validJWT = useRef<string | undefined>(undefined);
-
+  
   const [authStatus, setAuthStatus] = useState<AuthStatus>("unknown");
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
+  const [jwtPayload, setJwtPayload] = useState<Record<string, any> | undefined>(undefined);
 
   const claim = useCallback(async (username: string) => {
     if (!address) throw new Error("No address found");
@@ -85,9 +85,9 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     console.debug("[0xFútbol ID] Logging in with JWT");
 
     setAuthStatus("authenticated");
+    setJwtPayload(decodeJWT(jwt).payload);
     setSavedJWT(jwt);
 
-    username.current = decodeJWT(jwt).payload.username;
     validJWT.current = jwt;
   }, []);
 
@@ -97,9 +97,9 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     setAuthStatus("unauthenticated");
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
+    setJwtPayload(undefined);
     setSavedJWT(undefined);
 
-    username.current = undefined;
     validJWT.current = undefined;
   }, []);
 
@@ -188,7 +188,8 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     authStatus,
     isClaimPending,
     isWaitingForSignature,
-    username: username.current,
+    username: jwtPayload?.username,
+    userClaims: jwtPayload?.claims,
     claim
   };
 };
