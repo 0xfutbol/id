@@ -147,6 +147,15 @@ export async function updateUserPiP(address: string, pip: string): Promise<void>
 }
 
 // User details-related methods
+export async function getUserDetailsByAddress(address: string): Promise<Array<{
+  id?: string;
+  email?: string;
+  phone?: string;
+}> | null> {
+  const result = await db('users_details').where('address', address.toLowerCase()).first();
+  return result ? JSON.parse(result.details) : null;
+}
+
 export async function saveUserDetails(address: string, userDetails: Array<{
   id?: string;
   email?: string;

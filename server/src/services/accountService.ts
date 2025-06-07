@@ -1,14 +1,15 @@
 import axios from 'axios';
 import {
-    getDiscordAccountByAddress,
-    getDiscordAccountByDiscordId,
-    getReferralCount,
-    getTonAccountByAddress,
-    getTonAccountByTonAddress,
-    getUserByAddress,
-    saveDiscordAccount,
-    saveTonAccount,
-    updateUserPiP
+  getDiscordAccountByAddress,
+  getDiscordAccountByDiscordId,
+  getReferralCount,
+  getTonAccountByAddress,
+  getTonAccountByTonAddress,
+  getUserByAddress,
+  getUserDetailsByAddress,
+  saveDiscordAccount,
+  saveTonAccount,
+  updateUserPiP
 } from '../models/db';
 import { BaseChainService } from './onchainService/baseService';
 
@@ -60,7 +61,7 @@ const accountService = {
       const referralCount = await getReferralCount(userAddress);
       const tonAccount = await getTonAccountByAddress(userAddress);
       const user = await getUserByAddress(userAddress);
-      const userDetails = await getUserDetails(userAddress);
+      const userDetails = await getUserDetailsByAddress(userAddress);
 
       if (!user) {
         throw new Error('User not found');

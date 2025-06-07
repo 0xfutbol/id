@@ -1,7 +1,7 @@
 import { MAX_SIGNATURE_EXPIRATION } from '@0xfutbol/id-sign';
 import { parse } from '@telegram-apps/init-data-node';
 import { Request, Response } from 'express';
-import { getUserByAddress, getUserByUsername, saveAddress, saveTelegramAccount, saveUserIfDoesntExists } from '../models/db';
+import { getUserByAddress, getUserByUsername, saveAddress, saveTelegramAccount, saveUserDetails, saveUserIfDoesntExists } from '../models/db';
 import authService from '../services/authService';
 import { oxFutboId } from '../utils/common/id';
 import { validateUsername } from '../utils/common/utils';
