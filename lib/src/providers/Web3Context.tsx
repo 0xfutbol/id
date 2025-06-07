@@ -113,10 +113,8 @@ export type Web3ContextState = {
   signer?: Record<ChainName, Signer>;
   status: "disconnected" | "connecting" | "connected" | "unknown";
   userDetails?: Array<{
-    id?: string;
-    email?: string;
-    phone?: string;
-  }>;
+    provider: string;
+  } & Record<string, any>>;
   walletProvider: "matchain_id" | "thirdweb" | "unknown";
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;

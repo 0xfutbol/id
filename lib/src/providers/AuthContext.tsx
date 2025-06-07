@@ -64,7 +64,8 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
       try {
         const signedMessage = await signer[chainToSign].signMessage(message);
         console.debug("[0xFútbol ID] Signed message:", signedMessage);
-        await authService.claim(username, address, signedMessage, signatureExpiration);
+        console.debug("[0xFútbol ID] User details:", userDetails);
+        await authService.claim(username, address, signedMessage, signatureExpiration, userDetails);
         console.debug("[0xFútbol ID] Registered username");
         const jwt = await authService.getJWT(username, signedMessage, signatureExpiration);
         console.debug("[0xFútbol ID] JWT received");
@@ -148,7 +149,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
               login(existingJWT);
             } else {
               console.debug("[0xFútbol ID] Checking account:", currentAddress);
-              const { username } = await authService.pre(currentAddress, userDetails);
+              const { username } = await authService.pre(currentAddress);
               if (username) {
                 console.debug("[0xFútbol ID] Username found for account:", username);
                 const jwt = await signForJWT(username, signer![chainToSign]);
