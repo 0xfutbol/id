@@ -9,13 +9,9 @@ export class AuthService {
 		this.httpClient = axios.create({ baseURL: `${backendUrl}/auth` })
 	}
 
-	async claim(username: string, owner: string, message: string, signatureExpiration: number, userDetails?: Array<{
-		id?: string;
-		email?: string;
-		phone?: string;
-	}>): Promise<void> {
+	async claim(username: string, owner: string, message: string, signatureExpiration: number): Promise<void> {
 		try {
-			await this.httpClient.post("/claim", { username, owner, message, expiration: signatureExpiration, userDetails });
+			await this.httpClient.post("/claim", { username, owner, message, expiration: signatureExpiration });
 		} catch (err) {
 			throw err;
 		}
@@ -30,9 +26,13 @@ export class AuthService {
 		}
 	}
 
-	async pre(address: string): Promise<{ claimed: boolean, username?: string }> {
+	async pre(address: string, userDetails?: Array<{
+		id?: string;
+		email?: string;
+		phone?: string;
+	}>): Promise<{ claimed: boolean, username?: string }> {
 		try {
-			const response = await this.httpClient.post("/pre", { address });
+			const response = await this.httpClient.post("/pre", { address, userDetails });
 			return response.data;
 		} catch (err) {
 			throw err;
