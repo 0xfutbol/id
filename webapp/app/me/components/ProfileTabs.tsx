@@ -171,7 +171,7 @@ export function ProfileTabs({
             <Gallery items={packs} renderItem={renderPackItem} />
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
-              <p>You don't have any packs yet</p>
+              <p>No items to display</p>
               {walletProvider === "matchain_id" && (
                 <p className="mt-2 text-sm text-default-400">
                   Claim your gift!
