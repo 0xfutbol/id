@@ -1,7 +1,7 @@
 "use client";
 
 import { AuthUIOrchestrator } from "@0xfutbol/id";
-import { Button, Image, Listbox, ListboxItem } from "@heroui/react";
+import { Button, Form, Image, Input, Listbox, ListboxItem } from "@heroui/react";
 import React, { FormEvent, useCallback } from "react";
 
 import { selectUsername, setUsername } from "@/store/features/auth";
@@ -34,51 +34,48 @@ const AuthForm: React.FC = () => {
                 0xFútbol product.
               </p>
             </div>
-            <form
+            <Form
               onSubmit={(e: FormEvent<HTMLFormElement>) => {
                 e.preventDefault();
                 onClaimClick(username);
               }}
+              className="flex flex-col gap-4"
             >
-              <div className="flex flex-col gap-4">
-                <div className="flex flex-col gap-1">
-                  <label className="text-sm font-medium" htmlFor="username">
-                    Enter your desired 0xFútbol ID
-                  </label>
-                  <input
-                    className={`w-full px-3 py-2 rounded-md border ${error ? "border-red-500" : "border-gray-300"
-                      } focus:outline-none focus:ring-2 focus:ring-primary`}
-                    id="username"
-                    name="username"
-                    type="text"
-                    value={username}
-                    onChange={handleUsernameChange}
-                  />
-                  {error && <p className="text-xs text-red-500">{error}</p>}
-                </div>
-                {isTakingLong && (
-                  <p className="text-xs text-gray-500">
-                    Claiming your 0xFútbol ID is a blockchain operation and might take a few seconds, so please hang
-                    tight—we&apos;ll be ready soon!
-                  </p>
-                )}
-                <Button
-                  className="w-full px-4 py-2 bg-primary text-black rounded-md hover:bg-primary/90 disabled:opacity-50 disabled:cursor-not-allowed"
-                  isDisabled={isLoading}
-                  isLoading={isLoading}
-                  type="submit"
-                >
-                  {isLoading ? "Claiming..." : "Claim 0xFútbol ID"}
-                </Button>
-                <Button
-                  className="w-full px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50"
-                  type="button"
-                  onClick={() => onDisconnectClick("")}
-                >
-                  Go Back
-                </Button>
-              </div>
-            </form>
+              <Input
+                label="Enter your desired 0xFútbol ID"
+                labelPlacement="outside"
+                id="username"
+                name="username"
+                value={username}
+                onChange={handleUsernameChange}
+                errorMessage={error}
+                isInvalid={!!error}
+                className="w-full"
+              />
+              {isTakingLong && (
+                <p className="text-xs text-gray-500">
+                  Claiming your 0xFútbol ID is a blockchain operation and might take a few seconds, so please hang
+                  tight—we&apos;ll be ready soon!
+                </p>
+              )}
+              <Button
+                className="w-full text-black"
+                isDisabled={isLoading}
+                isLoading={isLoading}
+                type="submit"
+                color="primary"
+              >
+                {isLoading ? "Claiming..." : "Claim 0xFútbol ID"}
+              </Button>
+              <Button
+                className="w-full"
+                type="button"
+                onClick={() => onDisconnectClick("")}
+                variant="bordered"
+              >
+                Go Back
+              </Button>
+            </Form>
           </div>
         )}
         connectComponent={({ WALLET_OPTIONS, isWaitingForSignature, onConnectClick }) => (
