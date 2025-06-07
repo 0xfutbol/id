@@ -33,7 +33,7 @@ export const WALLET_OPTIONS = [
   {
     key: "thirdweb",
     label: "Apple, Google, email, or passkey",
-    description: "Connect with the usual — fast, familiar, and password-free.",
+    description: "Connect with the usual — fast, familiar, and easy.",
     icon: (
       <img
         alt="Thirdweb"
@@ -70,7 +70,7 @@ export const WALLET_OPTIONS = [
   {
     key: "telegram",
     label: "Telegram",
-    description: "Use Matchain ID to connect",
+    description: "Use Telegram to connect",
     icon: (
       <img
         alt="Telegram"
