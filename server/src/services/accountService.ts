@@ -1,14 +1,14 @@
 import axios from 'axios';
 import {
-  getDiscordAccountByAddress,
-  getDiscordAccountByDiscordId,
-  getReferralCount,
-  getTonAccountByAddress,
-  getTonAccountByTonAddress,
-  getUserByAddress,
-  saveDiscordAccount,
-  saveTonAccount,
-  updateUserPiP
+    getDiscordAccountByAddress,
+    getDiscordAccountByDiscordId,
+    getReferralCount,
+    getTonAccountByAddress,
+    getTonAccountByTonAddress,
+    getUserByAddress,
+    saveDiscordAccount,
+    saveTonAccount,
+    updateUserPiP
 } from '../models/db';
 import { BaseChainService } from './onchainService/baseService';
 
@@ -49,12 +49,18 @@ const accountService = {
     pip: string | null;
     referralCount: number;
     ton: any;
+    userDetails: Array<{
+      id?: string;
+      email?: string;
+      phone?: string;
+    }> | null;
   }> => {
     try {
       const discordAccount = await getDiscordAccountByAddress(userAddress);
       const referralCount = await getReferralCount(userAddress);
       const tonAccount = await getTonAccountByAddress(userAddress);
       const user = await getUserByAddress(userAddress);
+      const userDetails = await getUserDetails(userAddress);
 
       if (!user) {
         throw new Error('User not found');
@@ -65,6 +71,7 @@ const accountService = {
         pip: user.pip || null,
         referralCount,
         ton: tonAccount,
+        userDetails,
       };
     } catch (error) {
       console.error('Error fetching account info:', error);

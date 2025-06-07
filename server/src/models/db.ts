@@ -145,3 +145,31 @@ export async function updateUserPiP(address: string, pip: string): Promise<void>
     .where('address', address.toLowerCase())
     .update({ pip });
 }
+
+// User details-related methods
+export async function saveUserDetails(address: string, userDetails: Array<{
+  id?: string;
+  email?: string;
+  phone?: string;
+}>): Promise<void> {
+  await db('users_details').insert({
+    address: address.toLowerCase(),
+    details: JSON.stringify(userDetails),
+  }).onConflict('address').merge({
+    details: JSON.stringify(userDetails),
+    updated_at: db.fn.now(),
+  });
+}
+
+export async function getUserDetails(address: string): Promise<Array<{
+  id?: string;
+  email?: string;
+  phone?: string;
+}> | null> {
+  const result = await db('users_details')
+    .select('details')
+    .where('address', address.toLowerCase())
+    .first();
+  
+  return result ? JSON.parse(result.details) : null;
+}

@@ -75,7 +75,7 @@ export const authController = {
 
   // Claim username
   claimUsername: async (req: Request, res: Response) => {
-    const { username, owner, message, loginMethod, expiration } = req.body;
+    const { username, owner, message, loginMethod, expiration, userDetails } = req.body;
 
     if (!isValidClaimRequest(username, owner, message, expiration)) {
       return res.status(400).json({ error: 'Invalid request parameters' });
@@ -92,6 +92,13 @@ export const authController = {
       console.debug("[0xFútbol ID] Registering username:", username);
       await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
       console.debug("[0xFútbol ID] Username registered successfully");
+
+      // Save userDetails if provided
+      if (userDetails && Array.isArray(userDetails) && userDetails.length > 0) {
+        console.debug("[0xFútbol ID] Saving user details:", userDetails);
+        await saveUserDetails(owner, userDetails);
+        console.debug("[0xFútbol ID] User details saved successfully");
+      }
 
       // Return the token in the JSON response as well
       res.json({ success: true });
