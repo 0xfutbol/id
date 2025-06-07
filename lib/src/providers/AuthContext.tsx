@@ -16,7 +16,7 @@ type AuthContextProviderProps = {
 };
 
 const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
-  const { address, status, signer, web3Ready } = useWeb3Context();
+  const { address, status, signer, userDetails, web3Ready } = useWeb3Context();
 
   const isConnecting = useRef(false);
 
@@ -42,13 +42,13 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
     const handleClaimedUsername = async (username: string) => {
       console.debug("[0xFútbol ID] Handling claimed username:", username);
-      const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
+      const signatureExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
+      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", signatureExpiration.toString());
       setIsWaitingForSignature(true);
       try {
         const signedMessage = await signer[chainToSign].signMessage(message);
         console.debug("[0xFútbol ID] Signed message:", signedMessage);
-        const jwt = await authService.getJWT(username, signedMessage, expiration);
+        const jwt = await authService.getJWT(username, signedMessage, signatureExpiration);
         console.debug("[0xFútbol ID] JWT received");
         login(jwt);
       } finally {
@@ -58,15 +58,15 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
 
     const handleUnclaimedUsername = async (username: string) => {
       console.debug("[0xFútbol ID] Handling unclaimed username:", username);
-      const expiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
-      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", expiration.toString());
+      const signatureExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
+      const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", signatureExpiration.toString());
       setIsWaitingForSignature(true);
       try {
         const signedMessage = await signer[chainToSign].signMessage(message);
         console.debug("[0xFútbol ID] Signed message:", signedMessage);
-        await authService.claim(username, address, signedMessage, expiration);
+        await authService.claim(username, address, signedMessage, signatureExpiration, userDetails);
         console.debug("[0xFútbol ID] Registered username");
-        const jwt = await authService.getJWT(username, signedMessage, expiration);
+        const jwt = await authService.getJWT(username, signedMessage, signatureExpiration);
         console.debug("[0xFútbol ID] JWT received");
         login(jwt);
       } finally {
@@ -79,7 +79,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     } else {
       return handleUnclaimedUsername(username);
     }
-  }, [address, chainToSign, signer]);
+  }, [address, chainToSign, userDetails, signer]);
 
   const login = useCallback((jwt: string) => {
     console.debug("[0xFútbol ID] Logging in with JWT");

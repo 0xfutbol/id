@@ -7,7 +7,7 @@ import { createContext } from "react";
 import { ThirdwebProvider } from "thirdweb/react";
 
 import { AuthContextProvider, useAuthContext } from "@/providers/AuthContext";
-import { useWeb3Context, Web3ContextProvider } from "@/providers/Web3Context";
+import { useWeb3Context, Web3ContextProvider, Web3ContextState } from "@/providers/Web3Context";
 import { AuthStatus } from "@/providers/types";
 
 type OxFutbolIdProviderProps = {
@@ -16,19 +16,13 @@ type OxFutbolIdProviderProps = {
   children: React.ReactNode;
 }
 
-type OxFutbolIdWeb3Details = Array<{
-  id?: string;
-  email?: string;
-  phone?: string;
-}>
-
 type OxFutbolIdState = {
   // web3
   address?: string;
   defaultChain?: ChainName;
-  details?: OxFutbolIdWeb3Details;
   signer?: Record<ChainName, Signer>;
   status: string;
+  userDetails?: Web3ContextState["userDetails"];
   walletProvider: "matchain_id" | "thirdweb" | "unknown";
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
