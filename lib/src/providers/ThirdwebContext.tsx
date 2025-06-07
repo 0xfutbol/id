@@ -1,7 +1,7 @@
 import { ChainName } from "@0xfutbol/constants";
 import React, { createContext, ReactNode, useCallback, useEffect, useState } from "react";
 import { ethers5Adapter } from "thirdweb/adapters/ethers5";
-import { AutoConnect, useActiveWallet, useActiveWalletConnectionStatus, useConnectModal } from "thirdweb/react";
+import { AutoConnect, useActiveWallet, useActiveWalletConnectionStatus, useConnectModal, useProfiles } from "thirdweb/react";
 import { getWalletBalance, Wallet } from "thirdweb/wallets";
 
 import { chains as chainsConfig, thirdwebClient } from "@/config";
@@ -17,6 +17,7 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
   const activeWallet = useActiveWallet();
   const status = useActiveWalletConnectionStatus();
   const { connect: openModal } = useConnectModal();
+  const { data: profiles } = useProfiles({ client: thirdwebClient });
 
   const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
 
@@ -83,6 +84,7 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
 
   return {
     address: activeWallet?.getAccount()?.address,
+    details: profiles?.map(profile => profile.details),
     signer,
     status,
     web3Ready: (status === "connected" && signer !== undefined) || status === "disconnected",

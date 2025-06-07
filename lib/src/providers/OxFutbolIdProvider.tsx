@@ -16,10 +16,17 @@ type OxFutbolIdProviderProps = {
   children: React.ReactNode;
 }
 
+type OxFutbolIdWeb3Details = Array<{
+  id?: string;
+  email?: string;
+  phone?: string;
+}>
+
 type OxFutbolIdState = {
   // web3
   address?: string;
   defaultChain?: ChainName;
+  details?: OxFutbolIdWeb3Details;
   signer?: Record<ChainName, Signer>;
   status: string;
   walletProvider: "matchain_id" | "thirdweb" | "unknown";
