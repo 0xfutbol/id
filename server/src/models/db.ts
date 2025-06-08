@@ -153,7 +153,7 @@ export async function getUserDetailsByAddress(address: string): Promise<Array<{
   phone?: string;
 }> | null> {
   const result = await db('users_details').where('address', address.toLowerCase()).first();
-  return result ? JSON.parse(result.details) : null;
+  return result?.details;
 }
 
 export async function saveUserDetails(address: string, userDetails: Array<{
@@ -181,4 +181,32 @@ export async function getUserDetails(address: string): Promise<Array<{
     .first();
   
   return result ? JSON.parse(result.details) : null;
+}
+
+// Airdrop-related methods
+export async function saveAirdropClaim(
+  address: string,
+  strategy: 'MSA' | 'TELEGRAM',
+  allocation: string,
+  message: string,
+  signature: string,
+  telegramId?: string
+): Promise<void> {
+  await db('airdrop_claims')
+    .insert({
+      id: randomUUID(),
+      address: address.toLowerCase(),
+      telegram_id: telegramId,
+      allocation,
+      strategy,
+      message,
+      signature,
+    });
+}
+
+export async function getAirdropClaimByAddress(address: string): Promise<any | undefined> {
+  const result = await db('airdrop_claims')
+    .where('address', address.toLowerCase())
+    .first();
+  return result;
 }
