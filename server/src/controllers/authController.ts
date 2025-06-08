@@ -90,7 +90,7 @@ export const authController = {
 
       // Save the user in the database
       console.debug("[0xFútbol ID] Registering username:", username);
-      await saveUserIfDoesntExists(owner, username, loginMethod ?? "unknown");
+      await saveUserIfDoesntExists(owner, username, loginMethod ?? userDetails?.provider ?? "unknown");
       console.debug("[0xFútbol ID] Username registered successfully");
 
       // Save userDetails if provided

@@ -1,5 +1,6 @@
 import account from './account';
 import admin from './admin';
+import airdrop from './airdrop';
 import auth from './auth';
 import onchain from './onchain';
 
@@ -8,8 +9,9 @@ export const authRoutes = auth;
 export const adminRoutes = admin;
 export const accountRoutes = account;
 export const onchainRoutes = onchain;
+export const airdropRoutes = airdrop;
 
 export {
-  account, admin, auth, onchain
+    account, admin, airdrop, auth, onchain
 };
 
