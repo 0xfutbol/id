@@ -2,7 +2,7 @@ import { ChainName, networkConfig } from "@0xfutbol/constants";
 import axios from 'axios';
 import { fetchLandMetadata, fetchPackMetadata, fetchPlayerMetadata, fetchScoutMetadata } from "./metadataUtils";
 import { BlockchainService, GetAssetParams, GetTokenBalanceParams, NFTItem } from "./types";
-import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
+import { fetchERC20Balance, handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 export class PolygonService implements BlockchainService {
   private readonly chainName: ChainName = "polygon";
@@ -134,8 +134,15 @@ export class PolygonService implements BlockchainService {
     try {
       validateGetTokenBalanceParams(params);
       
-      // TODO: Implement token balance fetching for Polygon
-      return "0";
+      const { tokenAddress, walletAddress } = params;
+
+      const balance = await fetchERC20Balance(
+        tokenAddress,
+        walletAddress,
+        this.rpcUrl
+      );
+
+      return balance;
     } catch (error) {
       return handleBlockchainError(error, this.chainName, 'fetch token balance');
     }

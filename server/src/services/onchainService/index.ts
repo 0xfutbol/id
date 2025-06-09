@@ -177,6 +177,7 @@ export const onchainService = {
           try {
             const service = getBlockchainServiceByChain(chain as ChainName);
             const balance = await service.getTokenBalance({
+              tokenAddress: address,
               walletAddress,
             });
             
@@ -201,14 +202,9 @@ export const onchainService = {
       );
       
       const tokens = await Promise.all(promises);
-      
-      const msuToken = tokens.find(t => t.symbol === 'MSU');
-      const msuBalance = msuToken ? msuToken.balance : "0";
 
       return {
-        tokens,
-        msuBalance,
-        tokenVestingBalance: "0" // This is kept as 0 since vesting contract is not implemented
+        tokens
       };
     } catch (error) {
       return handleBlockchainError(error, 'polygon', 'fetch token balances'); // Default to polygon for general errors

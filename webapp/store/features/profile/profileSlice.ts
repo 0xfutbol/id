@@ -26,7 +26,6 @@ interface ProfileState {
   assetsError: string | null;
   assetsLoading: boolean;
   discordAccount: string | null;
-  msuBalance: string;
   pip: string | null;
   packs: NFTItem[];
   packsError: string | null;
@@ -36,7 +35,6 @@ interface ProfileState {
   tokens: TokenItem[];
   tokensError: string | null;
   tokensLoading: boolean;
-  tokenVestingBalance: string;
   ultras: Record<string, any>;
   ultrasError: string | null;
   ultrasLoading: boolean;
@@ -53,11 +51,9 @@ const initialState: ProfileState = {
     scouts: [],
   },
   discordAccount: null,
-  msuBalance: '0',
   pip: null,
   referralCount: 0,
   selectedTab: "achievements",
-  tokenVestingBalance: '0',
   tokensError: null,
   tokensLoading: false,
   tokens: [],
@@ -216,8 +212,6 @@ const profileSlice = createSlice({
       })
       .addCase(fetchTokenBalances.fulfilled, (state, action) => {
         state.tokens = action.payload.tokens;
-        state.msuBalance = action.payload.msuBalance;
-        state.tokenVestingBalance = action.payload.tokenVestingBalance;
         state.tokensError = null;
         state.tokensLoading = false;
       })
@@ -270,9 +264,7 @@ export const selectAssets = (state: RootState) => state.profile.assets;
 export const selectAssetsError = (state: RootState) => state.profile.assetsError;
 export const selectAssetsLoading = (state: RootState) => state.profile.assetsLoading;
 export const selectTokens = (state: RootState) => state.profile.tokens;
-export const selectMsuBalance = (state: RootState) => state.profile.msuBalance;
 export const selectPip = (state: RootState) => state.profile.pip;
-export const selectTokenVestingBalance = (state: RootState) => state.profile.tokenVestingBalance;
 export const selectTokensError = (state: RootState) => state.profile.tokensError;
 export const selectTokensLoading = (state: RootState) => state.profile.tokensLoading;
 export const selectUltras = (state: RootState) => state.profile.ultras;

@@ -16,14 +16,12 @@ import {
   selectAssetsError,
   selectAssetsLoading,
   selectDiscordAccount,
-  selectMsuBalance,
   selectPacks,
   selectPacksError,
   selectPacksLoading,
   selectPip,
   selectReferralCount,
   selectSelectedTab,
-  selectTokenVestingBalance,
   selectTokens,
   selectTokensError,
   selectTokensLoading,
@@ -37,8 +35,7 @@ import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
   GameCards,
   ProfileHeader,
-  ProfileTabs,
-  TokenVestingBanner
+  ProfileTabs
 } from "./components";
 import { AirdropClaimBanner } from "./components/AirdropClaimBanner";
 import { ACHIEVEMENTS, GAME_CARDS } from "./constants";
@@ -60,8 +57,6 @@ export default function ProfilePage() {
   const assetsLoading = useAppSelector(selectAssetsLoading);
   
   const tokens = useAppSelector(selectTokens);
-  const msuBalance = useAppSelector(selectMsuBalance);
-  const tokenVestingBalance = useAppSelector(selectTokenVestingBalance);
   const tokensError = useAppSelector(selectTokensError);
   const tokensLoading = useAppSelector(selectTokensLoading);
   
@@ -171,11 +166,6 @@ export default function ProfilePage() {
         discordAccount={discordAccount}
         avatarSrc={avatarSrc}
         onConnectDiscord={handleConnectDiscord}
-      />
-
-      <TokenVestingBanner
-        tokenVestingBalance={tokenVestingBalance}
-        msuBalance={msuBalance}
       />
 
       <AirdropClaimBanner />

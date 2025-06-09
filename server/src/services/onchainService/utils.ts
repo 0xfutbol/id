@@ -1,5 +1,30 @@
 import { ChainName } from "@0xfutbol/constants";
+import { Contract, providers } from "ethers";
 import { BlockchainError, GetTokenBalanceParams } from "./types";
+
+// Minimal ERC20 ABI fragment with only the `balanceOf` function
+const ERC20_ABI = [
+  "function balanceOf(address account) view returns (uint256)"
+];
+
+/**
+ * Fetches the raw (non-formatted) ERC-20 token balance from the blockchain.
+ *
+ * @param tokenAddress – ERC-20 contract address
+ * @param walletAddress – Holder address
+ * @param rpcUrl – RPC endpoint for the corresponding chain
+ * @returns The token balance as a decimal string (in the token's smallest unit)
+ */
+export async function fetchERC20Balance(
+  tokenAddress: string,
+  walletAddress: string,
+  rpcUrl: string
+): Promise<string> {
+  const provider = new providers.JsonRpcProvider(rpcUrl);
+  const contract = new Contract(tokenAddress, ERC20_ABI, provider);
+  const balance = await contract.balanceOf(walletAddress);
+  return balance.toString();
+}
 
 /**
  * Formats token balance to a consistent decimal string

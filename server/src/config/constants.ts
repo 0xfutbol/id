@@ -9,6 +9,6 @@ export const tokenContracts = {
     FUTBOL: "0x3D45987F1C8812913a80Efbe3aCdd91DA8676E9c"
   },
   xdc: {
-    FUTBOL: "0x1a0D723F5B077d02C12A0348d410C1704FBBE211"
+    FUTBOL: "0x6168664ffc0a22cc4e9df7cb7247dcbb0c066169"
   }
 }

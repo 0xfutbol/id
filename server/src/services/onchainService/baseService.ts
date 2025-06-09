@@ -1,13 +1,14 @@
-import { ChainName } from "@0xfutbol/constants";
+import { ChainName, networkConfig } from "@0xfutbol/constants";
 import { AnkrProvider } from "@ankr.com/ankr.js";
 import { BlockchainService, GetAssetParams, GetTokenBalanceParams, NFTItem } from "./types";
-import { handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
+import { fetchERC20Balance, handleBlockchainError, validateGetTokenBalanceParams } from "./utils";
 
 // Initialize Ankr provider for Base chain
 const provider = new AnkrProvider(`https://rpc.ankr.com/multichain/${process.env.ONCHAIN_ANKR_API_KEY}`);
 
 export class BaseChainService implements BlockchainService {
   private readonly chainName: ChainName = "base";
+  private readonly rpcUrl = networkConfig.base.rpcEndpoint;
 
   async getLands(params: GetAssetParams): Promise<NFTItem[]> {
     return [];
@@ -57,10 +58,15 @@ export class BaseChainService implements BlockchainService {
     try {
       validateGetTokenBalanceParams(params);
       
-      const { walletAddress } = params;
+      const { tokenAddress, walletAddress } = params;
       
-      // TODO: Implement token balance fetching for Base chain
-      return "0";
+      const balance = await fetchERC20Balance(
+        tokenAddress,
+        walletAddress,
+        this.rpcUrl
+      );
+
+      return balance;
     } catch (error) {
       return handleBlockchainError(error, this.chainName, 'fetch token balance');
     }

@@ -81,14 +81,10 @@ export const assetService = {
       balance: string;
       chain: ChainName;
     }>;
-    msuBalance: string;
-    tokenVestingBalance: string;
   }> {
     if (!walletAddress) {
       return {
-        tokens: [],
-        msuBalance: "0",
-        tokenVestingBalance: "0"
+        tokens: []
       };
     }
     
@@ -97,18 +93,14 @@ export const assetService = {
       if (!response.ok) {
         console.error('Error fetching token balances:', await response.text());
         return {
-          tokens: [],
-          msuBalance: "0",
-          tokenVestingBalance: "0"
+          tokens: []
         };
       }
       return await response.json();
     } catch (error) {
       console.error('Error fetching token balances:', error);
       return {
-        tokens: [],
-        msuBalance: "0",
-        tokenVestingBalance: "0"
+        tokens: []
       };
     }
   },

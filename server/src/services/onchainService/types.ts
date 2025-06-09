@@ -38,6 +38,7 @@ export interface GetAssetParams {
 
 // Parameters for token balance fetching
 export interface GetTokenBalanceParams {
+  tokenAddress: string;
   walletAddress: string;
 }
 
@@ -59,6 +60,4 @@ export type MultiChainNFTResponse = Record<ChainName, NFTItem[] | undefined>;
 // Response type for multi-chain token balance fetching
 export interface MultiChainTokenBalanceResponse {
   tokens: TokenBalance[];
-  msuBalance: string;
-  tokenVestingBalance: string;
 } 

@@ -98,7 +98,7 @@ export function ProfileTabs({
         </div>
       }
       src={getImgUrl(`https://assets.metasoccer.com/tokens/${item.symbol.split(" ")[0].toLowerCase()}.png`)}
-      title={`${item.balance} ${item.symbol}`}
+      title={`${Number(item.balance).toFixed(2)} ${item.symbol}`}
     />
   ), []);
 
