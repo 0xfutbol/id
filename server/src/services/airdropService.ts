@@ -2,7 +2,7 @@ import axios from 'axios';
 import { verifyMessage } from 'ethers/lib/utils';
 import fs from 'fs';
 import path from 'path';
-import { getUserDetailsByAddress } from '../models/db';
+import { getAirdropClaimByAddress, getUserDetailsByAddress } from '../models/db';
 
 interface CsvCache {
   msa: Map<string, string> | null;
@@ -15,6 +15,7 @@ const cache: CsvCache = {
 };
 
 function loadCsv(filePath: string): Map<string, string> {
+  console.debug(`[airdropService] Loading CSV from ${filePath}`);
   if (!fs.existsSync(filePath)) {
     console.warn(`[airdropService] CSV file not found at ${filePath}`);
     return new Map();
@@ -29,51 +30,92 @@ function loadCsv(filePath: string): Map<string, string> {
       map.set(key.trim().toLowerCase(), value.trim());
     }
   }
+  console.debug(`[airdropService] Loaded ${map.size} entries from ${filePath}`);
   return map;
 }
 
 export type AirdropStrategy = 'MSA' | 'TELEGRAM';
 
+export type AllocationStatus = 'UNCLAIMED' | 'PENDING' | 'APPROVED';
+
 export interface AllocationResult {
-  strategy: AirdropStrategy;
-  allocation: string;
-  message: string;
+  strategy?: AirdropStrategy;
+  allocation?: string;
+  message?: string;
   telegramId?: string;
+  status: AllocationStatus;
+  claimUrl?: string;
 }
 
 const MSA_CSV = process.env.AIRDROP_MSA_CSV_PATH || path.resolve(__dirname, '../../data/msa_allocations.csv');
 const TG_CSV = process.env.AIRDROP_TG_CSV_PATH || path.resolve(__dirname, '../../data/telegram_allocations.csv');
-const WEBHOOK_URL = process.env.AIRDROP_CLAIM_WEBHOOK_URL || 'https://example.com/airdrop-webhook';
+
+const WEBHOOK_URL = process.env.AIRDROP_CLAIM_WEBHOOK_URL || 'https://hook.us2.make.com/ukuqhgsbxzjycctwz8xuuj6cbzrakve7';
 
 const airdropService = {
   async getAllocation(address: string): Promise<AllocationResult | null> {
+    // First, check if user already initiated a claim
+    const existingClaim = await getAirdropClaimByAddress(address);
+    if (existingClaim) {
+      const status: AllocationStatus = existingClaim.claim_url ? 'APPROVED' : 'PENDING';
+      return {
+        status,
+        strategy: existingClaim.strategy,
+        allocation: existingClaim.allocation,
+        message: existingClaim.message,
+        telegramId: existingClaim.telegram_id ?? undefined,
+        claimUrl: existingClaim.claim_url ?? undefined,
+      };
+    }
+
+    console.debug(`[airdropService] getAllocation called for address: ${address}`);
+
     // Ensure caches are loaded
-    if (!cache.msa) cache.msa = loadCsv(MSA_CSV);
-    if (!cache.telegram) cache.telegram = loadCsv(TG_CSV);
+    if (!cache.msa) {
+      console.debug('[airdropService] Loading MSA CSV cache...');
+      cache.msa = loadCsv(MSA_CSV);
+    }
+    if (!cache.telegram) {
+      console.debug('[airdropService] Loading Telegram CSV cache...');
+      cache.telegram = loadCsv(TG_CSV);
+    }
 
     // Strategy 1: Telegram (preferred if telegram user details found)
     const details = await getUserDetailsByAddress(address);
-    const telegramDetail: any | undefined = details?.find((d: any) => d.provider === 'telegram');
 
+    const telegramDetail: any | undefined = details?.find((d: any) => d.provider === 'telegram');
     if (telegramDetail && telegramDetail.id) {
       const telegramId = String(telegramDetail.id);
       const allocation = cache.telegram.get(telegramId) ?? '0';
-      if (allocation === '0') return null;
+      console.debug(`[airdropService] Telegram strategy: telegramId=${telegramId}, allocation=${allocation}`);
+      if (allocation === '0') {
+        console.debug(`[airdropService] No allocation for Telegram user ${telegramId}`);
+        return null;
+      }
       const message = `I am claiming my Futbol airdrop as Telegram user ${telegramId}.`;
-      return { strategy: 'TELEGRAM', allocation, message, telegramId };
+      console.debug(`[airdropService] Returning Telegram allocation for address ${address}:`, { strategy: 'TELEGRAM', allocation, message, telegramId });
+      return { status: 'UNCLAIMED', strategy: 'TELEGRAM', allocation, message, telegramId };
     }
 
     // Strategy 2: MSA by address
     const allocation = cache.msa.get(address.toLowerCase()) ?? '0';
-    if (allocation === '0') return null;
+    console.debug(`[airdropService] MSA strategy: address=${address.toLowerCase()}, allocation=${allocation}`);
+    if (allocation === '0') {
+      console.debug(`[airdropService] No allocation for address ${address.toLowerCase()}`);
+      return null;
+    }
     const message = `I am claiming my Futbol airdrop allocation of ${allocation} FUTBOL tokens.`;
-    return { strategy: 'MSA', allocation, message };
+    console.debug(`[airdropService] Returning MSA allocation for address ${address}:`, { strategy: 'MSA', allocation, message });
+    return { status: 'UNCLAIMED', strategy: 'MSA', allocation, message };
   },
 
   verifySignature(message: string, signature: string, expectedAddress: string): boolean {
+    console.debug(`[airdropService] Verifying signature for address: ${expectedAddress}`);
     try {
       const signer = verifyMessage(message, signature);
-      return signer.toLowerCase() === expectedAddress.toLowerCase();
+      const isValid = signer.toLowerCase() === expectedAddress.toLowerCase();
+      console.debug(`[airdropService] Signature valid: ${isValid}, signer: ${signer}, expected: ${expectedAddress}`);
+      return isValid;
     } catch (err) {
       console.error('[airdropService] Signature verification failed', err);
       return false;
@@ -81,8 +123,10 @@ const airdropService = {
   },
 
   async notifyWebhook(payload: any): Promise<void> {
+    console.debug('[airdropService] Notifying webhook with payload:', payload);
     try {
       await axios.post(WEBHOOK_URL, payload, { timeout: 5000 });
+      console.debug('[airdropService] Webhook notification sent successfully');
     } catch (err) {
       console.error('[airdropService] Error calling webhook', err);
     }

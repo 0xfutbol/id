@@ -1,3 +1,4 @@
+import { isAddress } from 'ethers/lib/utils';
 import { Response } from 'express';
 import { AuthRequest } from '../middlewares/auth';
 import { saveAirdropClaim } from '../models/db';
@@ -24,12 +25,15 @@ const futbolAirdropController = {
 
   // Claim airdrop
   claimAirdrop: async (req: AuthRequest, res: Response) => {
-    const { message, signature } = req.body;
+    const { message, signature, destinationAddress } = req.body;
     if (!req.user) {
       return res.status(401).json({ message: 'Unauthorized' });
     }
-    if (!message || !signature) {
-      return res.status(400).json({ message: 'Message and signature are required' });
+    if (!message || !signature || !destinationAddress) {
+      return res.status(400).json({ message: 'Message, signature and destinationAddress are required' });
+    }
+    if (!isAddress(destinationAddress)) {
+      return res.status(400).json({ message: 'Invalid destination address' });
     }
 
     try {
@@ -48,15 +52,16 @@ const futbolAirdropController = {
       // Persist claim (ignore if already claimed)
       await saveAirdropClaim(
         address,
-        allocationResult.strategy,
-        allocationResult.allocation,
+        allocationResult.strategy!,
+        allocationResult.allocation!,
         message,
         signature,
+        destinationAddress,
         allocationResult.telegramId,
       );
 
       // Notify webhook (fire and forget)
-      airdropService.notifyWebhook({ address, strategy: allocationResult.strategy });
+      airdropService.notifyWebhook({ address, destinationAddress, strategy: allocationResult.strategy });
 
       return res.json({ success: true });
     } catch (err) {

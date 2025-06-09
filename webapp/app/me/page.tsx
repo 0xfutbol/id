@@ -40,6 +40,7 @@ import {
   ProfileTabs,
   TokenVestingBanner
 } from "./components";
+import { AirdropClaimBanner } from "./components/AirdropClaimBanner";
 import { ACHIEVEMENTS, GAME_CARDS } from "./constants";
 import { NFTItem } from "./types";
 
@@ -176,6 +177,8 @@ export default function ProfilePage() {
         tokenVestingBalance={tokenVestingBalance}
         msuBalance={msuBalance}
       />
+
+      <AirdropClaimBanner />
 
       <GameCards cards={GAME_CARDS} />
 

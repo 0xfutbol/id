@@ -190,6 +190,7 @@ export async function saveAirdropClaim(
   allocation: string,
   message: string,
   signature: string,
+  destinationAddress: string,
   telegramId?: string
 ): Promise<void> {
   await db('airdrop_claims')
@@ -197,6 +198,7 @@ export async function saveAirdropClaim(
       id: randomUUID(),
       address: address.toLowerCase(),
       telegram_id: telegramId,
+      destination_address: destinationAddress.toLowerCase(),
       allocation,
       strategy,
       message,

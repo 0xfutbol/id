@@ -60,7 +60,7 @@ export class BaseChainService implements BlockchainService {
       const { walletAddress } = params;
       
       // TODO: Implement token balance fetching for Base chain
-      throw new Error("Token balance fetching not implemented for Base chain");
+      return "0";
     } catch (error) {
       return handleBlockchainError(error, this.chainName, 'fetch token balance');
     }
