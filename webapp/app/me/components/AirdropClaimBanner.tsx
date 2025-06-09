@@ -116,7 +116,7 @@ export function AirdropClaimBanner() {
               Redeem
             </Button>
           }>
-            Your claim is approved. Click the 'Redeem' button to go to Hedgey Finance and redeem your tokens.
+            Your claim is approved. Click the 'Redeem' button to go to Sablier and redeem your tokens.
           </Alert>
         );
       default:
