@@ -100,7 +100,7 @@ const AuthForm: React.FC = () => {
                     onClick={() => onConnectClick(option.key)}
                   >
                     <div className="flex items-center gap-2 w-full">
-                      <div>{option.icon}</div>
+                      <div className="flex-shrink-0">{option.icon}</div>
                       <div className="flex flex-col items-start justify-center gap-1">
                         <p className="text-sm">{option.label}</p>
                         <p className="text-xs text-gray-500">{option.description}</p>
