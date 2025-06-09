@@ -157,6 +157,13 @@ export default function ProfilePage() {
     })) : [];
   }, [ultras]);
 
+  // Only show the claim banner until July 31st, 2025
+  const showAirdropClaimBanner = useMemo(() => {
+    // July 31st, 2025 at 23:59:59 UTC
+    const deadline = new Date(Date.UTC(2025, 6, 31, 23, 59, 59));
+    return new Date() < deadline;
+  }, []);
+
   // Render
   return (
     <div className="flex flex-col gap-4 max-w-screen-xl p-4 md:px-0 w-full mx-auto">
@@ -168,7 +175,7 @@ export default function ProfilePage() {
         onConnectDiscord={handleConnectDiscord}
       />
 
-      <AirdropClaimBanner />
+      {showAirdropClaimBanner && <AirdropClaimBanner />}
 
       <GameCards cards={GAME_CARDS} />
 
