@@ -95,7 +95,11 @@ export function AirdropClaimBanner() {
             </Button>
           }>
             <span className="text-wrap">
-              You have <b>{allocation!.allocation} $FUTBOL</b> tokens ready to claim!
+              {allocation.category ? (
+                <>You have <b>{allocation.allocation} $FUTBOL</b> tokens ready to claim! Category: <b>{allocation.category}</b>. </>
+              ) : (
+                <>You have <b>{allocation.allocation} $FUTBOL</b> tokens ready to claim!</>
+              )}
             </span>
           </Alert>
         );

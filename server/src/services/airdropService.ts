@@ -7,11 +7,13 @@ import { getAirdropClaimByAddress, getUserDetailsByAddress } from '../models/db'
 interface CsvCache {
   msa: Map<string, string> | null;
   telegram: Map<string, string> | null;
+  msu: Map<string, { allocation: string; category: string }> | null;
 }
 
 const cache: CsvCache = {
   msa: null,
   telegram: null,
+  msu: null,
 };
 
 function loadCsv(filePath: string): Map<string, string> {
@@ -34,7 +36,31 @@ function loadCsv(filePath: string): Map<string, string> {
   return map;
 }
 
-export type AirdropStrategy = 'MSA' | 'TELEGRAM';
+function loadMsuCsv(filePath: string): Map<string, { allocation: string; category: string }> {
+  console.debug(`[airdropService] Loading MSU CSV from ${filePath}`);
+  if (!fs.existsSync(filePath)) {
+    console.warn(`[airdropService] MSU CSV file not found at ${filePath}`);
+    return new Map();
+  }
+  const data = fs.readFileSync(filePath, 'utf8');
+  const lines = data.trim().split(/\r?\n/);
+  const map = new Map<string, { allocation: string; category: string }>();
+  // Skip header
+  for (const line of lines.slice(1)) {
+    if (!line) continue;
+    const parts = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // split by commas outside quotes
+    if (parts.length < 4) continue;
+    const address = parts[0].trim().toLowerCase();
+    const category = parts[2].trim();
+    const futbolRaw = parts[3].trim().replace(/"/g, '');
+    const allocation = futbolRaw.replace(/,/g, ''); // remove thousands separator
+    map.set(address, { allocation, category });
+  }
+  console.debug(`[airdropService] Loaded ${map.size} MSU entries from ${filePath}`);
+  return map;
+}
+
+export type AirdropStrategy = 'MSA' | 'MSU' | 'TELEGRAM';
 
 export type AllocationStatus = 'UNCLAIMED' | 'PENDING' | 'APPROVED';
 
@@ -43,12 +69,14 @@ export interface AllocationResult {
   allocation?: string;
   message?: string;
   telegramId?: string;
+  category?: string;
   status: AllocationStatus;
   claimUrl?: string;
 }
 
 const MSA_CSV = process.env.AIRDROP_MSA_CSV_PATH || path.resolve(__dirname, '../../data/msa_allocations.csv');
 const TG_CSV = process.env.AIRDROP_TG_CSV_PATH || path.resolve(__dirname, '../../data/telegram_allocations.csv');
+const MSU_CSV = process.env.AIRDROP_MSU_CSV_PATH || path.resolve(__dirname, '../../data/msu_allocations.csv');
 
 const WEBHOOK_URL = process.env.AIRDROP_CLAIM_WEBHOOK_URL || 'https://hook.us2.make.com/ukuqhgsbxzjycctwz8xuuj6cbzrakve7';
 
@@ -79,6 +107,10 @@ const airdropService = {
       console.debug('[airdropService] Loading Telegram CSV cache...');
       cache.telegram = loadCsv(TG_CSV);
     }
+    if (!cache.msu) {
+      console.debug('[airdropService] Loading MSU CSV cache...');
+      cache.msu = loadMsuCsv(MSU_CSV);
+    }
 
     // Strategy 1: Telegram (preferred if telegram user details found)
     const details = await getUserDetailsByAddress(address);
@@ -97,7 +129,20 @@ const airdropService = {
       return { status: 'UNCLAIMED', strategy: 'TELEGRAM', allocation, message, telegramId };
     }
 
-    // Strategy 2: MSA by address
+    // Strategy 2: MSU by address
+    const msuEntry = cache.msu.get(address.toLowerCase());
+    if (msuEntry) {
+      const { allocation: msuAllocation, category } = msuEntry;
+      console.debug(`[airdropService] MSU strategy: address=${address.toLowerCase()}, allocation=${msuAllocation}, category=${category}`);
+      if (msuAllocation === '0') {
+        console.debug(`[airdropService] No allocation for address ${address.toLowerCase()} in MSU`);
+      } else {
+        const message = `I am claiming my Futbol airdrop as an ${category} with allocation of ${msuAllocation} FUTBOL tokens.`;
+        return { status: 'UNCLAIMED', strategy: 'MSU', allocation: msuAllocation, message, category };
+      }
+    }
+
+    // Strategy 3: MSA by address
     const allocation = cache.msa.get(address.toLowerCase()) ?? '0';
     console.debug(`[airdropService] MSA strategy: address=${address.toLowerCase()}, allocation=${allocation}`);
     if (allocation === '0') {
