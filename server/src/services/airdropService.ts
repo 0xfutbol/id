@@ -137,7 +137,7 @@ const airdropService = {
       if (msuAllocation === '0') {
         console.debug(`[airdropService] No allocation for address ${address.toLowerCase()} in MSU`);
       } else {
-        const message = `I am claiming my Futbol airdrop as an ${category} with allocation of ${msuAllocation} FUTBOL tokens.`;
+        const message = `I am claiming my Futbol airdrop as a ${category} with allocation of ${msuAllocation} FUTBOL tokens.`;
         return { status: 'UNCLAIMED', strategy: 'MSU', allocation: msuAllocation, message, category };
       }
     }
