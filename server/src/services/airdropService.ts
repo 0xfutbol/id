@@ -8,12 +8,14 @@ interface CsvCache {
   msa: Map<string, string> | null;
   telegram: Map<string, string> | null;
   msu: Map<string, { allocation: string; category: string }> | null;
+  zealy: Map<string, string> | null;
 }
 
 const cache: CsvCache = {
   msa: null,
   telegram: null,
   msu: null,
+  zealy: null,
 };
 
 function loadCsv(filePath: string): Map<string, string> {
@@ -60,7 +62,35 @@ function loadMsuCsv(filePath: string): Map<string, { allocation: string; categor
   return map;
 }
 
-export type AirdropStrategy = 'MSA' | 'MSU' | 'TELEGRAM';
+function loadZealyCsv(filePath: string): Map<string, string> {
+  console.debug(`[airdropService] Loading Zealy CSV from ${filePath}`);
+  if (!fs.existsSync(filePath)) {
+    console.warn(`[airdropService] Zealy CSV file not found at ${filePath}`);
+    return new Map();
+  }
+  const data = fs.readFileSync(filePath, 'utf8');
+  const lines = data.trim().split(/\r?\n/);
+  const map = new Map<string, string>();
+  // Skip header
+  for (const line of lines.slice(1)) {
+    if (!line) continue;
+    // Split by commas that are outside quotes
+    const parts = line.split(/,(?=(?:[^" ]*"[^" ]*")*[^" ]*$)/);
+    if (parts.length < 5) continue;
+    const discord = parts[2].trim().toLowerCase();
+    const futbolRaw = parts[4].trim().replace(/\"/g, '');
+    const numberMatch = futbolRaw.match(/([\d,]+)/);
+    if (!numberMatch) continue;
+    const allocation = numberMatch[1].replace(/,/g, '');
+    if (discord) {
+      map.set(discord, allocation);
+    }
+  }
+  console.debug(`[airdropService] Loaded ${map.size} Zealy entries from ${filePath}`);
+  return map;
+}
+
+export type AirdropStrategy = 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY';
 
 export type AllocationStatus = 'UNCLAIMED' | 'PENDING' | 'APPROVED';
 
@@ -70,6 +100,7 @@ export interface AllocationResult {
   message?: string;
   telegramId?: string;
   category?: string;
+  discordUsername?: string;
   status: AllocationStatus;
   claimUrl?: string;
 }
@@ -77,6 +108,7 @@ export interface AllocationResult {
 const MSA_CSV = process.env.AIRDROP_MSA_CSV_PATH || path.resolve(__dirname, '../../data/msa_allocations.csv');
 const TG_CSV = process.env.AIRDROP_TG_CSV_PATH || path.resolve(__dirname, '../../data/telegram_allocations.csv');
 const MSU_CSV = process.env.AIRDROP_MSU_CSV_PATH || path.resolve(__dirname, '../../data/msu_allocations.csv');
+const ZEALY_CSV = process.env.AIRDROP_ZEALY_CSV_PATH || path.resolve(__dirname, '../../data/zealy_allocations.csv');
 
 const WEBHOOK_URL = process.env.AIRDROP_CLAIM_WEBHOOK_URL || 'https://hook.us2.make.com/ukuqhgsbxzjycctwz8xuuj6cbzrakve7';
 
@@ -111,6 +143,10 @@ const airdropService = {
       console.debug('[airdropService] Loading MSU CSV cache...');
       cache.msu = loadMsuCsv(MSU_CSV);
     }
+    if (!cache.zealy) {
+      console.debug('[airdropService] Loading Zealy CSV cache...');
+      cache.zealy = loadZealyCsv(ZEALY_CSV);
+    }
 
     // Strategy 1: Telegram (preferred if telegram user details found)
     const details = await getUserDetailsByAddress(address);
@@ -129,7 +165,21 @@ const airdropService = {
       return { status: 'UNCLAIMED', strategy: 'TELEGRAM', allocation, message, telegramId };
     }
 
-    // Strategy 2: MSU by address
+    // Strategy 2: Zealy (by Discord username)
+    const discordDetail: any | undefined = details?.find((d: any) => d.provider === 'discord');
+    if (discordDetail) {
+      const discordUsername = String(discordDetail.username || discordDetail.name || discordDetail.id || '').toLowerCase();
+      if (discordUsername) {
+        const allocation = cache.zealy.get(discordUsername) ?? '0';
+        console.debug(`[airdropService] Zealy strategy: discord=${discordUsername}, allocation=${allocation}`);
+        if (allocation !== '0') {
+          const message = `I am claiming my Futbol airdrop as Zealy user ${discordUsername}.`;
+          return { status: 'UNCLAIMED', strategy: 'ZEALY', allocation, message, discordUsername };
+        }
+      }
+    }
+
+    // Strategy 3: MSU by address
     const msuEntry = cache.msu.get(address.toLowerCase());
     if (msuEntry) {
       const { allocation: msuAllocation, category } = msuEntry;
@@ -142,7 +192,7 @@ const airdropService = {
       }
     }
 
-    // Strategy 3: MSA by address
+    // Strategy 4: MSA by address
     const allocation = cache.msa.get(address.toLowerCase()) ?? '0';
     console.debug(`[airdropService] MSA strategy: address=${address.toLowerCase()}, allocation=${allocation}`);
     if (allocation === '0') {

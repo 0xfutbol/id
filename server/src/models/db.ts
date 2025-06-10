@@ -186,7 +186,7 @@ export async function getUserDetails(address: string): Promise<Array<{
 // Airdrop-related methods
 export async function saveAirdropClaim(
   address: string,
-  strategy: 'MSA' | 'MSU' | 'TELEGRAM',
+  strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY',
   allocation: string,
   message: string,
   signature: string,

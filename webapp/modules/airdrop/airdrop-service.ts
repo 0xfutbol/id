@@ -2,11 +2,12 @@ import { getSavedJWT } from '@0xfutbol/id';
 import axios, { AxiosInstance } from 'axios';
 
 export interface AllocationResponse {
-  strategy?: 'MSA' | 'MSU' | 'TELEGRAM';
+  strategy?: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY';
   allocation?: string;
   message?: string;
   telegramId?: string;
   category?: string;
+  discordUsername?: string;
   status: 'UNCLAIMED' | 'PENDING' | 'APPROVED';
   claimUrl?: string;
 }
