@@ -75,7 +75,7 @@ function loadZealyCsv(filePath: string): Map<string, string> {
   for (const line of lines.slice(1)) {
     if (!line) continue;
     // Split by commas that are outside quotes
-    const parts = line.split(/,(?=(?:[^" ]*"[^" ]*")*[^" ]*$)/);
+    const parts = line.split(",");
     if (parts.length < 5) continue;
     const discord = parts[2].trim().toLowerCase();
     const futbolRaw = parts[4].trim().replace(/\"/g, '');
@@ -167,16 +167,25 @@ const airdropService = {
 
     // Strategy 2: Zealy (by Discord username)
     const discordDetail: any | undefined = details?.find((d: any) => d.provider === 'discord');
+    console.debug(`[airdropService] Checking Zealy strategy for address ${address}. Discord detail:`, discordDetail);
     if (discordDetail) {
       const discordUsername = String(discordDetail.username || discordDetail.name || discordDetail.id || '').toLowerCase();
+      console.debug(`[airdropService] Extracted discordUsername: "${discordUsername}" from discordDetail:`, discordDetail);
       if (discordUsername) {
         const allocation = cache.zealy.get(discordUsername) ?? '0';
         console.debug(`[airdropService] Zealy strategy: discord=${discordUsername}, allocation=${allocation}`);
         if (allocation !== '0') {
           const message = `I am claiming my Futbol airdrop as Zealy user ${discordUsername}.`;
+          console.debug(`[airdropService] Returning Zealy allocation for address ${address}:`, { status: 'UNCLAIMED', strategy: 'ZEALY', allocation, message, discordUsername });
           return { status: 'UNCLAIMED', strategy: 'ZEALY', allocation, message, discordUsername };
+        } else {
+          console.debug(`[airdropService] No Zealy allocation for discordUsername: ${discordUsername}`);
         }
+      } else {
+        console.debug(`[airdropService] No valid discordUsername found in discordDetail for address ${address}`);
       }
+    } else {
+      console.debug(`[airdropService] No discordDetail found for address ${address}`);
     }
 
     // Strategy 3: MSU by address
