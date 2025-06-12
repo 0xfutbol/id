@@ -42,7 +42,7 @@ const AuthForm: React.FC = () => {
               className="flex flex-col gap-4"
             >
               <Input
-                label="Enter your desired 0xFútbol ID"
+                label="Enter your desired username"
                 labelPlacement="outside"
                 id="username"
                 name="username"
