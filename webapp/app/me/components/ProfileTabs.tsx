@@ -207,7 +207,7 @@ export function ProfileTabs({
           ) : tokensError ? (
             <p className="text-red-500">{tokensError}</p>
           ) : (
-            <Gallery items={tokens} renderItem={renderTokenItem} />
+            <Gallery items={tokens.filter(token => (token.symbol !== "MSA" && token.symbol !== "MSU") || Number(token.balance) > 0)} renderItem={renderTokenItem} />
           )}
         </Tab>
 
