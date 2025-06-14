@@ -23,6 +23,24 @@ const futbolAirdropController = {
     }
   },
 
+  // Get all allocations (may include multiple strategies)
+  getAllocations: async (req: AuthRequest, res: Response) => {
+    if (!req.user) {
+      return res.status(401).json({ message: 'Unauthorized' });
+    }
+
+    try {
+      const allocations = await airdropService.getAllocations(req.user.owner);
+      if (!allocations || allocations.length === 0) {
+        return res.status(404).json({ message: 'No allocation found' });
+      }
+      return res.json(allocations);
+    } catch (err) {
+      console.error('[futbolAirdropController] Error fetching allocations', err);
+      return res.status(500).json({ message: 'Internal server error' });
+    }
+  },
+
   // Claim airdrop
   claimAirdrop: async (req: AuthRequest, res: Response) => {
     const { message, signature, destinationAddress } = req.body;
@@ -38,9 +56,10 @@ const futbolAirdropController = {
 
     try {
       const address = req.user.owner;
-      const allocationResult = await airdropService.getAllocation(address);
+      const allocations = await airdropService.getAllocations(address);
+      const allocationResult = allocations.find((a) => a.message === message);
       if (!allocationResult) {
-        return res.status(404).json({ message: 'No allocation found' });
+        return res.status(404).json({ message: 'Allocation not found for provided message' });
       }
 
       // Verify signature

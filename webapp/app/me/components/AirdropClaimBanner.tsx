@@ -14,25 +14,26 @@ const service = new AirdropService(API_CONFIG.backendUrl);
 export function AirdropClaimBanner() {
   const { defaultChain, signer } = useOxFutbolIdContext();
 
-  const [allocation, setAllocation] = useState<AllocationResponse | null>(null);
+  const [allocations, setAllocations] = useState<AllocationResponse[]>([]);
+  const [selectedAllocation, setSelectedAllocation] = useState<AllocationResponse | null>(null);
   const [checkbox, setCheckbox] = useState(false);
   const [claiming, setClaiming] = useState(false);
   const [destinationAddress, setDestinationAddress] = useState("");
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
 
-  // Extracted fetchAllocation for reuse
-  const fetchAllocation = useCallback(async () => {
+  // Fetch all allocations
+  const fetchAllocations = useCallback(async () => {
     setLoading(true);
     try {
-      const data = await service.getAllocation();
-      setAllocation(data);
+      const data = await service.getAllocations();
+      setAllocations(data);
     } catch (err: any) {
       if (err.response?.status === 404) {
-        setAllocation(null);
+        setAllocations([]);
         // no allocation
       } else {
-        console.error("Failed to fetch allocation", err);
+        console.error("Failed to fetch allocations", err);
       }
     } finally {
       setLoading(false);
@@ -40,24 +41,24 @@ export function AirdropClaimBanner() {
   }, []);
 
   useEffect(() => {
-    fetchAllocation();
-  }, [fetchAllocation]);
+    fetchAllocations();
+  }, [fetchAllocations]);
 
   const isAddressValid = useMemo(() => isAddress(destinationAddress), [destinationAddress]);
-  const canClaim = checkbox && isAddressValid && allocation?.status === 'UNCLAIMED' && !!signer;
+  const canClaim = checkbox && isAddressValid && selectedAllocation?.status === 'UNCLAIMED' && !!signer;
 
   const handleClaim = async () => {
-    if (!allocation || !defaultChain || !signer) return;
+    if (!selectedAllocation || !defaultChain || !signer) return;
 
     setClaiming(true);
     console.log("[AirdropClaimBanner] Starting claim process");
     try {
       // Ask user to sign message1
-      console.log("[AirdropClaimBanner] Requesting signature for message:", allocation.message);
-      const signature = await signer[defaultChain].signMessage(allocation.message!);
+      console.log("[AirdropClaimBanner] Requesting signature for message:", selectedAllocation.message);
+      const signature = await signer[defaultChain].signMessage(selectedAllocation.message!);
       console.log("[AirdropClaimBanner] Signature obtained:", signature);
       await service.claim({
-        message: allocation.message!,
+        message: selectedAllocation.message!,
         signature,
         destinationAddress,
       });
@@ -69,7 +70,7 @@ export function AirdropClaimBanner() {
       });
       setShowModal(false);
       // Refresh allocation status after successful claim
-      await fetchAllocation();
+      await fetchAllocations();
     } catch (err: any) {
       console.error("[AirdropClaimBanner] Error claiming airdrop", err);
       addToast({
@@ -84,13 +85,15 @@ export function AirdropClaimBanner() {
     }
   };
 
-  const renderContent = () => {
-    if (!allocation) return null;
+  const renderContent = (allocation: AllocationResponse) => {
     switch (allocation.status) {
       case 'UNCLAIMED':
         return (
           <Alert color="success" className="flex items-center gap-4" endContent={
-            <Button size="sm" color="success" onPress={() => setShowModal(true)}>
+            <Button size="sm" color="success" onPress={() => {
+              setSelectedAllocation(allocation);
+              setShowModal(true);
+            }}>
               Claim
             </Button>
           }>
@@ -126,13 +129,15 @@ export function AirdropClaimBanner() {
     }
   };
 
-  if (loading || !allocation) return null;
+  if (loading || allocations.length === 0) return null;
 
   return (
     <>
-      {renderContent()}
+      {allocations.map((a, idx) => (
+        <div key={idx}>{renderContent(a)}</div>
+      ))}
 
-      {allocation.status === 'UNCLAIMED' && (
+      {selectedAllocation && selectedAllocation.status === 'UNCLAIMED' && (
         <Modal
           isOpen={showModal}
           onClose={() => {
@@ -182,7 +187,7 @@ export function AirdropClaimBanner() {
                   handleClaim();
                 }}
               >
-                Claim {allocation?.allocation} $FUTBOL
+                Claim {selectedAllocation?.allocation} $FUTBOL
               </Button>
             </ModalBody>
           </ModalContent>
