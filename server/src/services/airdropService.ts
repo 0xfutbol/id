@@ -29,9 +29,16 @@ function loadCsv(filePath: string): Map<string, string> {
   const map = new Map<string, string>();
   // Skip the header line (first line)
   for (const line of lines.slice(1)) {
-    const [key, value] = line.split(',');
-    if (key && value) {
-      map.set(key.trim().toLowerCase(), value.trim());
+    if (!line) continue;
+    // Split by commas that are *outside* of quoted sections to correctly handle numbers like "1,234.56"
+    const parts = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
+    if (parts.length < 2) continue;
+    const key = parts[0].trim().toLowerCase();
+    // Remove surrounding quotes and thousands separators from the allocation value
+    const rawValue = parts[1].trim().replace(/"/g, "");
+    const value = rawValue.replace(/,/g, "");
+    if (key && value !== undefined) {
+      map.set(key, value);
     }
   }
   console.debug(`[airdropService] Loaded ${map.size} entries from ${filePath}`);
