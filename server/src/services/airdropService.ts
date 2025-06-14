@@ -209,7 +209,8 @@ const airdropService = {
     }
 
     // Strategy 4: MSA by address
-    const allocation = cache.msa.get(address.toLowerCase()) ?? '0';
+    // const allocation = cache.msa.get(address.toLowerCase()) ?? '0';
+    const allocation = '0';
     console.debug(`[airdropService] MSA strategy: address=${address.toLowerCase()}, allocation=${allocation}`);
     if (allocation === '0') {
       console.debug(`[airdropService] No allocation for address ${address.toLowerCase()}`);
