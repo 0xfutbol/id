@@ -26,6 +26,13 @@ export class AirdropService {
     return data;
   }
 
+  async getAllocations(): Promise<AllocationResponse[]> {
+    const { data } = await this.client.get<AllocationResponse[]>('/airdrop/allocations', {
+      headers: { Authorization: `Bearer ${getSavedJWT()}` },
+    });
+    return data;
+  }
+
   async claim(payload: { message: string; signature: string; destinationAddress: string }): Promise<void> {
     await this.client.post('/airdrop/claim', payload, {
       headers: { Authorization: `Bearer ${getSavedJWT()}` },
