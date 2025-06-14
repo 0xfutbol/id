@@ -212,10 +212,3 @@ export async function getAirdropClaimByAddress(address: string): Promise<any | u
     .first();
   return result;
 }
-
-export async function getAirdropClaimByAddressAndStrategy(address: string, strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY'): Promise<any | undefined> {
-  const result = await db('airdrop_claims')
-    .where({ address: address.toLowerCase(), strategy })
-    .first();
-  return result;
-}

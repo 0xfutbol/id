@@ -2,7 +2,7 @@ import axios from 'axios';
 import { verifyMessage } from 'ethers/lib/utils';
 import fs from 'fs';
 import path from 'path';
-import { getAirdropClaimByAddress, getAirdropClaimByAddressAndStrategy, getUserDetailsByAddress } from '../models/db';
+import { getAirdropClaimByAddress, getUserDetailsByAddress } from '../models/db';
 
 interface CsvCache {
   msa: Map<string, string> | null;
@@ -241,111 +241,6 @@ const airdropService = {
     } catch (err) {
       console.error('[airdropService] Error calling webhook', err);
     }
-  },
-
-  async getAllocations(address: string): Promise<AllocationResult[]> {
-    const allocations: AllocationResult[] = [];
-
-    // Load caches if needed
-    if (!cache.msa) {
-      console.debug('[airdropService] Loading MSA CSV cache (getAllocations)...');
-      cache.msa = loadCsv(MSA_CSV);
-    }
-    if (!cache.telegram) {
-      console.debug('[airdropService] Loading Telegram CSV cache (getAllocations)...');
-      cache.telegram = loadCsv(TG_CSV);
-    }
-    if (!cache.msu) {
-      console.debug('[airdropService] Loading MSU CSV cache (getAllocations)...');
-      cache.msu = loadMsuCsv(MSU_CSV);
-    }
-    if (!cache.zealy) {
-      console.debug('[airdropService] Loading Zealy CSV cache (getAllocations)...');
-      cache.zealy = loadZealyCsv(ZEALY_CSV);
-    }
-
-    // Helper to fetch claim status for a specific strategy
-    const getClaimStatus = async (strategy: AirdropStrategy): Promise<AllocationStatus | undefined> => {
-      try {
-        const claim = await getAirdropClaimByAddressAndStrategy(address, strategy);
-        if (!claim) return undefined;
-        return claim.claim_url ? 'APPROVED' : 'PENDING';
-      } catch (err) {
-        console.error('[airdropService] Error checking claim status', err);
-        return undefined;
-      }
-    };
-
-    // Strategy: Telegram
-    const details = await getUserDetailsByAddress(address);
-    const telegramDetail: any | undefined = details?.find((d: any) => d.provider === 'telegram');
-    if (telegramDetail && telegramDetail.id) {
-      const telegramId = String(telegramDetail.id);
-      const allocation = cache.telegram.get(telegramId) ?? '0';
-      if (allocation !== '0') {
-        const status = (await getClaimStatus('TELEGRAM')) ?? 'UNCLAIMED';
-        const message = `I am claiming my Futbol airdrop as Telegram user ${telegramId}.`;
-        allocations.push({
-          status,
-          strategy: 'TELEGRAM',
-          allocation,
-          message,
-          telegramId,
-        });
-      }
-    }
-
-    // Strategy: Zealy
-    const discordDetail: any | undefined = details?.find((d: any) => d.provider === 'discord');
-    if (discordDetail) {
-      const discordUsername = String(discordDetail.username || discordDetail.name || discordDetail.id || '').toLowerCase();
-      if (discordUsername) {
-        const allocation = cache.zealy.get(discordUsername) ?? '0';
-        if (allocation !== '0') {
-          const status = (await getClaimStatus('ZEALY')) ?? 'UNCLAIMED';
-          const message = `I am claiming my Futbol airdrop as Zealy user ${discordUsername}.`;
-          allocations.push({
-            status,
-            strategy: 'ZEALY',
-            allocation,
-            message,
-            discordUsername,
-          });
-        }
-      }
-    }
-
-    // Strategy: MSU by address
-    const msuEntry = cache.msu.get(address.toLowerCase());
-    if (msuEntry) {
-      const { allocation: msuAllocation, category } = msuEntry;
-      if (msuAllocation !== '0') {
-        const status = (await getClaimStatus('MSU')) ?? 'UNCLAIMED';
-        const message = `I am claiming my Futbol airdrop as a ${category} with allocation of ${msuAllocation} FUTBOL tokens.`;
-        allocations.push({
-          status,
-          strategy: 'MSU',
-          allocation: msuAllocation,
-          message,
-          category,
-        });
-      }
-    }
-
-    // Strategy: MSA by address
-    const msaAllocation = cache.msa.get(address.toLowerCase()) ?? '0';
-    if (msaAllocation !== '0') {
-      const status = (await getClaimStatus('MSA')) ?? 'UNCLAIMED';
-      const message = `I am claiming my Futbol airdrop allocation of ${msaAllocation} FUTBOL tokens.`;
-      allocations.push({
-        status,
-        strategy: 'MSA',
-        allocation: msaAllocation,
-        message,
-      });
-    }
-
-    return allocations;
   },
 };
 
