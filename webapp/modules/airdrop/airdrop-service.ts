@@ -2,7 +2,7 @@ import { getSavedJWT } from '@0xfutbol/id';
 import axios, { AxiosInstance } from 'axios';
 
 export interface AllocationResponse {
-  strategy?: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY';
+  strategy?: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY' | 'ZEALY_II';
   allocation?: string;
   message?: string;
   telegramId?: string;

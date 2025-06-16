@@ -186,7 +186,7 @@ export async function getUserDetails(address: string): Promise<Array<{
 // Airdrop-related methods
 export async function saveAirdropClaim(
   address: string,
-  strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY',
+  strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY' | 'ZEALY_II',
   allocation: string,
   message: string,
   signature: string,
@@ -213,7 +213,7 @@ export async function getAirdropClaimByAddress(address: string): Promise<any | u
   return result;
 }
 
-export async function getAirdropClaimByAddressAndStrategy(address: string, strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY'): Promise<any | undefined> {
+export async function getAirdropClaimByAddressAndStrategy(address: string, strategy: 'MSA' | 'MSU' | 'TELEGRAM' | 'ZEALY' | 'ZEALY_II'): Promise<any | undefined> {
   const result = await db('airdrop_claims')
     .where({ address: address.toLowerCase(), strategy })
     .first();
