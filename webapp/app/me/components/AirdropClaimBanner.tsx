@@ -99,7 +99,7 @@ export function AirdropClaimBanner() {
           }>
             <span className="text-wrap">
               {allocation.discordUsername && (allocation.strategy === 'ZEALY' || allocation.strategy === 'ZEALY_II') ? (
-                <>You have <b>{allocation.allocation} $FUTBOL</b> tokens ready to claim as Zealy user <b>{allocation.discordUsername}</b>!</>
+                <>You have <b>{allocation.allocation} $FUTBOL</b> tokens ready to claim (Discord ID <b>{allocation.discordUsername}</b>)!</>
               ) : allocation.category ? (
                 <>You have <b>{allocation.allocation} $FUTBOL</b> tokens ready to claim! Category: <b>{allocation.category}</b>. </>
               ) : (

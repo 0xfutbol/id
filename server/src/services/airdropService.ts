@@ -83,16 +83,16 @@ function loadZealyCsv(filePath: string): Map<string, string> {
   // Skip header
   for (const line of lines.slice(1)) {
     if (!line) continue;
-    // Split by commas that are outside quotes
-    const parts = line.split(",");
-    if (parts.length < 5) continue;
-    const discord = parts[2].trim().toLowerCase();
-    const futbolRaw = parts[4].trim().replace(/\"/g, '');
+    // Zealy CSV is semicolon separated
+    const parts = line.split(';');
+    if (parts.length < 6) continue; // ensure FUTBOL column exists
+    const discordId = parts[3].trim();
+    const futbolRaw = parts[5].trim().replace(/\"/g, '');
     const numberMatch = futbolRaw.match(/([\d,]+)/);
     if (!numberMatch) continue;
     const allocation = numberMatch[1].replace(/,/g, '');
-    if (discord) {
-      map.set(discord, allocation);
+    if (discordId) {
+      map.set(discordId, allocation);
     }
   }
   console.debug(`[airdropService] Loaded ${map.size} Zealy entries from ${filePath}`);
@@ -113,9 +113,9 @@ function loadZealyIICsv(filePath: string): Map<string, string> {
   for (const line of lines.slice(1)) {
     if (!line) continue;
     const parts = line.split(',');
-    // Expecting at least 8 columns (index 7 is FUTBOL)
+    // Expecting at least 8 columns (index 7 is FUTBOL, index 5 is discordId)
     if (parts.length < 8) continue;
-    const discord = parts[4].trim().toLowerCase();
+    const discord = parts[5].trim();
     const futbolRaw = parts[7].trim().replace(/"/g, '');
     const numberMatch = futbolRaw.match(/([\d,]+)/);
     if (!numberMatch) continue;
@@ -212,28 +212,28 @@ const airdropService = {
     const discordDetail: any | undefined = details?.find((d: any) => d.provider === 'discord');
     console.debug(`[airdropService] Checking Zealy strategy for address ${address}. Discord detail:`, discordDetail);
     if (discordDetail) {
-      const discordUsername = String(discordDetail.username || discordDetail.name || discordDetail.id || '').toLowerCase();
-      console.debug(`[airdropService] Extracted discordUsername: "${discordUsername}" from discordDetail:`, discordDetail);
-      if (discordUsername) {
-        const zealyAllocation = cache.zealy.get(discordUsername) ?? '0';
-        console.debug(`[airdropService] Zealy strategy: discord=${discordUsername}, allocation=${zealyAllocation}`);
+      const discordId = String(discordDetail.id || '').trim();
+      console.debug(`[airdropService] Extracted discordId: "${discordId}" from discordDetail:`, discordDetail);
+      if (discordId) {
+        const zealyAllocation = cache.zealy.get(discordId) ?? '0';
+        console.debug(`[airdropService] Zealy strategy: discord=${discordId}, allocation=${zealyAllocation}`);
         if (zealyAllocation !== '0') {
-          const message = `I am claiming my Futbol airdrop as Zealy user ${discordUsername}.`;
-          console.debug(`[airdropService] Returning Zealy allocation for address ${address}:`, { status: 'UNCLAIMED', strategy: 'ZEALY', allocation: zealyAllocation, message, discordUsername });
-          return { status: 'UNCLAIMED', strategy: 'ZEALY', allocation: zealyAllocation, message, discordUsername };
+          const message = `I am claiming my Futbol airdrop as Zealy user ${discordId}.`;
+          console.debug(`[airdropService] Returning Zealy allocation for address ${address}:`, { status: 'UNCLAIMED', strategy: 'ZEALY', allocation: zealyAllocation, message, discordUsername: discordId });
+          return { status: 'UNCLAIMED', strategy: 'ZEALY', allocation: zealyAllocation, message, discordUsername: discordId };
         } else {
-          console.debug(`[airdropService] No Zealy allocation for discordUsername: ${discordUsername}`);
+          console.debug(`[airdropService] No Zealy allocation for discordId: ${discordId}`);
           // Try Zealy II allocation if Zealy is zero
-          const zealyIIAllocation = cache.zealyII.get(discordUsername) ?? '0';
-          console.debug(`[airdropService] Zealy II strategy (fallback): discord=${discordUsername}, allocation=${zealyIIAllocation}`);
+          const zealyIIAllocation = cache.zealyII.get(discordId) ?? '0';
+          console.debug(`[airdropService] Zealy II strategy (fallback): discord=${discordId}, allocation=${zealyIIAllocation}`);
           if (zealyIIAllocation !== '0') {
-            const message = `I am claiming my Futbol airdrop as Zealy II user ${discordUsername}.`;
-            console.debug(`[airdropService] Returning Zealy II allocation for address ${address}:`, { status: 'UNCLAIMED', strategy: 'ZEALY_II', allocation: zealyIIAllocation, message, discordUsername });
-            return { status: 'UNCLAIMED', strategy: 'ZEALY_II', allocation: zealyIIAllocation, message, discordUsername };
+            const message = `I am claiming my Futbol airdrop as Zealy II user ${discordId}.`;
+            console.debug(`[airdropService] Returning Zealy II allocation for address ${address}:`, { status: 'UNCLAIMED', strategy: 'ZEALY_II', allocation: zealyIIAllocation, message, discordUsername: discordId });
+            return { status: 'UNCLAIMED', strategy: 'ZEALY_II', allocation: zealyIIAllocation, message, discordUsername: discordId };
           }
         }
       } else {
-        console.debug(`[airdropService] No valid discordUsername found in discordDetail for address ${address}`);
+        console.debug(`[airdropService] No valid discordId found in discordDetail for address ${address}`);
       }
     } else {
       console.debug(`[airdropService] No discordDetail found for address ${address}`);
@@ -346,31 +346,32 @@ const airdropService = {
     // Strategy: Zealy
     const discordDetail: any | undefined = details?.find((d: any) => d.provider === 'discord');
     if (discordDetail) {
-      const discordUsername = String(discordDetail.username || discordDetail.name || discordDetail.id || '').toLowerCase();
-      if (discordUsername) {
-        const zealyAllocation = cache.zealy.get(discordUsername) ?? '0';
+      const discordId = String(discordDetail.id || '').trim();
+      console.debug(`[airdropService] Extracted discordId: "${discordId}" from discordDetail:`, discordDetail);
+      if (discordId) {
+        const zealyAllocation = cache.zealy.get(discordId) ?? '0';
         if (zealyAllocation !== '0') {
           const status = (await getClaimStatus('ZEALY')) ?? 'UNCLAIMED';
-          const message = `I am claiming my Futbol airdrop as Zealy user ${discordUsername}.`;
+          const message = `I am claiming my Futbol airdrop as Zealy user ${discordId}.`;
           allocations.push({
             status,
             strategy: 'ZEALY',
             allocation: zealyAllocation,
             message,
-            discordUsername,
+            discordUsername: discordId,
           });
         }
 
-        const zealyIIAllocation = cache.zealyII.get(discordUsername) ?? '0';
+        const zealyIIAllocation = cache.zealyII.get(discordId) ?? '0';
         if (zealyIIAllocation !== '0') {
           const status = (await getClaimStatus('ZEALY_II')) ?? 'UNCLAIMED';
-          const message = `I am claiming my Futbol airdrop as Zealy II user ${discordUsername}.`;
+          const message = `I am claiming my Futbol airdrop as Zealy II user ${discordId}.`;
           allocations.push({
             status,
             strategy: 'ZEALY_II',
             allocation: zealyIIAllocation,
             message,
-            discordUsername,
+            discordUsername: discordId,
           });
         }
       }
