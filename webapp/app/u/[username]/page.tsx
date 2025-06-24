@@ -2,14 +2,13 @@
 "use client";
 
 import { useOxFutbolIdContext } from "@0xfutbol/id";
-import { useSearchParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
-import { accountService } from "@/modules/account/account-service";
 import {
-  fetchAccountInfo,
   fetchAssets,
   fetchPacks,
+  fetchPublicAccountInfoByUsername,
   fetchTokenBalances,
   fetchUltrasNFTs,
   selectAssets,
@@ -28,7 +27,8 @@ import {
   selectUltras,
   selectUltrasError,
   selectUltrasLoading,
-  selectUltrasNFTs,
+  selectViewingUserAddress,
+  selectViewingUserUsername,
   setSelectedTab
 } from "@/store/features/profile";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
@@ -36,14 +36,21 @@ import {
   GameCards,
   ProfileHeader,
   ProfileTabs
-} from "./components";
-import { AirdropClaimBanner } from "./components/AirdropClaimBanner";
-import { ACHIEVEMENTS, GAME_CARDS } from "./constants";
-import { NFTItem } from "./types";
+} from "../../me/components";
+import { ACHIEVEMENTS, GAME_CARDS } from "../../me/constants";
+import { NFTItem } from "../../me/types";
 
-export default function ProfilePage() {
+export default function UserProfilePage() {
+  const params = useParams();
+  const router = useRouter();
+  const username = params.username as string;
+  
+  // Get current user context
+  const { address: currentUserAddress, username: currentUserUsername, authStatus } = useOxFutbolIdContext();
+  
   // Local state
-  const [accountLoading, setAccountLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [achievementsLoading, setAchievementsLoading] = useState(false);
   
   // Redux
@@ -51,6 +58,8 @@ export default function ProfilePage() {
   const selectedTab = useAppSelector(selectSelectedTab);
   const discordAccount = useAppSelector(selectDiscordAccount);
   const referralCount = useAppSelector(selectReferralCount);
+  const viewingUserAddress = useAppSelector(selectViewingUserAddress);
+  const viewingUserUsername = useAppSelector(selectViewingUserUsername);
   
   const assets = useAppSelector(selectAssets);
   const assetsError = useAppSelector(selectAssetsError);
@@ -61,7 +70,6 @@ export default function ProfilePage() {
   const tokensLoading = useAppSelector(selectTokensLoading);
   
   const ultras = useAppSelector(selectUltras);
-  const ultrasNFTs = useAppSelector(selectUltrasNFTs);
   const ultrasError = useAppSelector(selectUltrasError);
   const ultrasLoading = useAppSelector(selectUltrasLoading);
 
@@ -71,49 +79,11 @@ export default function ProfilePage() {
 
   const pip = useAppSelector(selectPip);
 
-  // External hooks
-  const searchParams = useSearchParams();
-  const initialTab = searchParams.get("tab");
-  const { address, username } = useOxFutbolIdContext();
-
-  // For /me page, we're always viewing our own profile
-  const isViewingOtherUser = false;
-
-  // Fetch data using Redux thunks
-  useEffect(() => {
-    setAccountLoading(true);
-    setAchievementsLoading(true);
-    dispatch(fetchAccountInfo())
-      .finally(() => {
-        setAccountLoading(false);
-        setAchievementsLoading(false);
-      });
-  }, [dispatch]);
-
-  useEffect(() => {
-    if (address) {
-      dispatch(fetchAssets(address));
-      dispatch(fetchUltrasNFTs(address));
-      dispatch(fetchPacks(address));
-      dispatch(fetchTokenBalances(address));
-    }
-  }, [address, dispatch]);
-
-  // If user has no PiP but has ultras, set PiP to lowest tokenId ultra
-  useEffect(() => {
-    if (!pip && ultrasNFTs.length > 0 && address) {
-      // Find the lowest tokenId
-      const lowestUltra = ultrasNFTs.reduce((prev, curr) => {
-        return BigInt(prev.id) < BigInt(curr.id) ? prev : curr;
-      });
-      // Call backend to update PiP using the service
-      accountService.updatePiP(lowestUltra.id)
-        .then(() => {
-          dispatch(fetchAccountInfo());
-        })
-        .catch((err: any) => console.error("Failed to update PiP", err));
-    }
-  }, [pip, ultrasNFTs, address, dispatch]);
+  // Check if user is viewing their own profile
+  const isViewingOwnProfile = useMemo(() => {
+    if (authStatus !== "authenticated" || !currentUserUsername) return false;
+    return currentUserUsername.toLowerCase() === username.toLowerCase();
+  }, [authStatus, currentUserUsername, username]);
 
   // Convert string IDs to BigInt for the component props
   const convertedAssets = useMemo(() => {
@@ -128,21 +98,13 @@ export default function ProfilePage() {
 
   // Memoized values
   const tabs = useMemo(() => ["achievements", ...Object.keys(assets), "packs", "tokens", "ultras"], [assets]);
-  const avatarSrc = pip || `https://api.dicebear.com/9.x/shapes/svg?seed=${address}`;
-
-  // Effects
-  useEffect(() => {
-    if (initialTab && tabs.includes(initialTab)) dispatch(setSelectedTab(initialTab));
-  }, [initialTab, tabs, dispatch]);
+  const avatarSrc = pip || `https://api.dicebear.com/9.x/shapes/svg?seed=${viewingUserAddress}`;
 
   // Callbacks
   const handleTabChange = useCallback((key: string | number) => {
     const tabKey = String(key);
     dispatch(setSelectedTab(tabKey));
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("tab", tabKey);
-    window.history.pushState(null, "", `?${params.toString()}`);
-  }, [searchParams, dispatch]);
+  }, [dispatch]);
 
   // Get ultras data in the format expected by ProfileTabs
   const ultrasForTabs = useMemo(() => {
@@ -152,25 +114,88 @@ export default function ProfilePage() {
     })) : [];
   }, [ultras]);
 
-  // Only show the claim banner until July 31st, 2025
-  const showAirdropClaimBanner = useMemo(() => {
-    // July 31st, 2025 at 23:59:59 UTC
-    const deadline = new Date(Date.UTC(2025, 6, 31, 23, 59, 59));
-    return new Date() < deadline;
-  }, []);
+  // Redirect to /me if user is viewing their own profile
+  useEffect(() => {
+    if (isViewingOwnProfile) {
+      router.replace('/me');
+      return;
+    }
+  }, [isViewingOwnProfile, router]);
+
+  // Fetch user data
+  useEffect(() => {
+    if (!username || isViewingOwnProfile) return;
+
+    setLoading(true);
+    setError(null);
+    
+    dispatch(fetchPublicAccountInfoByUsername(username))
+      .unwrap()
+      .then(() => {
+        setAchievementsLoading(true);
+        setLoading(false);
+        setAchievementsLoading(false);
+      })
+      .catch((err) => {
+        setError(err.message || 'Failed to load user profile');
+        setLoading(false);
+      });
+  }, [username, dispatch, isViewingOwnProfile]);
+
+  // Fetch assets when we have the address
+  useEffect(() => {
+    if (viewingUserAddress && !isViewingOwnProfile) {
+      dispatch(fetchAssets(viewingUserAddress));
+      dispatch(fetchUltrasNFTs(viewingUserAddress));
+      dispatch(fetchPacks(viewingUserAddress));
+      dispatch(fetchTokenBalances(viewingUserAddress));
+    }
+  }, [viewingUserAddress, dispatch, isViewingOwnProfile]);
+
+  // Don't render anything if redirecting
+  if (isViewingOwnProfile) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-lg">Redirecting to your profile...</div>
+      </div>
+    );
+  }
+
+  // Determine if we're viewing another user (always true for this page since we redirect if viewing own profile)
+  const isViewingOtherUser = true;
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-lg">Loading user profile...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="text-lg text-red-500">Error: {error}</div>
+        <button 
+          onClick={() => router.push('/me')}
+          className="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Go to My Profile
+        </button>
+      </div>
+    );
+  }
 
   // Render
   return (
     <div className="flex flex-col gap-4 max-w-screen-xl p-4 md:px-0 w-full mx-auto">
       <ProfileHeader
-        username={username}
-        address={address!}
+        username={viewingUserUsername || undefined}
+        address={viewingUserAddress}
         discordAccount={discordAccount}
         avatarSrc={avatarSrc}
         isViewingOtherUser={isViewingOtherUser}
       />
-
-      {showAirdropClaimBanner && <AirdropClaimBanner />}
 
       <GameCards cards={GAME_CARDS} />
 
@@ -197,4 +222,4 @@ export default function ProfilePage() {
       />
     </div>
   );
-}
+} 

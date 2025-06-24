@@ -8,7 +8,7 @@ import LoadingScreen from "./loading-screen";
 
 const LOGIN_PATH = "/login";
 const ME_PATH = "/me";
-const PUBLIC_PATHS = [LOGIN_PATH];
+const PUBLIC_PATHS = [LOGIN_PATH, "/a/", "/u/"];
 
 interface AuthGuardProps {
   children: React.ReactNode;

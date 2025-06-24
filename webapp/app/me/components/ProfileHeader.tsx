@@ -1,12 +1,11 @@
 import { Avatar, Card, CardBody } from "@heroui/react";
-import { SiDiscord } from "react-icons/si";
 
 interface ProfileHeaderProps {
   username: string | undefined;
   address: string | null;
   discordAccount: string | null;
   avatarSrc: string | undefined;
-  onConnectDiscord: () => void;
+  isViewingOtherUser?: boolean;
 }
 
 export function ProfileHeader({
@@ -14,7 +13,7 @@ export function ProfileHeader({
   address,
   discordAccount,
   avatarSrc,
-  onConnectDiscord
+  isViewingOtherUser = false
 }: ProfileHeaderProps) {
   return (
     <Card className="w-full">
@@ -27,18 +26,16 @@ export function ProfileHeader({
               src={avatarSrc || `https://effigy.im/a/${address}.png`} 
             />
             <div>
-              <p className="text-gray-400">
-                {username}<span className="text-gray-500">.0xfutbol</span>
+              <h2 className="text-xl font-bold">{username || "Anonymous"}</h2>
+              <p className="text-gray-500 text-sm">
+                {address ? `${address.slice(0, 6)}...${address.slice(-4)}` : "No address"}
               </p>
+              {discordAccount && (
+                <p className="text-blue-500 text-sm">
+                  Discord: {discordAccount}
+                </p>
+              )}
             </div>
-          </div>
-          <div className="flex items-center">
-            {discordAccount && (
-              <div className="flex items-center gap-2">
-                <SiDiscord size={24} />
-                <p>{discordAccount}</p>
-              </div>
-            )}
           </div>
         </div>
       </CardBody>
