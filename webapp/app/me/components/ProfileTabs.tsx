@@ -30,7 +30,6 @@ interface ProfileTabsProps {
   tabs: string[];
   
   onTabChange: (key: string | number) => void;
-  isViewingOtherUser?: boolean;
 }
 
 export function ProfileTabs({
@@ -55,8 +54,7 @@ export function ProfileTabs({
   selectedTab,
   tabs,
   
-  onTabChange,
-  isViewingOtherUser = false
+  onTabChange
 }: ProfileTabsProps) {
   const { walletProvider } = useOxFutbolIdContext();
 
@@ -174,7 +172,7 @@ export function ProfileTabs({
           ) : (
             <div className="flex flex-col items-center justify-center h-64 text-gray-500">
               <p>No items to display</p>
-              {walletProvider === "matchain_id" && !isViewingOtherUser && (
+              {walletProvider === "matchain_id" && (
                 <p className="mt-2 text-sm text-default-400">
                   Claim your gift!
                 </p>

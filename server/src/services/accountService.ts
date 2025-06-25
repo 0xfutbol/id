@@ -1,16 +1,15 @@
 import axios from 'axios';
 import {
-    getDiscordAccountByAddress,
-    getDiscordAccountByDiscordId,
-    getReferralCount,
-    getTonAccountByAddress,
-    getTonAccountByTonAddress,
-    getUserByAddress,
-    getUserByUsername,
-    getUserDetailsByAddress,
-    saveDiscordAccount,
-    saveTonAccount,
-    updateUserPiP
+  getDiscordAccountByAddress,
+  getDiscordAccountByDiscordId,
+  getReferralCount,
+  getTonAccountByAddress,
+  getTonAccountByTonAddress,
+  getUserByAddress,
+  getUserDetailsByAddress,
+  saveDiscordAccount,
+  saveTonAccount,
+  updateUserPiP
 } from '../models/db';
 import { BaseChainService } from './onchainService/baseService';
 
@@ -18,75 +17,31 @@ import { BaseChainService } from './onchainService/baseService';
  * Service for handling account-related business logic
  */
 const accountService = {
-  // Public read methods (no authentication required)
-  
   /**
-   * Get public account info for a user by address
+   * Connect a TON address to a user
    */
-  getPublicAccountInfo: async (address: string): Promise<{
-    discord: string | null;
-    pip: string | null;
-    username: string;
-  }> => {
-    const user = await getUserByAddress(address);
-    
-    if (!user) {
-      throw new Error('User not found');
-    }
-    
-    const discordAccount = await getDiscordAccountByAddress(address);
+  connectTonAccount: async (tonAddress: string, userAddress: string): Promise<{ success: boolean; message: string }> => {
+    try {
+      const userAlreadyConnected = await getTonAccountByAddress(userAddress);
+      const tonAlreadyConnected = await getTonAccountByTonAddress(tonAddress);
 
-    return {
-      discord: discordAccount?.discord_id || null,
-      pip: user.pip || null,
-      username: user.username,
-    };
+      if (!userAlreadyConnected && !tonAlreadyConnected) {
+        await saveTonAccount(tonAddress, userAddress);
+        return { success: true, message: "TON account connected successfully" };
+      } 
+      
+      if (userAlreadyConnected && !tonAlreadyConnected) {
+        console.warn(`User ${userAddress} already connected to a TON account other than ${tonAddress}`);
+        return { success: false, message: "TON account already connected" };
+      } 
+      
+      return { success: false, message: "TON account already connected" };
+    } catch (error) {
+      console.error('Error connecting TON account:', error);
+      throw new Error('Failed to connect TON account');
+    }
   },
 
-  /**
-   * Get public account info for a user by username
-   */
-  getPublicAccountInfoByUsername: async (username: string): Promise<{
-    address: string;
-    discord: string | null;
-    pip: string | null;
-    username: string;
-  }> => {
-    const user = await getUserByUsername(username);
-    
-    if (!user) {
-      throw new Error('User not found');
-    }
-    
-    const discordAccount = await getDiscordAccountByAddress(user.address);
-
-    return {
-      address: user.address,
-      discord: discordAccount?.discord_id || null,
-      pip: user.pip || null,
-      username: user.username,
-    };
-  },
-
-  /**
-   * Resolve address to username
-   */
-  resolveAddressToUsername: async (address: string): Promise<{
-    username: string;
-  }> => {
-    const user = await getUserByAddress(address);
-    
-    if (!user) {
-      throw new Error('User not found');
-    }
-
-    return {
-      username: user.username,
-    };
-  },
-
-  // Private read methods (authentication required)
-  
   /**
    * Get account info for a user
    */
@@ -125,31 +80,27 @@ const accountService = {
     }
   },
 
-  // Mutation methods (authentication required)
-  
   /**
-   * Connect a TON address to a user
+   * Get public account info for a user by address
    */
-  connectTonAccount: async (tonAddress: string, userAddress: string): Promise<{ success: boolean; message: string }> => {
-    try {
-      const userAlreadyConnected = await getTonAccountByAddress(userAddress);
-      const tonAlreadyConnected = await getTonAccountByTonAddress(tonAddress);
-
-      if (!userAlreadyConnected && !tonAlreadyConnected) {
-        await saveTonAccount(tonAddress, userAddress);
-        return { success: true, message: "TON account connected successfully" };
-      } 
-      
-      if (userAlreadyConnected && !tonAlreadyConnected) {
-        console.warn(`User ${userAddress} already connected to a TON account other than ${tonAddress}`);
-        return { success: false, message: "TON account already connected" };
-      } 
-      
-      return { success: false, message: "TON account already connected" };
-    } catch (error) {
-      console.error('Error connecting TON account:', error);
-      throw new Error('Failed to connect TON account');
+  getPublicAccountInfo: async (address: string): Promise<{
+    discord: string | null;
+    pip: string | null;
+    username: string;
+  }> => {
+    const user = await getUserByAddress(address);
+    
+    if (!user) {
+      throw new Error('User not found');
     }
+    
+    const discordAccount = await getDiscordAccountByAddress(address);
+
+    return {
+      discord: discordAccount?.discord_id || null,
+      pip: user.pip || null,
+      username: user.username,
+    };
   },
 
   /**
@@ -208,7 +159,7 @@ const accountService = {
       console.error('Error updating PiP:', error);
       throw new Error('Failed to update PiP');
     }
-  },
+  }
 };
 
 /**

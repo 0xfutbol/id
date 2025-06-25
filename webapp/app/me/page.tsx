@@ -76,8 +76,13 @@ export default function ProfilePage() {
   const initialTab = searchParams.get("tab");
   const { address, username } = useOxFutbolIdContext();
 
-  // For /me page, we're always viewing our own profile
-  const isViewingOtherUser = false;
+  // Handle Discord connection
+  const handleConnectDiscord = useCallback(() => {
+    const clientId = "1229091313333309480";
+    const redirectUri = `${window.location.origin}/discord-oauth`;
+    const url = `https://discord.com/api/oauth2/authorize?client_id=${clientId}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=code&scope=identify%20email`;
+    window.location.href = url;
+  }, []);
 
   // Fetch data using Redux thunks
   useEffect(() => {
@@ -167,7 +172,7 @@ export default function ProfilePage() {
         address={address!}
         discordAccount={discordAccount}
         avatarSrc={avatarSrc}
-        isViewingOtherUser={isViewingOtherUser}
+        onConnectDiscord={handleConnectDiscord}
       />
 
       {showAirdropClaimBanner && <AirdropClaimBanner />}
@@ -193,7 +198,6 @@ export default function ProfilePage() {
         packsLoading={packsLoading}
         achievementsLoading={achievementsLoading}
         onTabChange={handleTabChange}
-        isViewingOtherUser={isViewingOtherUser}
       />
     </div>
   );

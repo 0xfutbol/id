@@ -39,10 +39,6 @@ interface ProfileState {
   ultrasError: string | null;
   ultrasLoading: boolean;
   ultrasNFTs: NFTData[];
-  // New fields for viewing other users' profiles
-  viewingUserAddress: string | null;
-  viewingUserUsername: string | null;
-  isViewingOtherUser: boolean;
 }
 
 // Initial state
@@ -68,9 +64,6 @@ const initialState: ProfileState = {
   packsError: null,
   packsLoading: false,
   packs: [],
-  viewingUserAddress: null,
-  viewingUserUsername: null,
-  isViewingOtherUser: false,
 };
 
 // Fetch account info thunk
@@ -86,40 +79,6 @@ export const fetchAccountInfo = createAsyncThunk(
       };
     } catch (error: any) {
       return rejectWithValue(error.message ?? 'Failed to fetch account info');
-    }
-  }
-);
-
-// Fetch public account info by username thunk
-export const fetchPublicAccountInfoByUsername = createAsyncThunk(
-  'profile/fetchPublicAccountInfoByUsername',
-  async (username: string, { rejectWithValue }) => {
-    try {
-      const info = await accountService.getPublicAccountInfoByUsername(username);
-      return {
-        address: info.address,
-        discordAccount: info.discord ?? null,
-        pip: info.pip ?? null,
-        username: info.username,
-        referralCount: 0 // Public profiles don't show referral count
-      };
-    } catch (error: any) {
-      return rejectWithValue(error.message ?? 'Failed to fetch public account info');
-    }
-  }
-);
-
-// Resolve address to username thunk
-export const resolveAddressToUsername = createAsyncThunk(
-  'profile/resolveAddressToUsername',
-  async (address: string, { rejectWithValue }) => {
-    try {
-      const info = await accountService.resolveAddressToUsername(address);
-      return {
-        username: info.username
-      };
-    } catch (error: any) {
-      return rejectWithValue(error.message ?? 'Failed to resolve address to username');
     }
   }
 );
@@ -226,41 +185,9 @@ const profileSlice = createSlice({
         state.discordAccount = action.payload.discordAccount;
         state.pip = action.payload.pip;
         state.referralCount = action.payload.referralCount;
-        state.isViewingOtherUser = false;
-        state.viewingUserAddress = null;
-        state.viewingUserUsername = null;
       })
       .addCase(fetchAccountInfo.rejected, (state, action) => {
         console.error('Failed to fetch account info:', action.payload);
-      });
-    
-    // Public account info by username
-    builder
-      .addCase(fetchPublicAccountInfoByUsername.pending, (state) => {
-        // No loading state for public account info currently
-      })
-      .addCase(fetchPublicAccountInfoByUsername.fulfilled, (state, action) => {
-        state.discordAccount = action.payload.discordAccount;
-        state.pip = action.payload.pip;
-        state.referralCount = action.payload.referralCount;
-        state.isViewingOtherUser = true;
-        state.viewingUserAddress = action.payload.address;
-        state.viewingUserUsername = action.payload.username;
-      })
-      .addCase(fetchPublicAccountInfoByUsername.rejected, (state, action) => {
-        console.error('Failed to fetch public account info:', action.payload);
-      });
-    
-    // Resolve address to username
-    builder
-      .addCase(resolveAddressToUsername.pending, (state) => {
-        // No loading state for address resolution currently
-      })
-      .addCase(resolveAddressToUsername.fulfilled, (state, action) => {
-        // Just return the resolved username, handled by redirect logic
-      })
-      .addCase(resolveAddressToUsername.rejected, (state, action) => {
-        console.error('Failed to resolve address to username:', action.payload);
       });
     
     // Assets
@@ -347,11 +274,6 @@ export const selectUltrasLoading = (state: RootState) => state.profile.ultrasLoa
 export const selectPacks = (state: RootState) => state.profile.packs;
 export const selectPacksError = (state: RootState) => state.profile.packsError;
 export const selectPacksLoading = (state: RootState) => state.profile.packsLoading;
-
-// Selectors for viewing other users
-export const selectViewingUserAddress = (state: RootState) => state.profile.viewingUserAddress;
-export const selectViewingUserUsername = (state: RootState) => state.profile.viewingUserUsername;
-export const selectIsViewingOtherUser = (state: RootState) => state.profile.isViewingOtherUser;
 
 // Export reducer
 export default profileSlice.reducer; 

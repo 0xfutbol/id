@@ -6,7 +6,7 @@ import { AirdropService, AllocationResponse } from "@/modules/airdrop";
 import { useOxFutbolIdContext } from "@0xfutbol/id";
 import { Alert, Button, Checkbox, Input, Modal, ModalBody, ModalContent } from "@heroui/react";
 import { addToast } from "@heroui/toast";
-import { isAddress } from "ethers";
+import { isAddress } from "ethers/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const service = new AirdropService(API_CONFIG.backendUrl);
