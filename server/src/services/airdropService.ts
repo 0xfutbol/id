@@ -395,8 +395,7 @@ const airdropService = {
     }
 
     // Strategy: MSA by address
-    // const msaAllocation = cache.msa.get(address.toLowerCase()) ?? '0';
-    const msaAllocation = '0';
+    const msaAllocation = cache.msa.get(address.toLowerCase()) ?? '0';
     if (msaAllocation !== '0') {
       const status = (await getClaimStatus('MSA')) ?? 'UNCLAIMED';
       const message = `I am claiming my Futbol airdrop allocation of ${msaAllocation} FUTBOL tokens.`;
