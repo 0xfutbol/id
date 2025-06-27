@@ -17,7 +17,7 @@ const OxFUTBOL_ID_PROVIDER = "OxFUTBOL_ID_PROVIDER";
 export const WALLET_OPTIONS = [
   {
     key: "thirdweb",
-    label: "Discord, Google, Telegram, email, and others.",
+    label: "Discord, Telegram, email, and others.",
     description: "Connect with your existing account.",
     icon: (
       <img
