@@ -14,6 +14,7 @@ type OxFutbolIdProviderProps = {
   backendUrl: string;
   chains: Array<ChainName>;
   children: React.ReactNode;
+  sponsorGas?: boolean;
 }
 
 type OxFutbolIdState = {
@@ -73,15 +74,15 @@ function OxFutbolIdInnerProvider({ children }: Omit<OxFutbolIdProviderProps, "ba
   );
 }
 
-export function OxFutbolIdProvider({ backendUrl, chains, children }: OxFutbolIdProviderProps) {
+export function OxFutbolIdProvider({ backendUrl, chains, children, sponsorGas = false }: OxFutbolIdProviderProps) {
   const queryClient = new QueryClient();
 
   return (
     <QueryClientProvider client={queryClient}>
       <ThirdwebProvider>
         <MatchIDProvider>
-          <Web3ContextProvider chains={chains}>
-            <AuthContextProvider backendUrl={backendUrl} chainToSign="polygon">
+          <Web3ContextProvider chains={chains} sponsorGas={sponsorGas}>
+            <AuthContextProvider backendUrl={backendUrl} chainToSign="base">
               <OxFutbolIdInnerProvider>
                 {children}
               </OxFutbolIdInnerProvider>

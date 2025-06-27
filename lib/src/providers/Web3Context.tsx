@@ -4,20 +4,21 @@ import * as React from "react";
 import { createContext, useCallback } from "react";
 import { AutoConnect } from "thirdweb/react";
 import { createWallet, inAppWallet, walletConnect } from "thirdweb/wallets";
+import { MatchIdContextProvider, useMatchIdContext } from "./MatchIdContext";
+import { ThirdwebContextProvider, useThirdwebContext } from "./ThirdwebContext";
 
 import { thirdwebClient } from "@/config";
 
 import { useLocalStorage } from "react-use";
-import { MatchIdContextProvider, useMatchIdContext } from "./MatchIdContext";
-import { ThirdwebContextProvider, useThirdwebContext } from "./ThirdwebContext";
+import { base } from "thirdweb/chains";
 
 const OxFUTBOL_ID_PROVIDER = "OxFUTBOL_ID_PROVIDER";
 
 export const WALLET_OPTIONS = [
   {
     key: "thirdweb",
-    label: "Identity Provider",
-    description: "Apple, Discord, Google, Telegram, email, or passkey.",
+    label: "Discord, Google, Telegram, email, and others.",
+    description: "Connect with your existing account.",
     icon: (
       <img
         alt="Thirdweb"
@@ -29,10 +30,15 @@ export const WALLET_OPTIONS = [
     ),
     provider: "thirdweb",
     component: () => <AutoConnect client={thirdwebClient} />,
-    wallet: () => inAppWallet({
+    wallet: ({ sponsorGas }: { sponsorGas?: boolean }) => inAppWallet({
       auth: {
         options: ["apple", "discord", "google", "telegram", "email", "passkey"],
+        
       },
+      smartAccount: sponsorGas ? {
+        chain: base,
+        sponsorGas: sponsorGas,
+      } : undefined
     }),
   },
   {
@@ -87,6 +93,7 @@ export const WALLET_OPTIONS = [
 type Web3ContextProviderProps = {
   chains: Array<ChainName>;
   children: React.ReactNode;
+  sponsorGas?: boolean;
 }
 
 export type Web3ContextState = {
@@ -106,7 +113,7 @@ export type Web3ContextState = {
   switchChain: (chain: ChainName) => Promise<void>;
 }
 
-const useWeb3ContextState = (): Web3ContextState => {
+const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
   const matchIdContext = useMatchIdContext();
   const thirdwebContext = useThirdwebContext();
 
@@ -120,7 +127,7 @@ const useWeb3ContextState = (): Web3ContextState => {
     }
 
     if (option.provider === "thirdweb") {
-      await thirdwebContext.connect(option.wallet()!);
+      await thirdwebContext.connect(option.wallet({ sponsorGas })!);
     } else if (option.provider === "matchain_id") {
       await matchIdContext.connect();
     } else {
@@ -213,8 +220,8 @@ const useWeb3ContextState = (): Web3ContextState => {
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);
 
-function Web3ContextInnerProvider({ children }: Omit<Web3ContextProviderProps, "chains">) {
-  const state = useWeb3ContextState();
+function Web3ContextInnerProvider({ children, sponsorGas }: Omit<Web3ContextProviderProps, "chains">) {
+  const state = useWeb3ContextState(sponsorGas);
 
   return (
     <Web3Context.Provider value={state}>
@@ -223,11 +230,11 @@ function Web3ContextInnerProvider({ children }: Omit<Web3ContextProviderProps, "
   );
 }
 
-export function Web3ContextProvider({ chains, children }: Web3ContextProviderProps) {
+export function Web3ContextProvider({ chains, children, sponsorGas }: Web3ContextProviderProps) {
   return (
     <ThirdwebContextProvider chains={chains}>
       <MatchIdContextProvider chains={chains}>
-        <Web3ContextInnerProvider>
+        <Web3ContextInnerProvider sponsorGas={sponsorGas}>
           {children}
         </Web3ContextInnerProvider>
       </MatchIdContextProvider>
