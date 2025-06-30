@@ -49,7 +49,7 @@ const accountService = {
     discord: any;
     pip: string | null;
     referralCount: number;
-    ton: any;
+    user: any;
     userDetails: Array<{
       id?: string;
       email?: string;
@@ -71,7 +71,7 @@ const accountService = {
         discord: discordAccount,
         pip: user.pip || null,
         referralCount,
-        ton: tonAccount,
+        user,
         userDetails,
       };
     } catch (error) {
