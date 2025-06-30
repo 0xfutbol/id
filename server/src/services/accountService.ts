@@ -59,7 +59,6 @@ const accountService = {
     try {
       const discordAccount = await getDiscordAccountByAddress(userAddress);
       const referralCount = await getReferralCount(userAddress);
-      const tonAccount = await getTonAccountByAddress(userAddress);
       const user = await getUserByAddress(userAddress);
       const userDetails = await getUserDetailsByAddress(userAddress);
 
