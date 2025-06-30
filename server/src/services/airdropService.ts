@@ -312,15 +312,18 @@ const airdropService = {
       cache.zealyII = loadZealyIICsv(ZEALY_II_CSV);
     }
 
-    // Helper to fetch claim status for a specific strategy
-    const getClaimStatus = async (strategy: AirdropStrategy): Promise<AllocationStatus | undefined> => {
+    // Helper to fetch claim information (status and claim URL) for a specific strategy
+    const getClaimInfo = async (strategy: AirdropStrategy): Promise<{ status: AllocationStatus; claimUrl?: string }> => {
       try {
         const claim = await getAirdropClaimByAddressAndStrategy(address, strategy);
-        if (!claim) return undefined;
-        return claim.claim_url ? 'APPROVED' : 'PENDING';
+        if (!claim) {
+          return { status: 'UNCLAIMED' };
+        }
+        const status: AllocationStatus = claim.claim_url ? 'APPROVED' : 'PENDING';
+        return { status, claimUrl: claim.claim_url ?? undefined };
       } catch (err) {
-        console.error('[airdropService] Error checking claim status', err);
-        return undefined;
+        console.error('[airdropService] Error checking claim info', err);
+        return { status: 'UNCLAIMED' };
       }
     };
 
@@ -331,7 +334,7 @@ const airdropService = {
       const telegramId = String(telegramDetail.id);
       const allocation = cache.telegram.get(telegramId) ?? '0';
       if (allocation !== '0') {
-        const status = (await getClaimStatus('TELEGRAM')) ?? 'UNCLAIMED';
+        const { status, claimUrl } = await getClaimInfo('TELEGRAM');
         const message = `I am claiming my Futbol airdrop as Telegram user ${telegramId}.`;
         allocations.push({
           status,
@@ -339,6 +342,7 @@ const airdropService = {
           allocation,
           message,
           telegramId,
+          claimUrl,
         });
       }
     }
@@ -351,7 +355,7 @@ const airdropService = {
       if (discordId) {
         const zealyAllocation = cache.zealy.get(discordId) ?? '0';
         if (zealyAllocation !== '0') {
-          const status = (await getClaimStatus('ZEALY')) ?? 'UNCLAIMED';
+          const { status, claimUrl } = await getClaimInfo('ZEALY');
           const message = `I am claiming my Futbol airdrop as Zealy user ${discordId}.`;
           allocations.push({
             status,
@@ -359,19 +363,21 @@ const airdropService = {
             allocation: zealyAllocation,
             message,
             discordUsername: discordId,
+            claimUrl,
           });
         }
 
         const zealyIIAllocation = cache.zealyII.get(discordId) ?? '0';
         if (zealyIIAllocation !== '0') {
-          const status = (await getClaimStatus('ZEALY_II')) ?? 'UNCLAIMED';
+          const { status: statusII, claimUrl: claimUrlII } = await getClaimInfo('ZEALY_II');
           const message = `I am claiming my Futbol airdrop as Zealy II user ${discordId}.`;
           allocations.push({
-            status,
+            status: statusII,
             strategy: 'ZEALY_II',
             allocation: zealyIIAllocation,
             message,
             discordUsername: discordId,
+            claimUrl: claimUrlII,
           });
         }
       }
@@ -382,7 +388,7 @@ const airdropService = {
     if (msuEntry) {
       const { allocation: msuAllocation, category } = msuEntry;
       if (msuAllocation !== '0') {
-        const status = (await getClaimStatus('MSU')) ?? 'UNCLAIMED';
+        const { status, claimUrl } = await getClaimInfo('MSU');
         const message = `I am claiming my Futbol airdrop as a ${category} with allocation of ${msuAllocation} FUTBOL tokens.`;
         allocations.push({
           status,
@@ -390,6 +396,7 @@ const airdropService = {
           allocation: msuAllocation,
           message,
           category,
+          claimUrl,
         });
       }
     }
@@ -397,13 +404,14 @@ const airdropService = {
     // Strategy: MSA by address
     const msaAllocation = cache.msa.get(address.toLowerCase()) ?? '0';
     if (msaAllocation !== '0') {
-      const status = (await getClaimStatus('MSA')) ?? 'UNCLAIMED';
+      const { status, claimUrl } = await getClaimInfo('MSA');
       const message = `I am claiming my Futbol airdrop allocation of ${msaAllocation} FUTBOL tokens.`;
       allocations.push({
         status,
         strategy: 'MSA',
         allocation: msaAllocation,
         message,
+        claimUrl,
       });
     }
 
