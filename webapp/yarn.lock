@@ -2,15 +2,10 @@
 # yarn lockfile v1
 
 
-"@0xfutbol/constants@^2.0.17":
-  version "2.0.17"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.17.tgz#f9af0fbba2e0ec95a6403e0e543df72ba5c2363c"
-  integrity sha512-MrN9+icXMWeL+8P6wLegiKOHGH+UkD/VlYRjURcWPJyQxL+Ewh/dhH2xnVJrOaKctExuS0Z7pgaasPXxJPhaLA==
-
-"@0xfutbol/constants@^2.0.19":
-  version "2.0.19"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.19.tgz#97aa5d72052dcb9d1372867df0821a076413f9be"
-  integrity sha512-pIPQDyd+4Q1LCo5lg0IEdgjEBN0FxQnzNc5MN7eAj6rDfrw938X1zzIZM+EieymIpeW9Y2jDchaiURxfRZNGhA==
+"@0xfutbol/constants@^2.0.28":
+  version "2.0.28"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.28.tgz#7801f06b8a68d08772189fb4d782319da1972499"
+  integrity sha512-MLqqHNFwHYWGoal1w0KhPJinIVswoUB/tpFQZJNh//8Z7+X+gk02+HcBfYkAjwWkuHKSALCSquAXhykxm+AMxw==
 
 "@0xfutbol/id-sign@^1.0.2":
   version "1.0.2"
@@ -20,12 +15,12 @@
     ethers "^6.13.2"
     jsonwebtoken "^9.0.2"
 
-"@0xfutbol/id@^2.0.174":
-  version "2.0.174"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.174.tgz#f27e1c9a2372aeceab105ce58082d35da9f412e6"
-  integrity sha512-xbPxN1DLn0mCQ3xqYhnjMIIzNg2qL4Q3B/kzSACNxr+1U/4te7guWuQaHMfgNZEDDFNuDwnX+Vl/dbrjQmB1JQ==
+"@0xfutbol/id@^2.0.181":
+  version "2.0.181"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/id/-/id-2.0.181.tgz#2da54dfab3b2c98965a1e858b9870904cb1d6d4e"
+  integrity sha512-QvTxhz7whI0ejlbL4EEtUIgBc2eHuWoZj2jWydhwQUNzOUBIiTMRWpp4gvpn34MXN/FnqLFH3gjRMMfRBu0obw==
   dependencies:
-    "@0xfutbol/constants" "^2.0.17"
+    "@0xfutbol/constants" "^2.0.28"
     "@0xfutbol/id-sign" "^1.0.2"
     "@matchain/matchid-sdk-react" "^0.1.56"
     ethers "^5.7.0"

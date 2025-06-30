@@ -7,7 +7,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@0xfutbol/constants": "^2.0.19",
+    "@0xfutbol/constants": "^2.0.28",
     "@0xfutbol/id-sign": "^1.0.4",
     "@0xfutbol/id-sign-legacy": "npm:@0xfutbol/id@^1.0.12",
     "@ankr.com/ankr.js": "^0.6.0",

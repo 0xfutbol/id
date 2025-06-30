@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@0xfutbol/constants@^2.0.19":
-  version "2.0.19"
-  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.19.tgz#97aa5d72052dcb9d1372867df0821a076413f9be"
-  integrity sha512-pIPQDyd+4Q1LCo5lg0IEdgjEBN0FxQnzNc5MN7eAj6rDfrw938X1zzIZM+EieymIpeW9Y2jDchaiURxfRZNGhA==
+"@0xfutbol/constants@^2.0.28":
+  version "2.0.28"
+  resolved "https://registry.yarnpkg.com/@0xfutbol/constants/-/constants-2.0.28.tgz#7801f06b8a68d08772189fb4d782319da1972499"
+  integrity sha512-MLqqHNFwHYWGoal1w0KhPJinIVswoUB/tpFQZJNh//8Z7+X+gk02+HcBfYkAjwWkuHKSALCSquAXhykxm+AMxw==
 
 "@0xfutbol/id-sign-legacy@npm:@0xfutbol/id@^1.0.12":
   version "1.0.12"
