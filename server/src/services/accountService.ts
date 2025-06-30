@@ -1,12 +1,12 @@
 import axios from 'axios';
 import {
+  getAddress,
   getDiscordAccountByAddress,
   getDiscordAccountByDiscordId,
   getReferralCount,
   getTonAccountByAddress,
   getTonAccountByTonAddress,
   getUserByAddress,
-  getUserDetailsByAddress,
   saveDiscordAccount,
   saveTonAccount,
   updateUserPiP
@@ -49,18 +49,18 @@ const accountService = {
     discord: any;
     pip: string | null;
     referralCount: number;
+    referrer: string | null;
     user: any;
-    userDetails: Array<{
-      id?: string;
-      email?: string;
-      phone?: string;
-    }> | null;
   }> => {
     try {
+      const address = await getAddress(userAddress);
       const discordAccount = await getDiscordAccountByAddress(userAddress);
       const referralCount = await getReferralCount(userAddress);
       const user = await getUserByAddress(userAddress);
-      const userDetails = await getUserDetailsByAddress(userAddress);
+
+      if (!address) {
+        throw new Error('Address not found');
+      }
 
       if (!user) {
         throw new Error('User not found');
@@ -69,9 +69,9 @@ const accountService = {
       return {
         discord: discordAccount,
         pip: user.pip || null,
+        referrer: address.referrer || null,
         referralCount,
-        user,
-        userDetails,
+        user
       };
     } catch (error) {
       console.error('Error fetching account info:', error);
