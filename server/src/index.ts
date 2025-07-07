@@ -1,6 +1,7 @@
 import dotenv from 'dotenv';
 dotenv.config();
 
+import './config/logging';
 import './config/sentry';
 
 import * as Sentry from "@sentry/node";
