@@ -14,6 +14,9 @@ import { accountRoutes, adminRoutes, airdropRoutes, authRoutes, onchainRoutes } 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Trust proxy setting for rate limiting and IP detection
+app.set('trust proxy', true);
+
 // Middleware
 app.use(cors({ origin: '*' }));
 app.use(express.json());
