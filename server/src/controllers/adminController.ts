@@ -11,7 +11,6 @@ export const adminController = {
       const info = await accountService.getAccountInfo(req.params.address);
       res.json(info);
     } catch (error) {
-      console.error('Error fetching account info:', error);
       res.status(500).json({ message: "Error fetching account info" });
     }
   }

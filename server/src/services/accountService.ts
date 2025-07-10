@@ -74,7 +74,6 @@ const accountService = {
         user
       };
     } catch (error) {
-      console.error('Error fetching account info:', error);
       throw new Error('Failed to fetch account info');
     }
   },
