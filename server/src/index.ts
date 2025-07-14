@@ -12,7 +12,7 @@ import express from 'express';
 import { accountRoutes, adminRoutes, airdropRoutes, authRoutes, onchainRoutes } from './routes';
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = parseInt(process.env.PORT || '3000');
 
 // Trust proxy setting for rate limiting and IP detection
 app.set('trust proxy', true);
@@ -33,6 +33,6 @@ app.use('/onchain', onchainRoutes);
 Sentry.setupExpressErrorHandler(app);
 
 // Start server
-app.listen(port, () => {
+app.listen(port, '0.0.0.0', () => {
   console.log(`Server is running on port ${port}`);
 });
