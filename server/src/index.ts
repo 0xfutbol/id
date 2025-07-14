@@ -9,7 +9,7 @@ import cors from 'cors';
 import express from 'express';
 
 // Import route modules
-import { accountRoutes, adminRoutes, airdropRoutes, authRoutes, onchainRoutes } from './routes';
+import { accountRoutes, adminRoutes, airdropRoutes, authRoutes, healthRoutes, onchainRoutes } from './routes';
 
 const app = express();
 const port = parseInt(process.env.PORT || '3000');
@@ -23,10 +23,10 @@ app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);
-app.use('/admin', adminRoutes);
-
 app.use('/account', accountRoutes);
+app.use('/admin', adminRoutes);
 app.use('/airdrop', airdropRoutes);
+app.use('/health', healthRoutes);
 app.use('/onchain', onchainRoutes);
 
 // Error handling
