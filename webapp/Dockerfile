@@ -37,6 +37,9 @@ ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
+# Install nginx
+RUN apk add --no-cache nginx
+
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -51,14 +54,25 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-USER nextjs
+# Copy nginx configuration
+COPY nginx.conf /etc/nginx/nginx.conf
 
-EXPOSE 3000
+# Create nginx directories and set permissions
+RUN mkdir -p /var/log/nginx /var/cache/nginx /tmp/nginx \
+    && chown -R nginx:nginx /var/log/nginx /var/cache/nginx /tmp/nginx \
+    && chmod 755 /var/log/nginx
+
+# Create startup script
+RUN echo '#!/bin/sh' > /start.sh \
+    && echo 'nginx' >> /start.sh \
+    && echo 'su nextjs -c "node server.js"' >> /start.sh \
+    && chmod +x /start.sh
+
+EXPOSE 80
 
 ENV PORT 3000
 # set hostname to localhost
 ENV HOSTNAME "0.0.0.0"
 
-# server.js is created by next build from the standalone output
-# https://nextjs.org/docs/pages/api-reference/next-config-js/output
-CMD ["node", "server.js"] 
+# Start both nginx and Next.js
+CMD ["/start.sh"] 
