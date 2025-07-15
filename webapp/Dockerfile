@@ -36,16 +36,14 @@ WORKDIR /app
 # Install nginx and supervisor
 RUN apk add --no-cache nginx supervisor
 
-ENV NODE_ENV production
+ENV NODE_ENV=production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create nginx user and group
-RUN addgroup --system --gid 1002 nginx
-RUN adduser --system --uid 1002 --ingroup nginx nginx
+# Note: nginx user and group are automatically created when nginx is installed
 
 COPY --from=builder /app/public ./public
 
