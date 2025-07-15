@@ -43,10 +43,6 @@ ENV NODE_ENV production
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-# Create nginx user and group
-RUN addgroup --system --gid 1002 nginx
-RUN adduser --system --uid 1002 --ingroup nginx nginx
-
 COPY --from=builder /app/public ./public
 
 # Set the correct permission for prerender cache
@@ -60,15 +56,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
 # Create nginx configuration
 RUN mkdir -p /etc/nginx/conf.d
-COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
+COPY nginx.conf /etc/nginx/nginx.conf
 
 # Create supervisor configuration
 RUN mkdir -p /etc/supervisor/conf.d
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-
-# Copy test script for debugging
-COPY test-nginx.sh /app/test-nginx.sh
-RUN chmod +x /app/test-nginx.sh
 
 # Create directories for nginx and supervisor
 RUN mkdir -p /var/log/nginx
@@ -76,20 +68,9 @@ RUN mkdir -p /var/log/supervisor
 RUN mkdir -p /run/nginx
 
 # Set proper permissions
-RUN chown -R nginx:nginx /var/log/nginx
+RUN chown -R nextjs:nodejs /var/log/nginx
 RUN chown -R nextjs:nodejs /var/log/supervisor
-RUN chown -R nginx:nginx /run/nginx
-
-# Ensure nginx can write to its PID file location
-RUN mkdir -p /var/run/nginx
-RUN chown -R nginx:nginx /var/run/nginx
-
-# Create nginx cache directory and set permissions
-RUN mkdir -p /var/cache/nginx
-RUN chown -R nginx:nginx /var/cache/nginx
-
-# Ensure nginx has permissions to read its configuration
-RUN chown -R nginx:nginx /etc/nginx
+RUN chown -R nextjs:nodejs /run/nginx
 
 EXPOSE 80
 
