@@ -33,9 +33,6 @@ RUN yarn build
 FROM base AS runner
 WORKDIR /app
 
-# Install nginx and supervisor
-RUN apk add --no-cache nginx supervisor
-
 ENV NODE_ENV production
 # Uncomment the following line in case you want to disable telemetry during runtime.
 # ENV NEXT_TELEMETRY_DISABLED 1
@@ -54,25 +51,14 @@ RUN chown nextjs:nodejs .next
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Create nginx configuration
-RUN mkdir -p /etc/nginx/conf.d
-COPY nginx.conf /etc/nginx/nginx.conf
+USER nextjs
 
-# Create supervisor configuration
-RUN mkdir -p /etc/supervisor/conf.d
-COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+EXPOSE 3000
 
-# Create directories for nginx and supervisor
-RUN mkdir -p /var/log/nginx
-RUN mkdir -p /var/log/supervisor
-RUN mkdir -p /run/nginx
+ENV PORT 3000
+# set hostname to localhost
+ENV HOSTNAME "0.0.0.0"
 
-# Set proper permissions
-RUN chown -R nextjs:nodejs /var/log/nginx
-RUN chown -R nextjs:nodejs /var/log/supervisor
-RUN chown -R nextjs:nodejs /run/nginx
-
-EXPOSE 80
-
-# Use supervisor to run both nginx and the Next.js server
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"] 
+# server.js is created by next build from the standalone output
+# https://nextjs.org/docs/pages/api-reference/next-config-js/output
+CMD ["node", "server.js"] 
