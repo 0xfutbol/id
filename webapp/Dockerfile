@@ -64,10 +64,9 @@ COPY --chown=nginx:nginx nginx.conf /etc/nginx/nginx.conf
 RUN mkdir -p /etc/supervisor/conf.d
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 
-# Copy test scripts for debugging
+# Copy test script for debugging
 COPY test-nginx.sh /app/test-nginx.sh
-COPY test-api.sh /app/test-api.sh
-RUN chmod +x /app/test-nginx.sh /app/test-api.sh
+RUN chmod +x /app/test-nginx.sh
 
 # Create directories for nginx and supervisor
 RUN mkdir -p /var/log/nginx
