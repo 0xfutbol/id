@@ -21,6 +21,14 @@ const nextConfig = {
       },
     ];
   },
+  async rewrites() {
+    return [
+      {
+        source: '/api/:path*',
+        destination: 'http://msid-server-oqxnsp-546de8-148-113-140-109.traefik.me/:path*',
+      },
+    ];
+  },
   typescript: {
     ignoreBuildErrors: true,
   },
