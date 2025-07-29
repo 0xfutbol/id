@@ -38,7 +38,7 @@ export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIO
         await claim(username);
       } catch (err: any) {
         console.error("[AuthUIOrchestrator] Error claiming username:", err);
-        setError(err.message || "An error occurred while claiming the 0xFútbol ID");
+        setError(err?.response?.data?.error ?? err.message ?? "An error occurred while claiming the 0xFútbol ID");
       } finally {
         clearTimeout(timer);
         setIsLoading(false);
