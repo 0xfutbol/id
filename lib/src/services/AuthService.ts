@@ -9,9 +9,9 @@ export class AuthService {
 		this.httpClient = axios.create({ baseURL: `${backendUrl}/auth` })
 	}
 
-	async claim(username: string, owner: string, message: string, signatureExpiration: number, userDetails?: Record<string, any>): Promise<void> {
+	async claim(username: string, owner: string, message: string, signatureExpiration: number, userDetails?: Record<string, any>, userEmail?: string): Promise<void> {
 		try {
-			await this.httpClient.post("/claim", { username, owner, message, expiration: signatureExpiration, userDetails });
+			await this.httpClient.post("/claim", { username, owner, message, expiration: signatureExpiration, userDetails, userEmail });
 		} catch (err) {
 			throw err;
 		}

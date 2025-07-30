@@ -32,7 +32,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [jwtPayload, setJwtPayload] = useState<Record<string, any> | undefined>(undefined);
 
-  const claim = useCallback(async (username: string) => {
+  const claim = useCallback(async (username: string, email?: string) => {
     if (!address) throw new Error("No address found");
     if (!signer) throw new Error("No signer found");
 
@@ -56,7 +56,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
       }
     };
 
-    const handleUnclaimedUsername = async (username: string) => {
+    const handleUnclaimedUsername = async (username: string, email?: string) => {
       console.debug("[0xFútbol ID] Handling unclaimed username:", username);
       const signatureExpiration = Date.now() + MAX_SIGNATURE_EXPIRATION;
       const message = AUTH_MESSAGE.replace("{username}", username).replace("{expiration}", signatureExpiration.toString());
@@ -65,7 +65,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
         const signedMessage = await signer[chainToSign].signMessage(message);
         console.debug("[0xFútbol ID] Signed message:", signedMessage);
         console.debug("[0xFútbol ID] User details:", userDetails);
-        await authService.claim(username, address, signedMessage, signatureExpiration, userDetails);
+        await authService.claim(username, address, signedMessage, signatureExpiration, userDetails, email);
         console.debug("[0xFútbol ID] Registered username");
         const jwt = await authService.getJWT(username, signedMessage, signatureExpiration);
         console.debug("[0xFútbol ID] JWT received");
@@ -78,7 +78,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     if (claimed) {
       return handleClaimedUsername(username);
     } else {
-      return handleUnclaimedUsername(username);
+      return handleUnclaimedUsername(username, email);
     }
   }, [address, chainToSign, userDetails, signer]);
 

@@ -7,7 +7,7 @@ interface AuthUIOrchestratorProps {
     error?: string;
     isLoading: boolean;
     isTakingLong: boolean;
-    onClaimClick: (username: string) => Promise<void>;
+    onClaimClick: (username: string, email?: string) => Promise<void>;
     onDisconnectClick: (walletKey: string) => void;
   }) => JSX.Element;
   connectComponent: (props: {
@@ -25,7 +25,7 @@ export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIO
   const [isTakingLong, setIsTakingLong] = useState(false);
 
   const onClaimClick = useCallback(
-    async (username: string) => {
+    async (username: string, email?: string) => {
       setError(undefined);
       setIsLoading(true);
       setIsTakingLong(false);
@@ -35,7 +35,7 @@ export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIO
       }, 10000);
 
       try {
-        await claim(username);
+        await claim(username, email);
       } catch (err: any) {
         console.error("[AuthUIOrchestrator] Error claiming username:", err);
         setError(err?.response?.data?.error ?? err.message ?? "An error occurred while claiming the 0xFútbol ID");

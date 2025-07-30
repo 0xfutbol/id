@@ -37,7 +37,7 @@ type OxFutbolIdState = {
   isWaitingForSignature: boolean;
   username?: string;
   userClaims?: Record<string, any>;
-  claim: (username: string) => Promise<void>;
+  claim: (username: string, email?: string) => Promise<void>;
 }
 
 const useOxFutbolIdState = (): OxFutbolIdState => {
