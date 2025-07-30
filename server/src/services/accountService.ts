@@ -10,6 +10,7 @@ import {
   getUserEmailsByAddress,
   saveDiscordAccount,
   saveTonAccount,
+  saveUserEmails,
   updateUserPiP
 } from '../models/db';
 import { BaseChainService } from './onchainService/baseService';
@@ -160,6 +161,16 @@ const accountService = {
     } catch (error) {
       console.error('Error updating PiP:', error);
       throw new Error('Failed to update PiP');
+    }
+  },
+
+  updateEmails: async (userAddress: string, emails: string[]): Promise<{ success: boolean; message: string; data?: any }> => {
+    try {
+      await saveUserEmails(userAddress, emails);
+      return { success: true, message: "Emails updated successfully" };
+    } catch (error) {
+      console.error('Error updating emails:', error);
+      throw new Error('Failed to update emails');
     }
   }
 };

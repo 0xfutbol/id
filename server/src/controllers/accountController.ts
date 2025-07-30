@@ -107,6 +107,25 @@ export const accountController = {
     }
   },
 
+  updateEmails: async (req: Request & { user?: { owner: string } }, res: Response) => {
+    const { emails } = req.body;
+    if (!emails) {
+      return res.status(400).json({ message: "Emails are required" });
+    }
+
+    if (!req.user) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    try {
+      const result = await accountService.updateEmails(req.user.owner, emails);
+      res.json({ message: result.message, data: result.data });
+    } catch (error) {
+      console.error('Error updating emails', error);
+      res.status(500).json({ message: "Error updating emails" });
+    }
+  },
+
   // Update Profile Image Picture (PiP)
   updatePiP: async (req: Request & { user?: { owner: string } }, res: Response) => {
     if (!req.user) {
