@@ -7,6 +7,7 @@ import {
   getTonAccountByAddress,
   getTonAccountByTonAddress,
   getUserByAddress,
+  getUserEmailsByAddress,
   saveDiscordAccount,
   saveTonAccount,
   updateUserPiP
@@ -47,6 +48,7 @@ const accountService = {
    */
   getAccountInfo: async (userAddress: string): Promise<{
     discord: any;
+    emails: any;
     pip: string | null;
     referralCount: number;
     referrer: string | null;
@@ -55,6 +57,7 @@ const accountService = {
     try {
       const address = await getAddress(userAddress);
       const discordAccount = await getDiscordAccountByAddress(userAddress);
+      const emails = await getUserEmailsByAddress(userAddress);
       const referralCount = await getReferralCount(userAddress);
       const user = await getUserByAddress(userAddress);
 
@@ -68,6 +71,7 @@ const accountService = {
 
       return {
         discord: discordAccount,
+        emails: emails,
         pip: user.pip || null,
         referrer: address.referrer || null,
         referralCount,

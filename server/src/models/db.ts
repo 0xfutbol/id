@@ -194,6 +194,23 @@ export async function getUserDetails(address: string): Promise<Array<{
   return result ? JSON.parse(result.details) : null;
 }
 
+// User emails-related methods
+export async function getUserEmailsByAddress(address: string): Promise<Array<{ email: string }> | null> {
+  const result = await db('users_emails')
+    .select('email')
+    .where('address', address.toLowerCase());
+  return result.length > 0 ? result : null;
+}
+
+export async function saveUserEmails(address: string, emails: string[]): Promise<void> {
+  if (!emails || emails.length === 0) return;
+  const emailRecords = emails.map(email => ({
+    address: address.toLowerCase(),
+    email
+  }));
+  await db('users_emails').insert(emailRecords).onConflict(['address', 'email']).ignore();
+}
+
 // Airdrop-related methods
 export async function saveAirdropClaim(
   address: string,
