@@ -5,11 +5,14 @@ import { authenticateJWT } from '../middlewares/auth';
 const router: Router = express.Router();
 
 // Mount controller-based routes
-router.post('/ton', express.json(), authenticateJWT, accountController.connectTon);
 router.get('/info', authenticateJWT, accountController.getAccountInfo);
 router.get('/:address', accountController.getPublicAccountInfo);
-router.post('/ping', express.json(), accountController.pingAddress);
+
 router.post('/discord', express.json(), authenticateJWT, accountController.connectDiscord);
+router.post('/ping', express.json(), accountController.pingAddress);
 router.post('/pip', express.json(), authenticateJWT, accountController.updatePiP);
+router.post('/ton', express.json(), authenticateJWT, accountController.connectTon);
+
+router.put('/emails', express.json(), authenticateJWT, accountController.updateEmails);
 
 export default router;
