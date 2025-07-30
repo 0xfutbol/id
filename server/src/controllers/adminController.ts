@@ -26,7 +26,7 @@ export const adminController = {
         console.log(`Processing address: ${ud.address}`);
         let details;
         try {
-          details = JSON.parse(ud.details);
+          details = ud.details;
         } catch (e) {
           console.error(`Error parsing details for ${ud.address}: ${(e as Error).message}`);
           continue;
