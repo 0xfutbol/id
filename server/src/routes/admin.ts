@@ -6,6 +6,7 @@ const router: Router = express.Router();
 
 // Mount controller-based routes
 router.get('/account/:address', authenticateAdmin, adminController.getAccountDetails);
-router.post('/migrate-emails', authenticateAdmin, adminController.migrateEmails);
+
+router.post('/account/:address/emails', authenticateAdmin, adminController.updateAccountEmails);
 
 export default router; 

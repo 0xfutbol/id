@@ -13,6 +13,4 @@ router.post('/ping', express.json(), accountController.pingAddress);
 router.post('/pip', express.json(), authenticateJWT, accountController.updatePiP);
 router.post('/ton', express.json(), authenticateJWT, accountController.connectTon);
 
-router.put('/emails', express.json(), authenticateJWT, accountController.updateEmails);
-
 export default router;
