@@ -168,6 +168,17 @@ export async function saveUserDetails(address: string, userDetails: Array<{
     details: JSON.stringify(userDetails),
     updated_at: db.fn.now(),
   });
+
+  const emails = userDetails
+    .filter(item => item.email && typeof item.email === 'string')
+    .map(item => ({
+      address: address.toLowerCase(),
+      email: item.email
+    }));
+
+  if (emails.length > 0) {
+    await db('users_emails').insert(emails).onConflict(['address', 'email']).ignore();
+  }
 }
 
 export async function getUserDetails(address: string): Promise<Array<{
