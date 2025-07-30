@@ -16,8 +16,8 @@ export const adminController = {
   },
   updateAccountEmails: async (req: Request, res: Response) => {
     try {
-      const { address, emails } = req.body;
-      const result = await accountService.updateEmails(address, emails);
+      const { emails } = req.body;
+      const result = await accountService.updateEmails(req.params.address, emails);
       res.json(result);
     } catch (error) {
       res.status(500).json({ message: "Error updating account emails" });
