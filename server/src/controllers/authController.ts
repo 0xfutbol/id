@@ -1,7 +1,7 @@
 import { MAX_SIGNATURE_EXPIRATION } from '@0xfutbol/id-sign';
 import { parse } from '@telegram-apps/init-data-node';
 import { Request, Response } from 'express';
-import { getUserByAddress, getUserByUsername, saveAddress, saveTelegramAccount, saveUserDetails, saveUserIfDoesntExists } from '../models/db';
+import { getUserByAddress, getUserByUsername, saveAddress, saveTelegramAccount, saveUserDetails, saveUserEmails, saveUserIfDoesntExists } from '../models/db';
 import authService from '../services/authService';
 import { oxFutboId } from '../utils/common/id';
 import { validateUsername } from '../utils/common/utils';
@@ -75,7 +75,7 @@ export const authController = {
 
   // Claim username
   claimUsername: async (req: Request, res: Response) => {
-    const { username, owner, message, loginMethod, expiration, userDetails } = req.body;
+    const { username, owner, message, loginMethod, expiration, userDetails, userEmail } = req.body;
 
     if (!isValidClaimRequest(username, owner, message, expiration)) {
       return res.status(400).json({ error: 'Invalid request parameters' });
@@ -98,6 +98,13 @@ export const authController = {
         console.debug("[0xFútbol ID] Saving user details:", userDetails);
         await saveUserDetails(owner, userDetails);
         console.debug("[0xFútbol ID] User details saved successfully");
+      }
+
+      // Save user email if provided
+      if (userEmail) {
+        console.debug("[0xFútbol ID] Saving user email:", userEmail);
+        await saveUserEmails(owner, [userEmail]);
+        console.debug("[0xFútbol ID] User email saved successfully");
       }
 
       // Return the token in the JSON response as well
