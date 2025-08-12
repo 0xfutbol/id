@@ -207,7 +207,14 @@ export function ProfileTabs({
           ) : tokensError ? (
             <p className="text-red-500">{tokensError}</p>
           ) : (
-            <Gallery items={tokens.filter(token => (token.symbol !== "MSA" && token.symbol !== "MSU") || Number(token.balance) > 0)} renderItem={renderTokenItem} />
+            <Gallery items={(() => {
+              const cutoff = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
+              const now = new Date();
+              if (now > cutoff) {
+                return tokens.filter(token => token.symbol !== "MSA" && token.symbol !== "MSU");
+              }
+              return tokens.filter(token => (token.symbol !== "MSA" && token.symbol !== "MSU") || Number(token.balance) > 0);
+            })()} renderItem={renderTokenItem} />
           )}
         </Tab>
 

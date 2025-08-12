@@ -12,6 +12,12 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const service = new AirdropService(API_CONFIG.backendUrl);
 
 export function AirdropClaimBanner() {
+  // Hide after September 10th, 2025 23:59:59 UTC
+  const cutoff = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
+  if (new Date() > cutoff) {
+    return null;
+  }
+
   const { defaultChain, signer } = useOxFutbolIdContext();
 
   const [allocations, setAllocations] = useState<AllocationResponse[]>([]);

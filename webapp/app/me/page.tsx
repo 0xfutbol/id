@@ -157,10 +157,10 @@ export default function ProfilePage() {
     })) : [];
   }, [ultras]);
 
-  // Only show the claim banner until July 31st, 2025
+  // Only show the claim banner until September 10th, 2025
   const showAirdropClaimBanner = useMemo(() => {
-    // July 31st, 2025 at 23:59:59 UTC
-    const deadline = new Date(Date.UTC(2025, 6, 31, 23, 59, 59));
+    // September 10th, 2025 at 23:59:59 UTC
+    const deadline = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
     return new Date() < deadline;
   }, []);
 
