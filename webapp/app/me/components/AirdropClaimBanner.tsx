@@ -4,7 +4,7 @@
 import { API_CONFIG } from "@/config/api";
 import { AirdropService, AllocationResponse } from "@/modules/airdrop";
 import { useOxFutbolIdContext } from "@0xfutbol/id";
-import { Alert, Button, Checkbox, Input, Modal, ModalBody, ModalContent } from "@heroui/react";
+import { Alert, Button, Checkbox, Input, Modal, ModalBody, ModalContent, Tooltip } from "@heroui/react";
 import { addToast } from "@heroui/toast";
 import { isAddress } from "ethers/lib/utils";
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -12,9 +12,13 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 const service = new AirdropService(API_CONFIG.backendUrl);
 
 export function AirdropClaimBanner() {
-  // Hide after September 10th, 2025 23:59:59 UTC
-  const cutoff = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
-  if (new Date() > cutoff) {
+  // Claiming window expires on Sep 10th, 2025 23:59:59 UTC.
+  // Hide banner entirely after one month: Oct 10th, 2025 23:59:59 UTC.
+  const claimDeadline = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
+  const hideDeadline = new Date(Date.UTC(2025, 9, 10, 23, 59, 59));
+  const now = new Date();
+  const isClaimExpired = now > claimDeadline;
+  if (now > hideDeadline) {
     return null;
   }
 
@@ -96,12 +100,20 @@ export function AirdropClaimBanner() {
       case 'UNCLAIMED':
         return (
           <Alert color="success" className="flex items-center gap-4" endContent={
-            <Button size="sm" color="success" onPress={() => {
-              setSelectedAllocation(allocation);
-              setShowModal(true);
-            }}>
-              Claim
-            </Button>
+            isClaimExpired ? (
+              <Tooltip content="Claiming window has expired on September 10th 23:59:59 UTC">
+                <Button size="sm" color="success" isDisabled>
+                  Claim
+                </Button>
+              </Tooltip>
+            ) : (
+              <Button size="sm" color="success" onPress={() => {
+                setSelectedAllocation(allocation);
+                setShowModal(true);
+              }}>
+                Claim
+              </Button>
+            )
           }>
             <span className="text-wrap">
               {allocation.discordUsername && (allocation.strategy === 'ZEALY' || allocation.strategy === 'ZEALY_II') ? (
@@ -184,17 +196,28 @@ export function AirdropClaimBanner() {
               >
                 I understand this must be a self-custodial wallet I control (e.g., MetaMask).
               </Checkbox>
-              <Button
-                color="success"
-                isDisabled={!canClaim || claiming}
-                isLoading={claiming}
-                onPress={() => {
-                  console.log("[AirdropClaimBanner] Claim modal button clicked");
-                  handleClaim();
-                }}
-              >
-                Claim {selectedAllocation?.allocation} $FUTBOL
-              </Button>
+              {isClaimExpired ? (
+                <Tooltip content="Claiming window has expired on September 10th 23:59:59 UTC">
+                  <Button
+                    color="success"
+                    isDisabled
+                  >
+                    Claim {selectedAllocation?.allocation} $FUTBOL
+                  </Button>
+                </Tooltip>
+              ) : (
+                <Button
+                  color="success"
+                  isDisabled={!canClaim || claiming}
+                  isLoading={claiming}
+                  onPress={() => {
+                    console.log("[AirdropClaimBanner] Claim modal button clicked");
+                    handleClaim();
+                  }}
+                >
+                  Claim {selectedAllocation?.allocation} $FUTBOL
+                </Button>
+              )}
             </ModalBody>
           </ModalContent>
         </Modal>

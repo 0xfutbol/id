@@ -7,35 +7,35 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { accountService } from "@/modules/account/account-service";
 import {
-  fetchAccountInfo,
-  fetchAssets,
-  fetchPacks,
-  fetchTokenBalances,
-  fetchUltrasNFTs,
-  selectAssets,
-  selectAssetsError,
-  selectAssetsLoading,
-  selectDiscordAccount,
-  selectPacks,
-  selectPacksError,
-  selectPacksLoading,
-  selectPip,
-  selectReferralCount,
-  selectSelectedTab,
-  selectTokens,
-  selectTokensError,
-  selectTokensLoading,
-  selectUltras,
-  selectUltrasError,
-  selectUltrasLoading,
-  selectUltrasNFTs,
-  setSelectedTab
+    fetchAccountInfo,
+    fetchAssets,
+    fetchPacks,
+    fetchTokenBalances,
+    fetchUltrasNFTs,
+    selectAssets,
+    selectAssetsError,
+    selectAssetsLoading,
+    selectDiscordAccount,
+    selectPacks,
+    selectPacksError,
+    selectPacksLoading,
+    selectPip,
+    selectReferralCount,
+    selectSelectedTab,
+    selectTokens,
+    selectTokensError,
+    selectTokensLoading,
+    selectUltras,
+    selectUltrasError,
+    selectUltrasLoading,
+    selectUltrasNFTs,
+    setSelectedTab
 } from "@/store/features/profile";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import {
-  GameCards,
-  ProfileHeader,
-  ProfileTabs
+    GameCards,
+    ProfileHeader,
+    ProfileTabs
 } from "./components";
 import { AirdropClaimBanner } from "./components/AirdropClaimBanner";
 import { ACHIEVEMENTS, GAME_CARDS } from "./constants";
@@ -157,11 +157,10 @@ export default function ProfilePage() {
     })) : [];
   }, [ultras]);
 
-  // Only show the claim banner until September 10th, 2025
+  // Show the claim banner until October 10th, 2025 23:59:59 UTC
   const showAirdropClaimBanner = useMemo(() => {
-    // September 10th, 2025 at 23:59:59 UTC
-    const deadline = new Date(Date.UTC(2025, 8, 10, 23, 59, 59));
-    return new Date() < deadline;
+    const hideDeadline = new Date(Date.UTC(2025, 9, 10, 23, 59, 59));
+    return new Date() < hideDeadline;
   }, []);
 
   // Render
