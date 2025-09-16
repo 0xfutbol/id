@@ -20,6 +20,7 @@ type OxFutbolIdProviderProps = {
 type OxFutbolIdState = {
   // web3
   address?: string;
+  chainId?: number;
   defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
   status: string;
