@@ -98,6 +98,7 @@ type Web3ContextProviderProps = {
 
 export type Web3ContextState = {
   address?: string;
+  chainId?: number;
   defaultChain?: ChainName;
   signer?: Record<ChainName, Signer>;
   status: "disconnected" | "connecting" | "connected" | "unknown";
@@ -186,6 +187,11 @@ const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
     address: {
       matchain_id: matchIdContext.address,
       thirdweb: thirdwebContext.address,
+      unknown: undefined
+    }[walletProvider!],
+    chainId: {
+      matchain_id: matchIdContext.chainId,
+      thirdweb: thirdwebContext.chainId,
       unknown: undefined
     }[walletProvider!],
     defaultChain: {

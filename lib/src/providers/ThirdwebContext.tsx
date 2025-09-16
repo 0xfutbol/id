@@ -84,6 +84,7 @@ const useThirdwebContextState = (chains: Array<ChainName>) => {
 
   return {
     address: activeWallet?.getAccount()?.address,
+    chainId: activeWallet?.getChain()?.id,
     signer,
     status,
     userDetails: profiles?.map(profile => ({

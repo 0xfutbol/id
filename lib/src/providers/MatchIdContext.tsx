@@ -101,6 +101,7 @@ const useMatchIdContextState = (chains: Array<ChainName>) => {
 
   return {
     address: currentAddress.current,
+    chainId: chainId.current,
     signer,
     status,
     web3Ready: (status === "connected" && signer !== undefined) || status === "disconnected",
