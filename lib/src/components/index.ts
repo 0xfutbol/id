@@ -1,5 +1,5 @@
-import { PayEmbed } from "thirdweb/react";
+import { AutoConnect, ConnectButton, PayEmbed } from "thirdweb/react";
 export * from './AuthUIOrchestrator';
 export * from './MatchainConnect';
-export { PayEmbed };
+export { AutoConnect, ConnectButton, PayEmbed };
 
