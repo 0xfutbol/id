@@ -25,7 +25,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://msid-server-oqxnsp-ef1b84-147-135-77-158.traefik.me/:path*',
+        destination: 'https://api.id.0xfutbol.com/:path*',
       },
     ];
   },
