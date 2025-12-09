@@ -25,7 +25,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://api.id.0xfutbol.com/:path*',
+        destination: 'https://id-api.0xfutbol.com/:path*',
       },
     ];
   },
