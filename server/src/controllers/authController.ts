@@ -210,7 +210,7 @@ export const authController = {
       console.error('Error in generateJwtTg method:', error);
       return res.status(500).json({ error: 'Internal server error' });
     }
-  }
+  },
 
   // Register with username/password
   registerPassword: async (req: Request, res: Response) => {
