@@ -8,8 +8,7 @@ import { AuthStatus } from "@/providers/types";
 import { AccountService, AuthService } from "@/services";
 import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 import { Signer } from "ethers";
-import { RemoteWaasSigner } from "@/providers/RemoteWaasSigner";
-import { WaasService } from "@/services/WaasService";
+import { clearMetaSoccerWaaSSession, saveMetaSoccerWaaSSession, useMetaSoccerWaaSContext } from "@/providers/MetaSoccerWaaSContext";
 
 type AuthContextProviderProps = {
   backendUrl: string;
@@ -28,18 +27,12 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const accountService = useMemo(() => new AccountService(backendUrl), [backendUrl]);
 
   const validJWT = useRef<string | undefined>(undefined);
+  const metaSoccerWaaSContext = useMetaSoccerWaaSContext();
   
   const [authStatus, setAuthStatus] = useState<AuthStatus>("unknown");
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [jwtPayload, setJwtPayload] = useState<Record<string, any> | undefined>(undefined);
-  const [waasSession, setWaasSession] = useState<{
-    walletId: string;
-    address: string;
-    waasBaseUrl: string;
-    waasSessionToken: string;
-    signers: Record<ChainName, Signer>;
-  } | undefined>(undefined);
 
   const claim = useCallback(async (username: string, email?: string) => {
     if (!address) throw new Error("No address found");
@@ -102,31 +95,30 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   }, []);
 
   const loginWithWaas = useCallback(
-    (params: {
+    async (params: {
       jwt: string;
       walletId: string;
       walletAddress: string;
       waasBaseUrl: string;
       waasSessionToken: string;
-      chains: ChainName[];
     }) => {
-      const waas = new WaasService(params.waasBaseUrl, params.waasSessionToken);
-      const signers = params.chains.reduce((acc, chain) => {
-        acc[chain] = new RemoteWaasSigner(waas, params.walletId, params.walletAddress, chain);
-        return acc;
-      }, {} as Record<ChainName, Signer>);
-
-      setWaasSession({
+      await metaSoccerWaaSContext.connect({
         walletId: params.walletId,
-        address: params.walletAddress,
+        walletAddress: params.walletAddress,
         waasBaseUrl: params.waasBaseUrl,
         waasSessionToken: params.waasSessionToken,
-        signers,
+        chainId: chainToSign,
       });
-
+      saveMetaSoccerWaaSSession({
+        walletAddress: params.walletAddress,
+        walletId: params.walletId,
+        waasBaseUrl: params.waasBaseUrl,
+        waasSessionToken: params.waasSessionToken,
+        chainId: chainToSign,
+      });
       login(params.jwt);
     },
-    [login],
+    [chainToSign, login, metaSoccerWaaSContext],
   );
 
   const logout = useCallback(() => {
@@ -136,11 +128,12 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
     setJwtPayload(undefined);
-    setWaasSession(undefined);
+    metaSoccerWaaSContext.disconnect();
     setSavedJWT(undefined);
+    clearMetaSoccerWaaSSession();
 
     validJWT.current = undefined;
-  }, []);
+  }, [metaSoccerWaaSContext]);
 
   const signForJWT = useCallback(async (username: string, signer: Signer) => {
     if (!signer) throw new Error("No signer found");
@@ -230,7 +223,6 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     username: jwtPayload?.username,
     userClaims: jwtPayload?.claims,
     claim,
-    waasSession,
     loginWithWaas,
   };
 };

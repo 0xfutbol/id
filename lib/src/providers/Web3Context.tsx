@@ -5,6 +5,7 @@ import { createContext, useCallback } from "react";
 import { AutoConnect } from "thirdweb/react";
 import { createWallet, inAppWallet, walletConnect } from "thirdweb/wallets";
 import { MatchIdContextProvider, useMatchIdContext } from "./MatchIdContext";
+import { MetaSoccerWaaSContextProvider, useMetaSoccerWaaSContext, loadMetaSoccerWaaSSession } from "./MetaSoccerWaaSContext";
 import { ThirdwebContextProvider, useThirdwebContext } from "./ThirdwebContext";
 
 import { thirdwebClient } from "@/config";
@@ -15,6 +16,22 @@ import { base } from "thirdweb/chains";
 const OxFUTBOL_ID_PROVIDER = "OxFUTBOL_ID_PROVIDER";
 
 export const WALLET_OPTIONS = [
+  {
+    key: "metasoccer-waas",
+    label: "MetaSoccer WaaS",
+    description: "Use your MetaSoccer WaaS wallet",
+    icon: (
+      <img
+        alt="MetaSoccer WaaS"
+        height={48}
+        src="https://dummyimage.com/48x48/0b3b63/ffffff&text=W"
+        style={{ borderRadius: 8 }}
+        width={48}
+      />
+    ),
+    provider: "metasoccer-waas",
+    wallet: () => undefined,
+  },
   {
     key: "thirdweb",
     label: "Discord, Telegram, email, and others.",
@@ -90,6 +107,8 @@ export const WALLET_OPTIONS = [
   },
 ];
 
+type WalletProvider = "matchain_id" | "thirdweb" | "metasoccer-waas" | "unknown";
+
 type Web3ContextProviderProps = {
   chains: Array<ChainName>;
   children: React.ReactNode;
@@ -105,7 +124,7 @@ export type Web3ContextState = {
   userDetails?: Array<{
     provider: string;
   } & Record<string, any>>;
-  walletProvider: "matchain_id" | "thirdweb" | "unknown";
+  walletProvider: WalletProvider;
   web3Ready: boolean;
   connect: (walletKey: string) => Promise<void>;
   disconnect: () => Promise<void>;
@@ -114,11 +133,12 @@ export type Web3ContextState = {
   switchChain: (chain: ChainName) => Promise<void>;
 }
 
-const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
+const useWeb3ContextState = (chains: Array<ChainName>, sponsorGas?: boolean): Web3ContextState => {
   const matchIdContext = useMatchIdContext();
   const thirdwebContext = useThirdwebContext();
+  const metaSoccerWaaSContext = useMetaSoccerWaaSContext();
 
-  const [walletProvider, setWalletProvider] = useLocalStorage<"matchain_id" | "thirdweb" | "unknown">(OxFUTBOL_ID_PROVIDER, "unknown");
+  const [walletProvider, setWalletProvider] = useLocalStorage<WalletProvider>(OxFUTBOL_ID_PROVIDER, "unknown");
 
   const connect = useCallback(async (walletKey: string) => {
     const option = WALLET_OPTIONS.find((option) => option.key === walletKey);
@@ -129,20 +149,34 @@ const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
 
     if (option.provider === "thirdweb") {
       await thirdwebContext.connect(option.wallet({ sponsorGas })!);
-    } else if (option.provider === "matchain_id") {
+      setWalletProvider(option.provider);
+      return;
+    }
+    if (option.provider === "matchain_id") {
       await matchIdContext.connect();
-    } else {
-      throw new Error(`Invalid provider: ${option.provider}`);
+      setWalletProvider(option.provider);
+      return;
+    }
+    if (option.provider === "metasoccer-waas") {
+      const session = loadMetaSoccerWaaSSession();
+      if (!session) {
+        throw new Error("No WaaS session found. Please login with WaaS first.");
+      }
+      await metaSoccerWaaSContext.connect(session);
+      setWalletProvider(option.provider);
+      return;
     }
 
-    setWalletProvider(option.provider);
-  }, [matchIdContext, thirdwebContext]);
+    throw new Error(`Invalid provider: ${option.provider}`);
+  }, [matchIdContext, metaSoccerWaaSContext, setWalletProvider, sponsorGas, thirdwebContext]);
 
   const newContract = useCallback((chain: ChainName, contractAddress: string, contractAbi: any) => {
     const signer = (() => {
       switch (walletProvider) {
         case "matchain_id":
           return matchIdContext.signer;
+        case "metasoccer-waas":
+          return metaSoccerWaaSContext.signer;
         case "thirdweb":
           return thirdwebContext.signer;
         default:
@@ -152,70 +186,95 @@ const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
     })();
 
     return new Contract(contractAddress, contractAbi, signer?.[chain]);
-  }, [matchIdContext, thirdwebContext, walletProvider]);
+  }, [matchIdContext, metaSoccerWaaSContext, thirdwebContext, walletProvider]);
 
   const disconnect = useCallback(async () => {
     if (walletProvider === "thirdweb") {
       await thirdwebContext.disconnect();
     } else if (walletProvider === "matchain_id") {
       await matchIdContext.disconnect();
+    } else if (walletProvider === "metasoccer-waas") {
+      await metaSoccerWaaSContext.disconnect();
     } else {
       throw new Error(`Invalid provider: ${walletProvider}`);
     }
-  }, [matchIdContext, thirdwebContext, walletProvider]);
+  }, [matchIdContext, metaSoccerWaaSContext, thirdwebContext, walletProvider]);
 
   const nativeBalanceOf = useCallback(async (address: string, chainId: number) => {
     if (walletProvider === "thirdweb") {
       return thirdwebContext.nativeBalanceOf(address, chainId);
     } else if (walletProvider === "matchain_id") {
       return matchIdContext.nativeBalanceOf(address, chainId);
+    } else if (walletProvider === "metasoccer-waas") {
+      return metaSoccerWaaSContext.nativeBalanceOf(address, chainId);
     } else {
       console.warn("No provider found for native balance of", address, chainId);
       return BigNumber.from(0);
     }
-  }, [matchIdContext, thirdwebContext, walletProvider]);
+  }, [matchIdContext, metaSoccerWaaSContext, thirdwebContext, walletProvider]);
 
   const switchChain = useCallback(async (chain: ChainName) => {
     if (walletProvider === "thirdweb") {
       await thirdwebContext.switchChain(chain);
     } else if (walletProvider === "matchain_id") {
       await matchIdContext.switchChain(chain);
+    } else if (walletProvider === "metasoccer-waas") {
+      await metaSoccerWaaSContext.switchChain(chain);
     }
-  }, [matchIdContext, thirdwebContext, walletProvider]);
+  }, [matchIdContext, metaSoccerWaaSContext, thirdwebContext, walletProvider]);
+
+  React.useEffect(() => {
+    if (metaSoccerWaaSContext.status === "connected" && walletProvider !== "metasoccer-waas") {
+      setWalletProvider("metasoccer-waas");
+    } else if (walletProvider === "metasoccer-waas" && metaSoccerWaaSContext.status !== "connected") {
+      setWalletProvider("unknown");
+    }
+  }, [metaSoccerWaaSContext.status, setWalletProvider, walletProvider]);
 
   return {
     address: {
       matchain_id: matchIdContext.address,
+      "metasoccer-waas": metaSoccerWaaSContext.address,
       thirdweb: thirdwebContext.address,
       unknown: undefined
     }[walletProvider!],
     chainId: {
       matchain_id: matchIdContext.chainId,
+      "metasoccer-waas": metaSoccerWaaSContext.chainId,
       thirdweb: thirdwebContext.chainId,
       unknown: undefined
     }[walletProvider!],
     defaultChain: {
       matchain_id: "matchain" as ChainName,
+      "metasoccer-waas": chains[0] as ChainName | undefined,
       thirdweb: "xdc" as ChainName,
       unknown: undefined
     }[walletProvider!],
     signer: {
       matchain_id: matchIdContext.signer,
+      "metasoccer-waas": metaSoccerWaaSContext.signer,
       thirdweb: thirdwebContext.signer,
       unknown: undefined
     }[walletProvider!],
     status: {
       matchain_id: matchIdContext.status,
+      "metasoccer-waas": metaSoccerWaaSContext.status,
       thirdweb: thirdwebContext.status,
       unknown: "disconnected" as const
     }[walletProvider!],
     userDetails: {
       matchain_id: undefined,
+      "metasoccer-waas": undefined,
       thirdweb: thirdwebContext.userDetails,
       unknown: undefined
     }[walletProvider!],
     walletProvider: walletProvider!,
-    web3Ready: matchIdContext.web3Ready && thirdwebContext.web3Ready,
+    web3Ready: {
+      matchain_id: matchIdContext.web3Ready,
+      "metasoccer-waas": metaSoccerWaaSContext.web3Ready,
+      thirdweb: thirdwebContext.web3Ready,
+      unknown: matchIdContext.web3Ready && thirdwebContext.web3Ready && metaSoccerWaaSContext.web3Ready,
+    }[walletProvider!],
     connect,
     disconnect,
     nativeBalanceOf,
@@ -226,8 +285,8 @@ const useWeb3ContextState = (sponsorGas?: boolean): Web3ContextState => {
 
 export const Web3Context = createContext<ReturnType<typeof useWeb3ContextState> | undefined>(undefined);
 
-function Web3ContextInnerProvider({ children, sponsorGas }: Omit<Web3ContextProviderProps, "chains">) {
-  const state = useWeb3ContextState(sponsorGas);
+function Web3ContextInnerProvider({ chains, children, sponsorGas }: Web3ContextProviderProps) {
+  const state = useWeb3ContextState(chains, sponsorGas);
 
   return (
     <Web3Context.Provider value={state}>
@@ -240,9 +299,11 @@ export function Web3ContextProvider({ chains, children, sponsorGas }: Web3Contex
   return (
     <ThirdwebContextProvider chains={chains}>
       <MatchIdContextProvider chains={chains}>
-        <Web3ContextInnerProvider sponsorGas={sponsorGas}>
-          {children}
-        </Web3ContextInnerProvider>
+        <MetaSoccerWaaSContextProvider chains={chains}>
+          <Web3ContextInnerProvider chains={chains} sponsorGas={sponsorGas}>
+            {children}
+          </Web3ContextInnerProvider>
+        </MetaSoccerWaaSContextProvider>
       </MatchIdContextProvider>
     </ThirdwebContextProvider>
   );

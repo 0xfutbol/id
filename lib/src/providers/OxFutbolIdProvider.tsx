@@ -45,38 +45,12 @@ type OxFutbolIdState = {
     walletAddress: string;
     waasBaseUrl: string;
     waasSessionToken: string;
-    chains: ChainName[];
-  }) => void;
+  }) => Promise<void>;
 }
 
 const useOxFutbolIdState = (): OxFutbolIdState => {
   const web3Context = useWeb3Context();
   const authContext = useAuthContext();
-
-  if (authContext.waasSession) {
-    return {
-      address: authContext.waasSession.address,
-      chainId: web3Context.chainId,
-      defaultChain: web3Context.defaultChain,
-      signer: authContext.waasSession.signers,
-      status: "connected",
-      userDetails: web3Context.userDetails,
-      walletProvider: "metasoccer-waas",
-      web3Ready: true,
-      connect: web3Context.connect,
-      disconnect: web3Context.disconnect,
-      nativeBalanceOf: web3Context.nativeBalanceOf,
-      newContract: web3Context.newContract,
-      switchChain: web3Context.switchChain,
-      authStatus: authContext.authStatus,
-      isClaimPending: authContext.isClaimPending,
-      isWaitingForSignature: authContext.isWaitingForSignature,
-      username: authContext.username,
-      userClaims: authContext.userClaims,
-      claim: authContext.claim,
-      loginWithWaas: authContext.loginWithWaas,
-    };
-  }
 
   return {
     ...web3Context,

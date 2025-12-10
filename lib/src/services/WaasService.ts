@@ -40,4 +40,12 @@ export class WaasService {
       memo,
     });
   }
+
+  getNativeBalance(walletId: string, chainId: number) {
+    return this.post<{ balanceWei: string }>(`/wallets/${walletId}/balance/native`, { chainId });
+  }
+
+  switchChain(walletId: string, chainId: number) {
+    return this.post<{ chainId: number }>(`/wallets/${walletId}/switch-chain`, { chainId });
+  }
 }
