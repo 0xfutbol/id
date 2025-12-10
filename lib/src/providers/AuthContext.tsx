@@ -8,6 +8,8 @@ import { AuthStatus } from "@/providers/types";
 import { AccountService, AuthService } from "@/services";
 import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 import { Signer } from "ethers";
+import { RemoteWaasSigner } from "@/providers/RemoteWaasSigner";
+import { WaasService } from "@/services/WaasService";
 
 type AuthContextProviderProps = {
   backendUrl: string;
@@ -31,6 +33,13 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
   const [isClaimPending, setIsClaimPending] = useState(false);
   const [isWaitingForSignature, setIsWaitingForSignature] = useState(false);
   const [jwtPayload, setJwtPayload] = useState<Record<string, any> | undefined>(undefined);
+  const [waasSession, setWaasSession] = useState<{
+    walletId: string;
+    address: string;
+    waasBaseUrl: string;
+    waasSessionToken: string;
+    signers: Record<ChainName, Signer>;
+  } | undefined>(undefined);
 
   const claim = useCallback(async (username: string, email?: string) => {
     if (!address) throw new Error("No address found");
@@ -92,6 +101,34 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     validJWT.current = jwt;
   }, []);
 
+  const loginWithWaas = useCallback(
+    (params: {
+      jwt: string;
+      walletId: string;
+      walletAddress: string;
+      waasBaseUrl: string;
+      waasSessionToken: string;
+      chains: ChainName[];
+    }) => {
+      const waas = new WaasService(params.waasBaseUrl, params.waasSessionToken);
+      const signers = params.chains.reduce((acc, chain) => {
+        acc[chain] = new RemoteWaasSigner(waas, params.walletId, params.walletAddress, chain);
+        return acc;
+      }, {} as Record<ChainName, Signer>);
+
+      setWaasSession({
+        walletId: params.walletId,
+        address: params.walletAddress,
+        waasBaseUrl: params.waasBaseUrl,
+        waasSessionToken: params.waasSessionToken,
+        signers,
+      });
+
+      login(params.jwt);
+    },
+    [login],
+  );
+
   const logout = useCallback(() => {
     console.debug("[0xFútbol ID] Logging out");
 
@@ -99,6 +136,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     setIsClaimPending(false);
     setIsWaitingForSignature(false);
     setJwtPayload(undefined);
+    setWaasSession(undefined);
     setSavedJWT(undefined);
 
     validJWT.current = undefined;
@@ -191,7 +229,9 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     isWaitingForSignature,
     username: jwtPayload?.username,
     userClaims: jwtPayload?.claims,
-    claim
+    claim,
+    waasSession,
+    loginWithWaas,
   };
 };
 

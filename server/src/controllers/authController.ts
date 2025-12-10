@@ -3,8 +3,10 @@ import { parse } from '@telegram-apps/init-data-node';
 import { Request, Response } from 'express';
 import { getUserByAddress, getUserByUsername, saveAddress, saveTelegramAccount, saveUserDetails, saveUserEmails, saveUserIfDoesntExists } from '../models/db';
 import authService from '../services/authService';
+import identityService from '../services/identityService';
 import { oxFutboId } from '../utils/common/id';
 import { validateUsername } from '../utils/common/utils';
+import waasClient from '../utils/common/waasClient';
 
 /**
  * Auth controller with methods for handling authentication endpoints
@@ -209,6 +211,56 @@ export const authController = {
       return res.status(500).json({ error: 'Internal server error' });
     }
   }
+
+  // Register with username/password
+  registerPassword: async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    try {
+      const result = await identityService.register(username, password);
+      const walletId = result.wallet.id;
+      const session = await waasClient.createSession(walletId, result.token);
+      res.json({
+        token: result.token,
+        address: result.address,
+        wallet: result.wallet,
+        waasSessionToken: session.sessionToken,
+        waasSessionExpiresAt: session.expiresAt,
+      });
+    } catch (error: any) {
+      console.error('Error registering identity:', error);
+      res.status(400).json({ error: error.message ?? 'Failed to register' });
+    }
+  },
+
+  // Login with username/password
+  loginPassword: async (req: Request, res: Response) => {
+    const { username, password } = req.body;
+    if (!username || !password) {
+      return res.status(400).json({ error: 'Username and password are required' });
+    }
+
+    try {
+      const result = await identityService.login(username, password);
+      const session = result.walletId
+        ? await waasClient.createSession(result.walletId, result.token)
+        : undefined;
+      res.json({
+        token: result.token,
+        address: result.address,
+        walletId: result.walletId,
+        walletAddress: result.walletAddress,
+        waasSessionToken: session?.sessionToken,
+        waasSessionExpiresAt: session?.expiresAt,
+      });
+    } catch (error: any) {
+      console.error('Error logging in identity:', error);
+      res.status(400).json({ error: error.message ?? 'Failed to login' });
+    }
+  },
 };
 
 function isValidRequest(username: string, signature: string, expiration: number): boolean {

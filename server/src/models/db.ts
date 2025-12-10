@@ -202,6 +202,45 @@ export async function getUserEmailsByAddress(address: string): Promise<Array<{ e
   return result.length > 0 ? result : null;
 }
 
+// Identity (username/password) methods
+export async function getIdentityByUsername(username: string): Promise<{
+  id: string;
+  username: string;
+  password_hash: string;
+  address: string;
+  login_method: string;
+  wallet_id?: string;
+  wallet_address?: string;
+} | undefined> {
+  return db('identities').where({ username }).first();
+}
+
+export async function saveIdentity(params: {
+  id: string;
+  username: string;
+  passwordHash: string;
+  address: string;
+  loginMethod?: string;
+}): Promise<void> {
+  await db('identities').insert({
+    id: params.id,
+    username: params.username,
+    password_hash: params.passwordHash,
+    address: params.address.toLowerCase(),
+    login_method: params.loginMethod ?? 'MetaSoccer',
+  });
+}
+
+export async function updateIdentityWallet(username: string, walletId: string, walletAddress: string): Promise<void> {
+  await db('identities')
+    .where({ username })
+    .update({
+      wallet_id: walletId,
+      wallet_address: walletAddress.toLowerCase(),
+      updated_at: db.fn.now(),
+    });
+}
+
 export async function saveUserEmails(address: string, emails: string[]): Promise<void> {
   if (!emails || emails.length === 0) return;
   const emailRecords = emails.map(email => ({

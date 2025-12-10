@@ -43,4 +43,28 @@ export class AuthService {
 			throw err;
 		}
 	}
+
+	async registerPassword(username: string, password: string): Promise<{
+		token: string;
+		address: string;
+		walletId: string;
+		walletAddress: string;
+		waasSessionToken?: string;
+		waasSessionExpiresAt?: number;
+	}> {
+		const { data } = await this.httpClient.post("/register/password", { username, password });
+		return data;
+	}
+
+	async loginPassword(username: string, password: string): Promise<{
+		token: string;
+		address: string;
+		walletId?: string;
+		walletAddress?: string;
+		waasSessionToken?: string;
+		waasSessionExpiresAt?: number;
+	}> {
+		const { data } = await this.httpClient.post("/login/password", { username, password });
+		return data;
+	}
 }
