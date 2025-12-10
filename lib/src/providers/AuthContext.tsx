@@ -9,6 +9,7 @@ import { AccountService, AuthService } from "@/services";
 import { decodeJWT, getSavedJWT, setSavedJWT } from "@/utils";
 import { Signer } from "ethers";
 import { clearMetaSoccerWaaSSession, saveMetaSoccerWaaSSession, useMetaSoccerWaaSContext } from "@/providers/MetaSoccerWaaSContext";
+import { chains as chainsConfig } from "@/config";
 
 type AuthContextProviderProps = {
   backendUrl: string;
@@ -102,19 +103,20 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
       waasBaseUrl: string;
       waasSessionToken: string;
     }) => {
+      const chainIdNumber = chainsConfig[chainToSign]?.ref.id;
       await metaSoccerWaaSContext.connect({
         walletId: params.walletId,
         walletAddress: params.walletAddress,
         waasBaseUrl: params.waasBaseUrl,
         waasSessionToken: params.waasSessionToken,
-        chainId: chainToSign,
+        chainId: chainIdNumber,
       });
       saveMetaSoccerWaaSSession({
         walletAddress: params.walletAddress,
         walletId: params.walletId,
         waasBaseUrl: params.waasBaseUrl,
         waasSessionToken: params.waasSessionToken,
-        chainId: chainToSign,
+        chainId: chainIdNumber,
       });
       login(params.jwt);
     },
