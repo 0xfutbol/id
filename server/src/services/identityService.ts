@@ -8,7 +8,6 @@ import {
   saveUserIfDoesntExists,
   updateIdentityWallet,
 } from '../models/db';
-import walletClient from '../utils/common/walletClient';
 import waasClient from '../utils/common/waasClient';
 import { validateUsername } from '../utils/common/utils';
 
@@ -40,18 +39,11 @@ function buildPasswordJwt(username: string, address: string) {
 }
 
 async function provisionWallet(address: string, username: string, privateKey: string) {
-  // Prefer WaaS; fallback to legacy client if configured
-  if (process.env.WAAS_BASE_URL) {
-    return waasClient.createWallet({
-      ownerId: address,
-      ownerType: 'MS',
-      chainName: 'base',
-      meta: { username, loginMethod: 'MetaSoccer' },
-      privateKey,
-    });
+  if (!process.env.WAAS_BASE_URL) {
+    throw new Error('WAAS_BASE_URL is not set; WaaS is required');
   }
 
-  return walletClient.createWallet({
+  return waasClient.createWallet({
     ownerId: address,
     ownerType: 'MS',
     chainName: 'base',

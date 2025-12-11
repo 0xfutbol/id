@@ -155,24 +155,28 @@ export const authController = {
     }
   },
 
-  // Check for pre-existing username
+  // Check for pre-existing username or address ownership
   checkPre: async (req: Request, res: Response) => {
-    const { address } = req.body;
+    const { address, username } = req.body;
 
-    if (!address) {
-      return res.status(400).json({ error: 'Address is required' });
+    if (!address && !username) {
+      return res.status(400).json({ error: 'Address or username is required' });
     }
 
     try {
-      const user = await getUserByAddress(address);
-
-      if (user) {
-        res.json({ username: user.username });
-      } else {
-        res.json({ username: null });
+      if (address) {
+        const user = await getUserByAddress(address);
+        return res.json({ username: user ? user.username : null });
       }
+
+      if (username) {
+        const userByUsername = await getUserByUsername(username);
+        return res.json({ exists: Boolean(userByUsername) });
+      }
+
+      return res.status(400).json({ error: 'Invalid request' });
     } catch (error) {
-      console.error('Error checking address:', error);
+      console.error('Error checking pre:', error);
       res.status(500).json({ error: 'Internal server error' });
     }
   },
