@@ -45,7 +45,7 @@ async function provisionWallet(address: string, username: string, privateKey: st
 
   return waasClient.createWallet({
     ownerId: address,
-    ownerType: 'MS',
+    ownerType: 'USER',
     chainName: 'base',
     meta: { username, loginMethod: 'MetaSoccer' },
     privateKey,
