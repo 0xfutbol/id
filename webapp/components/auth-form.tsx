@@ -78,14 +78,19 @@ const AuthForm: React.FC = () => {
       const trimmedUsername = username.trim().toLowerCase();
       if (!trimmedUsername) throw new Error("Username is required");
 
-      const exists = waasExists ?? await checkUsernameExists(trimmedUsername);
+      const exists = await checkUsernameExists(trimmedUsername);
+      setWaasExists(exists);
 
       if (!waasPassword) {
         throw new Error("Password is required");
       }
 
-      if (!exists && waasPassword !== waasPasswordConfirm) {
+      if (exists === false && waasPassword !== waasPasswordConfirm) {
         throw new Error("Passwords do not match");
+      }
+
+      if (exists === undefined) {
+        throw new Error("Unable to determine username status. Please try again.");
       }
 
       const payload = exists
@@ -277,7 +282,8 @@ const AuthForm: React.FC = () => {
                 <div className="flex gap-2">
                   <Button
                     className="w-full"
-                    isLoading={waasLoading || isWaitingForSignature}
+                    isLoading={waasLoading || isWaitingForSignature || waasCheckingUsername}
+                    isDisabled={waasCheckingUsername}
                     onClick={handleWaasSubmit}
                     color="primary"
                   >
