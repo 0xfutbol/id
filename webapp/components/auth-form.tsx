@@ -115,19 +115,19 @@ const AuthForm: React.FC = () => {
     }
   }, [API_CONFIG.waasBaseUrl, checkUsernameExists, loginWithWaas, username, waasExists, waasPassword, waasPasswordConfirm, waasStage]);
 
-  const waasIntroCopy = "Access the 0xFútbol Hub with a single ID. Tell us your username and we\'ll guide you.";
+  const waasIntroCopy = "Sign in to the 0xFútbol Hub with your ID. Start with your username and we\'ll guide you.";
 
   const waasHint = useMemo(() => {
     const trimmed = username.trim();
     if (waasCheckingUsername) return "Checking username...";
-    if (waasStage === "username") return "Enter your username to continue with 0xFútbol WaaS.";
+    if (waasStage === "username") return "Enter your 0xFútbol username to keep going.";
     if (waasExists === undefined) return "Checking username...";
     if (waasExists) return trimmed ? `We found ${trimmed}. Enter your password to continue.` : "We found your username. Enter your password to continue.";
     return "This username is available. Create a password to sign up.";
   }, [username, waasCheckingUsername, waasStage, waasExists]);
 
   return (
-    <div className="flex flex-col items-center gap-8 max-w-[386px] py-8">
+    <div className="flex flex-col items-center gap-8 w-full max-w-[386px] py-8">
       <Image
         alt="0xFútbol ID"
         className="h-10 w-auto"
@@ -136,7 +136,7 @@ const AuthForm: React.FC = () => {
       />
       <AuthUIOrchestrator
         claimComponent={({ error, isLoading, isTakingLong, onClaimClick, onDisconnectClick }) => (
-          <div className="flex flex-col gap-4 p-4">
+          <div className="flex flex-col gap-4 p-4 w-full">
             <div className="flex items-start gap-2">
               <p className="text-sm">
                 0xFútbol ID is your unique identifier in the 0xFútbol Hub—think of it like your username for any
@@ -148,7 +148,7 @@ const AuthForm: React.FC = () => {
                 e.preventDefault();
                 onClaimClick(username);
               }}
-              className="flex flex-col gap-4"
+              className="flex flex-col gap-4 w-full"
             >
               <Input
                 label="Enter your desired username"
@@ -188,9 +188,8 @@ const AuthForm: React.FC = () => {
           </div>
         )}
         waasComponent={({ isWaitingForSignature, onShowOtherOptions, onHideOtherOptions, showOtherOptions }) => (
-          <div className="flex flex-col gap-5 p-4 w-full">
+          <div className="flex flex-col gap-4 p-4 w-full">
             <div className="flex flex-col gap-2">
-              <p className="text-sm font-semibold">MetaSoccer WaaS</p>
               <p className="text-xs text-gray-500">{waasIntroCopy}</p>
               <p className="text-xs text-gray-500">{waasHint}</p>
             </div>
@@ -200,6 +199,7 @@ const AuthForm: React.FC = () => {
               value={username}
               onChange={handleUsernameChange}
               isDisabled={waasLoading || waasCheckingUsername}
+              className="w-full"
             />
             {waasStage === "password" && (
               <Input
@@ -210,6 +210,7 @@ const AuthForm: React.FC = () => {
                 onChange={(e) => setWaasPassword(e.target.value)}
                 isDisabled={waasLoading}
                 ref={passwordInputRef}
+                className="w-full"
               />
             )}
             {waasStage === "password" && waasExists === false && (
@@ -220,10 +221,11 @@ const AuthForm: React.FC = () => {
                 value={waasPasswordConfirm}
                 onChange={(e) => setWaasPasswordConfirm(e.target.value)}
                 isDisabled={waasLoading}
+                className="w-full"
               />
             )}
             {waasError && <p className="text-xs text-danger">{waasError}</p>}
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col gap-4">
               <Button
                 className="w-full"
                 isLoading={waasLoading || isWaitingForSignature || waasCheckingUsername}
@@ -266,7 +268,6 @@ const AuthForm: React.FC = () => {
         )}
         otherOptionsComponent={({ WALLET_OPTIONS, isWaitingForSignature, onConnectClick, onHide }) => (
           <div className="flex flex-col gap-4 p-4 w-full">
-            <p className="text-sm">Other options</p>
             <Listbox aria-label="Wallet Options" className="p-0 gap-1 my-2">
               {WALLET_OPTIONS.map((option: any) => (
                 <ListboxItem
