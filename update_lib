@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+LIB_DIR="${ROOT_DIR}/lib"
+WEBAPP_DIR="${ROOT_DIR}/webapp"
+
+if ! npm whoami >/dev/null 2>&1; then
+  echo "Not logged into npm; running npm login..."
+  npm login
+fi
+
+cd "$LIB_DIR"
+echo "Publishing @0xfutbol/id from ${LIB_DIR}..."
+OLD_VERSION="$(node -p "require('./package.json').version")"
+npm publish
+NEW_VERSION="$(node -p "require('./package.json').version")"
+echo "Published @0xfutbol/id ${OLD_VERSION} -> ${NEW_VERSION}"
+
+cd "$WEBAPP_DIR"
+echo "Updating webapp dependency to @0xfutbol/id@${NEW_VERSION}..."
+yarn add "@0xfutbol/id@^${NEW_VERSION}"
+
+echo "Installing webapp dependencies with Yarn..."
+yarn install
+
+echo "Done."

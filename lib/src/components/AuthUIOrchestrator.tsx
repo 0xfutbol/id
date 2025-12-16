@@ -10,15 +10,24 @@ interface AuthUIOrchestratorProps {
     onClaimClick: (username: string, email?: string) => Promise<void>;
     onDisconnectClick: (walletKey: string) => void;
   }) => JSX.Element;
-  connectComponent: (props: {
+  waasComponent: (props: {
+    isWaitingForSignature: boolean;
+    onShowOtherOptions: () => void;
+    onHideOtherOptions: () => void;
+    showOtherOptions: boolean;
+  }) => JSX.Element;
+  otherOptionsComponent: (props: {
     WALLET_OPTIONS: typeof WALLET_OPTIONS;
     isWaitingForSignature: boolean;
     onConnectClick: (walletKey: string) => void;
+    onHide: () => void;
   }) => JSX.Element;
 }
 
-export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIOrchestratorProps) {
+export function AuthUIOrchestrator({ claimComponent, waasComponent, otherOptionsComponent }: AuthUIOrchestratorProps) {
   const { isClaimPending, isWaitingForSignature, claim, connect, disconnect } = useOxFutbolIdContext();
+
+  const [showOtherOptions, setShowOtherOptions] = useState(false);
 
   const [error, setError] = useState<string | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -59,6 +68,20 @@ export function AuthUIOrchestrator({ claimComponent, connectComponent }: AuthUIO
   if (isClaimPending) {
     return claimComponent({ error, isLoading, isTakingLong, onClaimClick, onDisconnectClick });
   } else {
-    return connectComponent({ WALLET_OPTIONS, isWaitingForSignature, onConnectClick });
+    const otherWalletOptions = WALLET_OPTIONS.filter((option) => option.key !== "metasoccer-waas");
+
+    return showOtherOptions
+      ? otherOptionsComponent({
+        WALLET_OPTIONS: otherWalletOptions,
+        isWaitingForSignature,
+        onConnectClick,
+        onHide: () => setShowOtherOptions(false)
+      })
+      : waasComponent({
+        isWaitingForSignature,
+        onShowOtherOptions: () => setShowOtherOptions(true),
+        onHideOtherOptions: () => setShowOtherOptions(false),
+        showOtherOptions,
+      });
   }
 }

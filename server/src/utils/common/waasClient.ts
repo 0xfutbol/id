@@ -10,6 +10,9 @@ if (!waasBaseUrl) {
 const client = axios.create({
   baseURL: waasBaseUrl,
   timeout: 10000,
+  headers: {
+    'User-Agent': 'metasoccer-backend/1.0',
+  },
 });
 
 export const waasClient = {
@@ -29,12 +32,14 @@ export const waasClient = {
 
   async createSession(walletId: string, msidJwt: string) {
     if (!waasBaseUrl) throw new Error('WAAS_BASE_URL is not set');
+    if (!waasInternalToken) throw new Error('WAAS_INTERNAL_TOKEN is not set');
     const response = await client.post(
       '/sessions',
       { walletId },
       {
         headers: {
           Authorization: `Bearer ${msidJwt}`,
+          'x-internal-token': waasInternalToken,
         },
       },
     );

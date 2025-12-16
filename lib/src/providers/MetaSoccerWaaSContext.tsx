@@ -57,29 +57,45 @@ const useMetaSoccerWaaSContextState = (chains: Array<ChainName>) => {
   const chainIdRef = useRef<number | undefined>(undefined);
 
   const [signer, setSigner] = useState<Record<ChainName, Signer> | undefined>(undefined);
-  const [status, setStatus] = useState<"connected" | "disconnected" | "unknown">("disconnected");
+  const [status, setStatus] = useState<"connected" | "connecting" | "disconnected" | "unknown">("disconnected");
 
   const connect = useCallback(async (params: ConnectParams) => {
-    waasService.current = new WaasService(params.waasBaseUrl, params.waasSessionToken);
-    walletIdRef.current = params.walletId;
-    walletAddressRef.current = params.walletAddress;
-    chainIdRef.current = params.chainId;
+    const { waasBaseUrl, waasSessionToken, walletId, walletAddress } = params;
+    if (!waasBaseUrl || !waasSessionToken || !walletId || !walletAddress) {
+      throw new Error("Missing WaaS session data");
+    }
 
-    const signers = chains.reduce((acc, chainName) => {
-      acc[chainName] = createMetaSoccerWaaSSigner({
-        chain: chainName,
-        chainId: chainIdRef.current,
-        waasBaseUrl: params.waasBaseUrl,
-        waasSessionToken: params.waasSessionToken,
-        walletAddress: params.walletAddress,
-        walletId: params.walletId,
-        waasService: waasService.current,
-      });
-      return acc;
-    }, {} as Record<ChainName, Signer>);
+    setStatus("connecting");
+    try {
+      waasService.current = new WaasService(waasBaseUrl, waasSessionToken);
+      walletIdRef.current = walletId;
+      walletAddressRef.current = walletAddress;
+      chainIdRef.current = params.chainId;
 
-    setSigner(signers);
-    setStatus("connected");
+      const signers = chains.reduce((acc, chainName) => {
+        acc[chainName] = createMetaSoccerWaaSSigner({
+          chain: chainName,
+          chainId: chainIdRef.current,
+          waasBaseUrl,
+          waasSessionToken,
+          walletAddress,
+          walletId,
+          waasService: waasService.current,
+        });
+        return acc;
+      }, {} as Record<ChainName, Signer>);
+
+      setSigner(signers);
+      setStatus("connected");
+    } catch (err) {
+      waasService.current = undefined;
+      walletIdRef.current = undefined;
+      walletAddressRef.current = undefined;
+      chainIdRef.current = undefined;
+      setSigner(undefined);
+      setStatus("disconnected");
+      throw err;
+    }
   }, [chains]);
 
   const disconnect = useCallback(async () => {
@@ -112,7 +128,7 @@ const useMetaSoccerWaaSContextState = (chains: Array<ChainName>) => {
     chainId: chainIdRef.current,
     signer,
     status,
-    web3Ready: (status === "connected" && signer !== undefined) || status === "disconnected",
+    web3Ready: status === "connected" ? signer !== undefined : status === "disconnected",
     connect,
     disconnect,
     nativeBalanceOf,

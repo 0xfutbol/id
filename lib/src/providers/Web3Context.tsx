@@ -196,7 +196,9 @@ const useWeb3ContextState = (chains: Array<ChainName>, sponsorGas?: boolean): We
     } else if (walletProvider === "metasoccer-waas") {
       await metaSoccerWaaSContext.disconnect();
     } else {
-      throw new Error(`Invalid provider: ${walletProvider}`);
+      // Nothing to disconnect for unknown provider state; just reset
+      setWalletProvider("unknown");
+      return;
     }
   }, [matchIdContext, metaSoccerWaaSContext, thirdwebContext, walletProvider]);
 
