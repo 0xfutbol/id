@@ -190,8 +190,8 @@ const AuthForm: React.FC = () => {
         waasComponent={({ isWaitingForSignature, onShowOtherOptions, onHideOtherOptions, showOtherOptions }) => (
           <div className="flex flex-col gap-4 p-4 w-full">
             <div className="flex flex-col gap-2">
-              <p className="text-xs text-gray-500">{waasIntroCopy}</p>
-              <p className="text-xs text-gray-500">{waasHint}</p>
+              <p className="text-sm text-gray-600">{waasIntroCopy}</p>
+              <p className="text-sm text-gray-600">{waasHint}</p>
             </div>
             <Input
               label="Username"
