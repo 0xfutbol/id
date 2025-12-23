@@ -26,9 +26,10 @@ export class AuthService {
 		}
 	}
 
-	async pre(address: string): Promise<{ claimed: boolean, username?: string }> {
+	async pre(params: string | { address?: string; username?: string }): Promise<{ claimed?: boolean; username?: string; exists?: boolean }> {
 		try {
-			const response = await this.httpClient.post("/pre", { address });
+			const body = typeof params === "string" ? { address: params } : params;
+			const response = await this.httpClient.post("/pre", body);
 			return response.data;
 		} catch (err) {
 			throw err;

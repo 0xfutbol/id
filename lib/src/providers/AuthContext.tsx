@@ -224,6 +224,7 @@ const useAuthContextState = (backendUrl: string, chainToSign: ChainName) => {
     isWaitingForSignature,
     username: jwtPayload?.username,
     userClaims: jwtPayload?.claims,
+    backendUrl,
     claim,
     loginWithWaas,
   };

@@ -1,11 +1,9 @@
 "use client";
 
-import axios from "axios";
-import { AuthUIOrchestrator, useOxFutbolIdContext } from "@0xfutbol/id";
+import { AuthUIOrchestrator, useWaasPasswordFlow } from "@0xfutbol/id";
 import { Button, Form, Image, Input, Listbox, ListboxItem } from "@heroui/react";
-import React, { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { FormEvent, useCallback, useEffect, useRef } from "react";
 
-import { authService } from "@/modules/auth/auth-service";
 import { selectUsername, setUsername } from "@/store/features/auth";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { getImgUrl } from "@/utils/getImgUrl";
@@ -13,118 +11,41 @@ import { API_CONFIG } from "@/config/api";
 
 const AuthForm: React.FC = () => {
   const dispatch = useAppDispatch();
-  const username = useAppSelector(selectUsername);
-  const { loginWithWaas } = useOxFutbolIdContext();
+  const storedUsername = useAppSelector(selectUsername);
 
-  const [waasPassword, setWaasPassword] = useState("");
-  const [waasPasswordConfirm, setWaasPasswordConfirm] = useState("");
-  const [waasExists, setWaasExists] = useState<boolean | undefined>(undefined);
-  const [waasStage, setWaasStage] = useState<"username" | "password">("username");
-  const [waasError, setWaasError] = useState<string | undefined>(undefined);
-  const [waasLoading, setWaasLoading] = useState(false);
-  const [waasCheckingUsername, setWaasCheckingUsername] = useState(false);
+  const {
+    checking: waasCheckingUsername,
+    error: waasError,
+    exists: waasExists,
+    hint: waasHint,
+    introCopy: waasIntroCopy,
+    loading: waasLoading,
+    password: waasPassword,
+    passwordConfirm: waasPasswordConfirm,
+    reset: resetWaasFlow,
+    setPassword: setWaasPassword,
+    setPasswordConfirm: setWaasPasswordConfirm,
+    setUsername: setWaasUsername,
+    stage: waasStage,
+    submit: handleWaasSubmit,
+    username,
+  } = useWaasPasswordFlow({
+    waasBaseUrl: API_CONFIG.waasBaseUrl,
+    initialUsername: storedUsername,
+    onUsernameChange: (value) => dispatch(setUsername(value)),
+  });
+
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
 
   const handleUsernameChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    const newUsername = e.target.value.replace(/\s+/g, "-");
-    dispatch(setUsername(newUsername));
-    setWaasExists(undefined);
-    setWaasError(undefined);
-    setWaasPassword("");
-    setWaasPasswordConfirm("");
-    setWaasStage("username");
-  }, [dispatch]);
+    setWaasUsername(e.target.value);
+  }, [setWaasUsername]);
 
   useEffect(() => {
     if (waasStage === "password" && passwordInputRef.current) {
       passwordInputRef.current.focus();
     }
   }, [waasStage]);
-
-  const checkUsernameExists = useCallback(async (name: string) => {
-    const trimmed = name.trim().toLowerCase();
-    if (!trimmed) return undefined;
-    const { data } = await axios.post(`${API_CONFIG.backendUrl}/auth/pre`, { username: trimmed });
-    return Boolean(data?.exists);
-  }, []);
-
-  const handleWaasSubmit = useCallback(async () => {
-    setWaasError(undefined);
-    try {
-      if (!loginWithWaas) throw new Error("WaaS login is not available");
-      if (!API_CONFIG.waasBaseUrl) throw new Error("WaaS base URL is not configured");
-
-      const trimmedUsername = username.trim().toLowerCase();
-      if (!trimmedUsername) throw new Error("Username is required");
-
-      if (waasStage === "username") {
-        setWaasCheckingUsername(true);
-        const exists = await checkUsernameExists(trimmedUsername);
-        setWaasExists(exists);
-        setWaasStage("password");
-        return;
-      }
-
-      setWaasLoading(true);
-
-      const exists = waasExists ?? await checkUsernameExists(trimmedUsername);
-      setWaasExists(exists);
-
-      if (!waasPassword) {
-        throw new Error("Password is required");
-      }
-
-      if (exists === false && waasPassword !== waasPasswordConfirm) {
-        throw new Error("Passwords do not match");
-      }
-
-      if (exists === undefined) {
-        throw new Error("Unable to determine username status. Please try again.");
-      }
-
-      const payload = exists
-        ? await authService.loginPassword(trimmedUsername, waasPassword)
-        : await authService.registerPassword(trimmedUsername, waasPassword);
-
-      const walletId = (payload as any).walletId ?? (payload as any).wallet?.id;
-      const walletAddress = (payload as any).walletAddress ?? (payload as any).wallet?.address;
-      const waasSessionToken = (payload as any).waasSessionToken;
-
-      if (!walletId || !walletAddress || !waasSessionToken) {
-        throw new Error("Missing WaaS session data from server");
-      }
-
-      await loginWithWaas({
-        jwt: payload.token,
-        walletId,
-        walletAddress,
-        waasBaseUrl: API_CONFIG.waasBaseUrl,
-        waasSessionToken,
-      });
-
-      setWaasPassword("");
-      setWaasPasswordConfirm("");
-      setWaasExists(undefined);
-      setWaasStage("username");
-    } catch (err: any) {
-      console.error("[AuthForm] WaaS auth error:", err);
-      setWaasError(err?.response?.data?.error ?? err.message ?? "An error occurred");
-    } finally {
-      setWaasLoading(false);
-      setWaasCheckingUsername(false);
-    }
-  }, [API_CONFIG.waasBaseUrl, checkUsernameExists, loginWithWaas, username, waasExists, waasPassword, waasPasswordConfirm, waasStage]);
-
-  const waasIntroCopy = "Sign in to the 0xFútbol Hub with your ID. Start with your username and we\'ll guide you.";
-
-  const waasHint = useMemo(() => {
-    const trimmed = username.trim();
-    if (waasCheckingUsername) return "Checking username...";
-    if (waasStage === "username") return "Enter your 0xFútbol username to keep going.";
-    if (waasExists === undefined) return "Checking username...";
-    if (waasExists) return trimmed ? `We found ${trimmed}. Enter your password to continue.` : "We found your username. Enter your password to continue.";
-    return "This username is available. Create a password to sign up.";
-  }, [username, waasCheckingUsername, waasStage, waasExists]);
 
   return (
     <div className="flex flex-col items-center gap-8 w-full max-w-[386px] py-8">
@@ -253,11 +174,7 @@ const AuthForm: React.FC = () => {
                   isDisabled={isWaitingForSignature}
                   onClick={() => {
                     onShowOtherOptions();
-                    setWaasError(undefined);
-                    setWaasExists(undefined);
-                    setWaasStage("username");
-                    setWaasPassword("");
-                    setWaasPasswordConfirm("");
+                    resetWaasFlow();
                   }}
                 >
                   Other options
