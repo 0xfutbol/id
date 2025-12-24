@@ -35,30 +35,48 @@ export class MetaSoccerWaaSSigner extends Signer {
   }
 
   async getBalance(_blockTag?: BlockTag): Promise<BigNumber> {
-    throw new Error("getBalance is not supported for WaaS signer");
+    const chainId = await this.getChainId();
+    const { balanceWei } = await this.waas.getNativeBalance(this.walletId, chainId);
+    return BigNumber.from(balanceWei);
   }
 
   async getTransactionCount(_blockTag?: BlockTag): Promise<number> {
-    throw new Error("getTransactionCount is not supported for WaaS signer");
+    const chainId = await this.getChainId();
+    const { nonce } = await this.waas.getTransactionCount(this.walletId, chainId);
+    return nonce;
   }
 
   async estimateGas(_transaction: Deferrable<TransactionRequest>): Promise<BigNumber> {
-    throw new Error("estimateGas is not supported for WaaS signer");
+    const { tx, chainId } = await this.prepareTransaction(_transaction);
+    if (!tx.to) {
+      throw new Error("Transaction 'to' is required");
+    }
+    const params = this.toRpcParams(tx, chainId);
+    const { gasLimitWei } = await this.waas.estimateGas(this.walletId, params);
+    return BigNumber.from(gasLimitWei);
   }
 
   async call(_transaction: Deferrable<TransactionRequest>, _blockTag?: BlockTag): Promise<string> {
-    throw new Error("call is not supported for WaaS signer");
+    if (_blockTag && _blockTag !== "latest") {
+      throw new Error("Custom block tags are not supported for WaaS signer");
+    }
+    const { tx, chainId } = await this.prepareTransaction(_transaction);
+    if (!tx.to) {
+      throw new Error("Transaction 'to' is required");
+    }
+    const params = this.toRpcParams(tx, chainId);
+    const { result } = await this.waas.call(this.walletId, params);
+    return result;
   }
 
   async sendTransaction(transaction: Deferrable<TransactionRequest>): Promise<TransactionResponse> {
-    const tx = await utils.resolveProperties(transaction);
-
+    const { tx } = await this.prepareTransaction(transaction);
     if (!tx.to) {
       throw new Error("Transaction 'to' is required");
     }
 
     const data = tx.data && tx.data !== "0x" ? tx.data.toString() : undefined;
-    const valueWei = tx.value ? tx.value.toString() : "0";
+    const valueWei = tx.value !== undefined ? BigNumber.from(tx.value).toString() : "0";
     const txHash = data
       ? (await this.waas.callContract(this.walletId, tx.to.toString(), data, valueWei)).txHash
       : (await this.waas.sendNative(this.walletId, tx.to.toString(), valueWei)).txHash;
@@ -85,11 +103,20 @@ export class MetaSoccerWaaSSigner extends Signer {
   }
 
   async getGasPrice(): Promise<BigNumber> {
-    throw new Error("getGasPrice is not supported for WaaS signer");
+    const chainId = await this.getChainId();
+    const { gasPriceWei } = await this.waas.getGasPrice(this.walletId, chainId);
+    return BigNumber.from(gasPriceWei);
   }
 
   async getFeeData(): Promise<FeeData> {
-    throw new Error("getFeeData is not supported for WaaS signer");
+    const chainId = await this.getChainId();
+    const feeData = await this.waas.getFeeData(this.walletId, chainId);
+    return {
+      gasPrice: feeData.gasPriceWei ? BigNumber.from(feeData.gasPriceWei) : null,
+      maxFeePerGas: feeData.maxFeePerGasWei ? BigNumber.from(feeData.maxFeePerGasWei) : null,
+      maxPriorityFeePerGas: feeData.maxPriorityFeePerGasWei ? BigNumber.from(feeData.maxPriorityFeePerGasWei) : null,
+      lastBaseFeePerGas: feeData.lastBaseFeePerGasWei ? BigNumber.from(feeData.lastBaseFeePerGasWei) : null,
+    };
   }
 
   async resolveName(_name: string): Promise<string> {
@@ -97,11 +124,76 @@ export class MetaSoccerWaaSSigner extends Signer {
   }
 
   checkTransaction(transaction: Deferrable<TransactionRequest>): Deferrable<TransactionRequest> {
+    const from = (transaction as any)?.from;
+    if (from && from.toString().toLowerCase() !== this.address.toLowerCase()) {
+      throw new Error("WaaS signer can only operate from its configured address");
+    }
     return transaction;
   }
 
   async populateTransaction(_transaction: Deferrable<TransactionRequest>): Promise<TransactionRequest> {
-    throw new Error("populateTransaction is not supported for WaaS signer");
+    const { tx, chainId } = await this.prepareTransaction(_transaction, { requireTo: false });
+    if (!tx.to) {
+      throw new Error("Transaction 'to' is required");
+    }
+
+    if (tx.nonce === undefined) {
+      tx.nonce = await this.getTransactionCount();
+    }
+
+    if (!tx.gasLimit) {
+      try {
+        tx.gasLimit = await this.estimateGas(tx);
+      } catch (error) {
+        console.warn("[MetaSoccerWaaSSigner] Failed to estimate gas", error);
+      }
+    }
+
+    if (!tx.gasPrice && tx.maxFeePerGas === undefined && tx.maxPriorityFeePerGas === undefined) {
+      const feeData = await this.getFeeData();
+      if (feeData.maxFeePerGas && feeData.maxPriorityFeePerGas) {
+        tx.maxFeePerGas = feeData.maxFeePerGas;
+        tx.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+      } else if (feeData.gasPrice) {
+        tx.gasPrice = feeData.gasPrice;
+      }
+    }
+
+    tx.chainId = chainId;
+
+    return tx;
+  }
+
+  private async prepareTransaction(
+    transaction: Deferrable<TransactionRequest>,
+    options: { requireTo?: boolean } = { requireTo: true },
+  ): Promise<{ tx: TransactionRequest; chainId: number }> {
+    const tx = await utils.resolveProperties(transaction);
+    const chainId = tx.chainId ?? (await this.getChainId());
+    const from = (tx.from ?? this.address).toString();
+    if (from.toLowerCase() !== this.address.toLowerCase()) {
+      throw new Error("WaaS signer can only operate from its configured address");
+    }
+    if (options.requireTo && !tx.to) {
+      throw new Error("Transaction 'to' is required");
+    }
+
+    return { tx: { ...tx, from, chainId }, chainId };
+  }
+
+  private toRpcParams(tx: TransactionRequest, chainId: number) {
+    return {
+      chainId,
+      toAddress: tx.to?.toString() ?? "",
+      data: tx.data ? tx.data.toString() : undefined,
+      valueWei: tx.value !== undefined ? BigNumber.from(tx.value).toString() : undefined,
+      gasLimit: tx.gasLimit !== undefined ? BigNumber.from(tx.gasLimit).toString() : undefined,
+      gasPriceWei: tx.gasPrice !== undefined ? BigNumber.from(tx.gasPrice).toString() : undefined,
+      maxFeePerGasWei: tx.maxFeePerGas !== undefined ? BigNumber.from(tx.maxFeePerGas).toString() : undefined,
+      maxPriorityFeePerGasWei:
+        tx.maxPriorityFeePerGas !== undefined ? BigNumber.from(tx.maxPriorityFeePerGas).toString() : undefined,
+      nonce: tx.nonce !== undefined ? BigNumber.from(tx.nonce).toNumber() : undefined,
+    };
   }
 
   async signTypedData(

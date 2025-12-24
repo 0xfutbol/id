@@ -45,6 +45,51 @@ export class WaasService {
     return this.post<{ balanceWei: string }>(`/wallets/${walletId}/balance/native`, { chainId });
   }
 
+  getTransactionCount(walletId: string, chainId: number) {
+    return this.post<{ nonce: number }>(`/wallets/${walletId}/transaction-count`, { chainId });
+  }
+
+  estimateGas(walletId: string, params: {
+    chainId: number;
+    toAddress: string;
+    data?: string;
+    valueWei?: string;
+    gasLimit?: string;
+    gasPriceWei?: string;
+    maxFeePerGasWei?: string;
+    maxPriorityFeePerGasWei?: string;
+    nonce?: number;
+  }) {
+    return this.post<{ gasLimitWei: string }>(`/wallets/${walletId}/estimate-gas`, params);
+  }
+
+  call(walletId: string, params: {
+    chainId: number;
+    toAddress: string;
+    data?: string;
+    valueWei?: string;
+    gasLimit?: string;
+    gasPriceWei?: string;
+    maxFeePerGasWei?: string;
+    maxPriorityFeePerGasWei?: string;
+    nonce?: number;
+  }) {
+    return this.post<{ result: string }>(`/wallets/${walletId}/call`, params);
+  }
+
+  getGasPrice(walletId: string, chainId: number) {
+    return this.post<{ gasPriceWei: string }>(`/wallets/${walletId}/gas-price`, { chainId });
+  }
+
+  getFeeData(walletId: string, chainId: number) {
+    return this.post<{
+      gasPriceWei?: string;
+      maxFeePerGasWei?: string;
+      maxPriorityFeePerGasWei?: string;
+      lastBaseFeePerGasWei?: string;
+    }>(`/wallets/${walletId}/fee-data`, { chainId });
+  }
+
   switchChain(walletId: string, chainId: number) {
     return this.post<{ chainId: number }>(`/wallets/${walletId}/switch-chain`, { chainId });
   }
